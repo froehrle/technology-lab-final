@@ -86,11 +86,6 @@ const FarmStoreItem: React.FC<FarmStoreItemProps> = ({
                 <Badge className={cn("text-xs", getTypeColor(item.type))}>
                   {getTypeIcon(item.type)} {item.type}
                 </Badge>
-                {item.rarity !== 'common' && (
-                  <Badge variant="outline" className="text-xs">
-                    {item.rarity}
-                  </Badge>
-                )}
               </div>
             </div>
           </div>
