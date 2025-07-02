@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
@@ -8,12 +7,15 @@ import { LogOut, User, BookOpen, LayoutDashboard, GraduationCap, Trophy, Shoppin
 import { Link, useLocation } from 'react-router-dom';
 import CustomAvatar from '@/components/avatar/CustomAvatar';
 import CoinBalance from '@/components/store/CoinBalance';
-
 const Header = () => {
-  const { user, signOut } = useAuth();
-  const { profile } = useProfile();
+  const {
+    user,
+    signOut
+  } = useAuth();
+  const {
+    profile
+  } = useProfile();
   const location = useLocation();
-
   const handleSignOut = async () => {
     await signOut();
   };
@@ -22,15 +24,12 @@ const Header = () => {
   if (location.pathname === '/auth') {
     return null;
   }
-
   const isTeacher = user?.user_metadata?.role === 'teacher';
   const isStudent = user?.user_metadata?.role === 'student';
-
-  return (
-    <header className="bg-white shadow-sm border-b">
+  return <header className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link to={user ? (isTeacher ? "/teacher-dashboard" : "/dashboard") : "/"} className="flex items-center space-x-2">
+          <Link to={user ? isTeacher ? "/teacher-dashboard" : "/dashboard" : "/"} className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">CL</span>
             </div>
@@ -38,51 +37,31 @@ const Header = () => {
           </Link>
 
           <div className="flex items-center space-x-4">
-            {user ? (
-              <>
+            {user ? <>
                 {/* Navigation for authenticated users */}
                 <nav className="hidden md:flex items-center space-x-4">
-                  {isTeacher && (
-                    <Link 
-                      to="/teacher-dashboard" 
-                      className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                    >
+                  {isTeacher && <Link to="/teacher-dashboard" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                       <GraduationCap className="h-4 w-4" />
                       <span>Dashboard</span>
-                    </Link>
-                  )}
-                  {isStudent && (
-                    <>
-                      <Link 
-                        to="/dashboard" 
-                        className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                      >
+                    </Link>}
+                  {isStudent && <>
+                      <Link to="/dashboard" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <LayoutDashboard className="h-4 w-4" />
                         <span>Dashboard</span>
                       </Link>
-                      <Link 
-                        to="/courses" 
-                        className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                      >
+                      <Link to="/courses" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <BookOpen className="h-4 w-4" />
                         <span>Kurse</span>
                       </Link>
-                      <Link 
-                        to="/leaderboard" 
-                        className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                      >
+                      <Link to="/leaderboard" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <Trophy className="h-4 w-4" />
                         <span>Rangliste</span>
                       </Link>
-                      <Link 
-                        to="/avatar-store" 
-                        className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                      >
+                      <Link to="/avatar-store" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <ShoppingBag className="h-4 w-4" />
-                        <span>Avatar Shop</span>
+                        <span>Shop</span>
                       </Link>
-                    </>
-                  )}
+                    </>}
                 </nav>
 
                 {/* Coin Balance for students */}
@@ -91,11 +70,7 @@ const Header = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <CustomAvatar 
-                        src={profile?.avatar_url}
-                        fallback={user?.email?.charAt(0).toUpperCase() || 'U'}
-                        className="h-8 w-8"
-                      />
+                      <CustomAvatar src={profile?.avatar_url} fallback={user?.email?.charAt(0).toUpperCase() || 'U'} className="h-8 w-8" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -115,17 +90,12 @@ const Header = () => {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </>
-            ) : (
-              <Link to="/auth">
+              </> : <Link to="/auth">
                 <Button>Anmelden</Button>
-              </Link>
-            )}
+              </Link>}
           </div>
         </div>
       </div>
-    </header>
-  );
+    </header>;
 };
-
 export default Header;
