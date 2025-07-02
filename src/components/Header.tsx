@@ -38,7 +38,7 @@ const Header = () => {
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">CL</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">CourseLingo</span>
+            <span className="text-xl font-bold text-gray-900">DuoQuanto</span>
           </Link>
 
           <div className="flex items-center space-x-4">
@@ -65,6 +65,10 @@ const Header = () => {
                       <Link to="/avatar-store" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <DuolingoShopIcon size={20} />
                         <span>Shop</span>
+                      </Link>
+                      <Link to="/profile" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                        <DuolingoProfileIcon size={20} />
+                        <span>Profil</span>
                       </Link>
                     </>}
                 </nav>
