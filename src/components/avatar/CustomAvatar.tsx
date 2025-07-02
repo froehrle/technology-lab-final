@@ -10,7 +10,19 @@ interface CustomAvatarProps {
 }
 
 const CustomAvatar = ({ src, fallback, className }: CustomAvatarProps) => {
-  const { equippedItems } = useAvatarItems();
+  const { equippedItems, loading } = useAvatarItems();
+
+  // Don't apply custom styles while loading to prevent flashing
+  if (loading) {
+    return (
+      <Avatar className={className}>
+        <AvatarImage src={src || undefined} />
+        <AvatarFallback className="font-medium">
+          {fallback}
+        </AvatarFallback>
+      </Avatar>
+    );
+  }
 
   const avatarClasses = cn(
     "relative",

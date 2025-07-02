@@ -432,7 +432,22 @@ export type Database = {
           student_id?: string
           theme_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "student_purchases_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "avatar_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_purchases_theme_id_fkey"
+            columns: ["theme_id"]
+            isOneToOne: false
+            referencedRelation: "app_themes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       student_xp: {
         Row: {
