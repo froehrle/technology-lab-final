@@ -9,6 +9,8 @@ import AuthGuard from "@/components/AuthGuard";
 import Header from "@/components/Header";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import StudentDashboard from "./pages/StudentDashboard";
+import StudentCourses from "./pages/StudentCourses";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +31,22 @@ const App = () => (
                 element={
                   <AuthGuard requireAuth={false}>
                     <Auth />
+                  </AuthGuard>
+                } 
+              />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <AuthGuard requireAuth={true} allowedRoles={['student']}>
+                    <StudentDashboard />
+                  </AuthGuard>
+                } 
+              />
+              <Route 
+                path="/courses" 
+                element={
+                  <AuthGuard requireAuth={true} allowedRoles={['student']}>
+                    <StudentCourses />
                   </AuthGuard>
                 } 
               />
