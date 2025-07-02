@@ -1,15 +1,15 @@
 
 import { useQuizState } from './useQuizState';
 import { useAchievements } from './useAchievements';
+import { useAnswerValidation } from './useAnswerValidation';
+import { useQuizNavigation } from './useQuizNavigation';
+import { useQuizTimer } from './useQuizTimer';
 import { calculateXP, calculateNewFocusPoints, shouldAllowProceed } from '@/utils/quizScoring';
-import { showAnswerFeedback, showQuizCompletionToast } from '@/utils/quizFeedback';
-import { validateAnswerExternal } from '@/utils/externalValidation';
-import { useState } from 'react';
+import { showAnswerFeedback } from '@/utils/quizFeedback';
 
 export const useQuizActions = (courseId: string) => {
-  const [isValidating, setIsValidating] = useState(false);
-  const [apiError, setApiError] = useState<string | null>(null);
-  const [autoProgressTimer, setAutoProgressTimer] = useState<NodeJS.Timeout | null>(null);
+  const { clearAutoProgressTimer, setAutoProgressWithDelay } = useQuizTimer();
+  const { isValidating, apiError, validateAnswer, clearApiError } = useAnswerValidation();
 
   const {
     currentQuestionIndex,
@@ -36,22 +36,30 @@ export const useQuizActions = (courseId: string) => {
 
   const { checkForNewAchievements } = useAchievements();
 
+  const { handleNextQuestion: navigateToNext, handleRestart: restartQuiz } = useQuizNavigation({
+    courseId,
+    currentQuestionIndex,
+    questions,
+    setCurrentQuestionIndex,
+    setSelectedAnswer,
+    setTextAnswer,
+    setShowResult,
+    setCanProceed,
+    updateQuizAttemptMutation,
+    updateProgressMutation,
+    toast,
+    clearApiError
+  });
+
   const handleAnswerSelect = (answer: string) => {
     if (rest.showResult && rest.canProceed) return;
     setSelectedAnswer(answer);
-    setApiError(null);
+    clearApiError();
   };
 
   const handleTextAnswerChange = (answer: string) => {
     setTextAnswer(answer);
-    setApiError(null);
-  };
-
-  const clearAutoProgressTimer = () => {
-    if (autoProgressTimer) {
-      clearTimeout(autoProgressTimer);
-      setAutoProgressTimer(null);
-    }
+    clearApiError();
   };
 
   const handleSubmitAnswer = async () => {
@@ -60,7 +68,6 @@ export const useQuizActions = (courseId: string) => {
     if (!answerToSubmit || !currentQuestion) return;
 
     clearAutoProgressTimer();
-    setApiError(null);
 
     const currentAttempts = questionAttempts[currentQuestion.id] || 0;
     const newAttempts = currentAttempts + 1;
@@ -69,21 +76,11 @@ export const useQuizActions = (courseId: string) => {
     let feedbackText = '';
 
     try {
-      if (currentQuestion.question_type === 'text') {
-        setIsValidating(true);
-        const validationResult = await validateAnswerExternal(currentQuestion.id, answerToSubmit);
-        correct = validationResult.is_correct;
-        feedbackText = validationResult.feedback_text;
-      } else {
-        // Use local validation for multiple choice and true/false questions
-        correct = answerToSubmit === currentQuestion.correct_answer;
-      }
+      const validationResult = await validateAnswer(currentQuestion, answerToSubmit);
+      correct = validationResult.correct;
+      feedbackText = validationResult.feedbackText;
     } catch (error) {
-      console.error('External validation failed:', error);
-      setApiError('Validierung fehlgeschlagen. Bitte versuchen Sie es erneut.');
       return;
-    } finally {
-      setIsValidating(false);
     }
 
     setIsCorrect(correct);
@@ -113,10 +110,9 @@ export const useQuizActions = (courseId: string) => {
       
       // Auto-progress for correct answers after 3 seconds
       if (correct) {
-        const timer = setTimeout(() => {
+        setAutoProgressWithDelay(() => {
           handleNextQuestion();
-        }, 3000);
-        setAutoProgressTimer(timer);
+        });
       }
     } else {
       setShowResult(false);
@@ -154,57 +150,14 @@ export const useQuizActions = (courseId: string) => {
 
   const handleNextQuestion = async () => {
     clearAutoProgressTimer();
-    
-    await queryClient.invalidateQueries({ queryKey: ['course-questions', courseId] });
-    
-    const updatedQuestions = queryClient.getQueryData(['course-questions', courseId]) as any[] || questions;
-    
-    if (currentQuestionIndex < updatedQuestions.length - 1) {
-      const nextIndex = currentQuestionIndex + 1;
-      setCurrentQuestionIndex(nextIndex);
-      setSelectedAnswer('');
-      setTextAnswer('');
-      setShowResult(false);
-      setCanProceed(false);
-      setApiError(null);
-      
-      updateQuizAttemptMutation.mutate({
-        current_question_index: nextIndex
-      });
-      
-      const newProgress = Math.round(((nextIndex + 1) / updatedQuestions.length) * 100);
-      updateProgressMutation.mutate(newProgress);
-    } else {
-      updateQuizAttemptMutation.mutate({
-        is_completed: true,
-        completed_at: new Date().toISOString()
-      });
-      
-      updateProgressMutation.mutate(100);
-      
-      showQuizCompletionToast(toast);
-    }
+    await navigateToNext();
   };
 
   const handleRestart = () => {
     clearAutoProgressTimer();
-    
-    if (rest.quizAttempt?.id) {
-      updateQuizAttemptMutation.mutate({
-        current_question_index: 0,
-        focus_points: 100,
-        is_completed: false
-      });
-    }
-    
-    setCurrentQuestionIndex(0);
-    setSelectedAnswer('');
-    setTextAnswer('');
-    setShowResult(false);
     setFocusPoints(100);
     setQuestionAttempts({});
-    setCanProceed(false);
-    setApiError(null);
+    restartQuiz();
   };
 
   return {
