@@ -9,6 +9,7 @@ import EditQuestionDialog from '@/components/EditQuestionDialog';
 import GenerateQuestionsDialog from '@/components/GenerateQuestionsDialog';
 import CourseHeader from '@/components/CourseHeader';
 import QuestionsList from '@/components/QuestionsList';
+import CourseMaterials from '@/components/CourseMaterials';
 
 interface Question {
   id: string;
@@ -149,6 +150,10 @@ const CourseDetail = () => {
         onEditQuestion={handleEditQuestion}
         onDeleteQuestion={handleDeleteQuestion}
       />
+
+      <div className="mt-6">
+        <CourseMaterials courseId={courseId!} />
+      </div>
 
       <CreateQuestionDialog
         open={showCreateDialog}

@@ -71,50 +71,6 @@ export type Database = {
           },
         ]
       }
-      course_materials: {
-        Row: {
-          course_id: string
-          created_at: string
-          file_size: number | null
-          filename: string
-          id: string
-          mime_type: string
-          original_filename: string
-          updated_at: string
-          upload_date: string
-        }
-        Insert: {
-          course_id: string
-          created_at?: string
-          file_size?: number | null
-          filename: string
-          id?: string
-          mime_type?: string
-          original_filename: string
-          updated_at?: string
-          upload_date?: string
-        }
-        Update: {
-          course_id?: string
-          created_at?: string
-          file_size?: number | null
-          filename?: string
-          id?: string
-          mime_type?: string
-          original_filename?: string
-          updated_at?: string
-          upload_date?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "course_materials_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       courses: {
         Row: {
           created_at: string
