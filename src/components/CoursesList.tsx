@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { BookOpen, Edit, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 import EditCourseDialog from './EditCourseDialog';
 
 interface Course {
@@ -22,15 +23,18 @@ interface CoursesListProps {
 
 const CoursesList: React.FC<CoursesListProps> = ({ courses, onCourseUpdated }) => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
 
-  const handleEditCourse = (course: Course) => {
+  const handleEditCourse = (e: React.MouseEvent, course: Course) => {
+    e.stopPropagation();
     setEditingCourse(course);
     setShowEditDialog(true);
   };
 
-  const handleDeleteCourse = async (courseId: string) => {
+  const handleDeleteCourse = async (e: React.MouseEvent, courseId: string) => {
+    e.stopPropagation();
     if (!confirm('Sind Sie sicher, dass Sie diesen Kurs löschen möchten?')) {
       return;
     }
@@ -59,6 +63,10 @@ const CoursesList: React.FC<CoursesListProps> = ({ courses, onCourseUpdated }) =
     }
   };
 
+  const handleCourseClick = (courseId: string) => {
+    navigate(`/course/${courseId}`);
+  };
+
   if (courses.length === 0) {
     return (
       <div className="text-center py-8">
@@ -73,7 +81,11 @@ const CoursesList: React.FC<CoursesListProps> = ({ courses, onCourseUpdated }) =
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {courses.map((course) => (
-          <Card key={course.id}>
+          <Card 
+            key={course.id}
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => handleCourseClick(course.id)}
+          >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BookOpen className="h-5 w-5 text-blue-600" />
@@ -92,14 +104,14 @@ const CoursesList: React.FC<CoursesListProps> = ({ courses, onCourseUpdated }) =
                   <Button 
                     size="sm" 
                     variant="outline"
-                    onClick={() => handleEditCourse(course)}
+                    onClick={(e) => handleEditCourse(e, course)}
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button 
                     size="sm" 
                     variant="outline" 
-                    onClick={() => handleDeleteCourse(course.id)}
+                    onClick={(e) => handleDeleteCourse(e, course.id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
