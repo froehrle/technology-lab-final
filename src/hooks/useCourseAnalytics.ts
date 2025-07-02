@@ -106,19 +106,32 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
       
       console.log('Fetching avg attempts for courses:', filteredCourseIds);
       
+      // First get question IDs for the courses
+      const { data: questions, error: questionsError } = await supabase
+        .from('questions')
+        .select('id')
+        .in('course_id', filteredCourseIds);
+        
+      if (questionsError) throw questionsError;
+      if (!questions?.length) {
+        console.log('No questions found for courses:', filteredCourseIds);
+        return 0;
+      }
+      
+      const questionIds = questions.map(q => q.id);
+      console.log('Found question IDs:', questionIds);
+      
+      // Then get student answers for those questions
       const { data, error } = await supabase
         .from('student_answers')
-        .select(`
-          attempt_count,
-          questions!inner(course_id)
-        `)
-        .in('questions.course_id', filteredCourseIds);
+        .select('attempt_count')
+        .in('question_id', questionIds);
 
       console.log('Avg attempts data:', data, 'error:', error);
       
       if (error) throw error;
       if (!data?.length) {
-        console.log('No student answers found for courses:', filteredCourseIds);
+        console.log('No student answers found for questions:', questionIds);
         return 0;
       }
 
