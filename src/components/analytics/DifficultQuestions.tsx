@@ -18,7 +18,7 @@ const DifficultQuestions = ({ difficultQuestions }: DifficultQuestionsProps) => 
         <div className="space-y-3">
           {difficultQuestions.map((question: any, index: number) => (
             <div 
-              key={question.questionId} 
+              key={question.question_id} 
               className="p-4 border rounded-lg animate-fade-in hover-scale"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
@@ -26,17 +26,17 @@ const DifficultQuestions = ({ difficultQuestions }: DifficultQuestionsProps) => 
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
                     <Badge variant="outline">#{index + 1}</Badge>
-                    <Badge variant="secondary">{question.courseTitle}</Badge>
+                    <Badge variant="secondary">{question.course_title}</Badge>
                   </div>
                   <p className="text-sm font-medium mb-2">
-                    {question.questionText.length > 100 
-                      ? `${question.questionText.substring(0, 100)}...` 
-                      : question.questionText}
+                    {question.question_text.length > 100 
+                      ? `${question.question_text.substring(0, 100)}...` 
+                      : question.question_text}
                   </p>
                   <div className="flex space-x-4 text-xs text-muted-foreground">
-                    <span>Falsche Antworten: {question.wrongPercentage.toFixed(1)}%</span>
-                    <span>Ø Versuche: {question.avgAttempts.toFixed(1)}</span>
-                    <span>Gesamt Antworten: {question.totalAnswers}</span>
+                    <span>Falsche Antworten: {question.wrong_percentage}%</span>
+                    <span>Ø Versuche: {question.avg_attempts}</span>
+                    <span>Gesamt Antworten: {question.total_answers}</span>
                   </div>
                 </div>
               </div>

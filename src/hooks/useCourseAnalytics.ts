@@ -36,55 +36,18 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
     enabled: !!userId && filteredCourseIds.length > 0,
   });
 
-  // Perfect completions (100% correct answers)
+  // Perfect completions using optimized database function
   const perfectCompletions = useQuery({
     queryKey: ['analytics-perfect', userId, filteredCourseIds],
     queryFn: async () => {
       if (filteredCourseIds.length === 0) return 0;
       
-      // Get completed quiz attempts
-      const { data: completedAttempts, error: attemptsError } = await supabase
-        .from('quiz_attempts')
-        .select('id, student_id, course_id')
-        .in('course_id', filteredCourseIds)
-        .eq('is_completed', true);
+      const { data, error } = await supabase.rpc('get_perfect_completions', {
+        course_ids: filteredCourseIds
+      });
 
-      if (attemptsError) throw attemptsError;
-      if (!completedAttempts?.length) return 0;
-
-      // For each completed attempt, check if all answers were correct
-      let perfectCount = 0;
-      
-      for (const attempt of completedAttempts) {
-        // Get all questions for this course
-        const { data: questions, error: questionsError } = await supabase
-          .from('questions')
-          .select('id')
-          .eq('course_id', attempt.course_id);
-
-        if (questionsError) continue;
-        if (!questions?.length) continue;
-
-        // Get all answers for this student and course
-        const { data: answers, error: answersError } = await supabase
-          .from('student_answers')
-          .select('is_correct, question_id')
-          .eq('student_id', attempt.student_id)
-          .in('question_id', questions.map(q => q.id));
-
-        if (answersError) continue;
-        if (!answers?.length) continue;
-
-        // Check if all answers are correct and student answered all questions
-        const allCorrect = answers.length === questions.length && 
-                          answers.every(answer => answer.is_correct);
-        
-        if (allCorrect) {
-          perfectCount++;
-        }
-      }
-
-      return perfectCount;
+      if (error) throw error;
+      return data || 0;
     },
     enabled: !!userId && filteredCourseIds.length > 0,
   });
@@ -236,71 +199,22 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
     enabled: !!userId && filteredCourseIds.length > 0,
   });
 
-  // Most difficult questions
+  // Most difficult questions using optimized view
   const difficultQuestions = useQuery({
     queryKey: ['analytics-difficult', userId, filteredCourseIds],
     queryFn: async () => {
       if (filteredCourseIds.length === 0) return [];
       
       const { data, error } = await supabase
-        .from('student_answers')
-        .select(`
-          question_id,
-          is_correct,
-          attempt_count,
-          questions!inner(
-            question_text,
-            course_id,
-            courses!inner(
-              title
-            )
-          )
-        `)
-        .in('questions.course_id', filteredCourseIds);
+        .from('difficult_questions_stats')
+        .select('*')
+        .in('course_id', filteredCourseIds)
+        .order('wrong_percentage', { ascending: false })
+        .order('avg_attempts', { ascending: false })
+        .limit(5);
 
       if (error) throw error;
-      if (!data?.length) return [];
-
-      // Group by question and calculate difficulty metrics
-      const questionStats = data.reduce((acc: any, answer: any) => {
-        const questionId = answer.question_id;
-        
-        if (!acc[questionId]) {
-          acc[questionId] = {
-            questionId,
-            questionText: answer.questions.question_text,
-            courseTitle: answer.questions.courses.title,
-            totalAttempts: 0,
-            wrongAnswers: 0,
-            totalAnswers: 0,
-            avgAttempts: 0
-          };
-        }
-        
-        acc[questionId].totalAttempts += answer.attempt_count || 1;
-        acc[questionId].totalAnswers += 1;
-        if (!answer.is_correct) {
-          acc[questionId].wrongAnswers += 1;
-        }
-        
-        return acc;
-      }, {});
-
-      // Calculate average attempts and sort by difficulty
-      const questionArray = Object.values(questionStats).map((stat: any) => ({
-        ...stat,
-        avgAttempts: stat.totalAttempts / stat.totalAnswers,
-        wrongPercentage: (stat.wrongAnswers / stat.totalAnswers) * 100
-      }));
-
-      // Sort by combination of wrong percentage and average attempts
-      questionArray.sort((a: any, b: any) => {
-        const scoreA = a.wrongPercentage + (a.avgAttempts - 1) * 10;
-        const scoreB = b.wrongPercentage + (b.avgAttempts - 1) * 10;
-        return scoreB - scoreA;
-      });
-
-      return questionArray.slice(0, 5);
+      return data || [];
     },
     enabled: !!userId && filteredCourseIds.length > 0,
   });
@@ -314,6 +228,16 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
     avgAttemptsPerQuestion: avgAttemptsPerQuestion.data || 0,
     courseDifficultyRanking: courseDifficultyRanking.data || [],
     dropoutPoints: dropoutPoints.data || [],
-    difficultQuestions: difficultQuestions.data || []
+    difficultQuestions: difficultQuestions.data || [],
+    isLoading: totalEnrollments.isLoading || totalQuizAttempts.isLoading || 
+               perfectCompletions.isLoading || avgSessionDuration.isLoading ||
+               completionRate.isLoading || avgAttemptsPerQuestion.isLoading ||
+               courseDifficultyRanking.isLoading || dropoutPoints.isLoading ||
+               difficultQuestions.isLoading,
+    error: totalEnrollments.error || totalQuizAttempts.error || 
+           perfectCompletions.error || avgSessionDuration.error ||
+           completionRate.error || avgAttemptsPerQuestion.error ||
+           courseDifficultyRanking.error || dropoutPoints.error ||
+           difficultQuestions.error
   };
 };

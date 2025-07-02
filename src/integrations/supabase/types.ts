@@ -66,6 +66,13 @@ export type Database = {
             foreignKeyName: "course_enrollments_course_id_fkey"
             columns: ["course_id"]
             isOneToOne: false
+            referencedRelation: "course_completion_stats"
+            referencedColumns: ["course_id"]
+          },
+          {
+            foreignKeyName: "course_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
             referencedRelation: "courses"
             referencedColumns: ["id"]
           },
@@ -164,6 +171,13 @@ export type Database = {
             foreignKeyName: "questions_course_id_fkey"
             columns: ["course_id"]
             isOneToOne: false
+            referencedRelation: "course_completion_stats"
+            referencedColumns: ["course_id"]
+          },
+          {
+            foreignKeyName: "questions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
             referencedRelation: "courses"
             referencedColumns: ["id"]
           },
@@ -210,6 +224,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "course_completion_stats"
+            referencedColumns: ["course_id"]
+          },
           {
             foreignKeyName: "quiz_attempts_course_id_fkey"
             columns: ["course_id"]
@@ -284,6 +305,13 @@ export type Database = {
             foreignKeyName: "student_answers_question_id_fkey"
             columns: ["question_id"]
             isOneToOne: false
+            referencedRelation: "difficult_questions_stats"
+            referencedColumns: ["question_id"]
+          },
+          {
+            foreignKeyName: "student_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
             referencedRelation: "questions"
             referencedColumns: ["id"]
           },
@@ -315,10 +343,59 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      course_completion_stats: {
+        Row: {
+          completion_rate: number | null
+          completions: number | null
+          course_id: string | null
+          teacher_id: string | null
+          title: string | null
+          total_enrollments: number | null
+        }
+        Relationships: []
+      }
+      difficult_questions_stats: {
+        Row: {
+          avg_attempts: number | null
+          course_id: string | null
+          course_title: string | null
+          question_id: string | null
+          question_text: string | null
+          total_answers: number | null
+          wrong_answers: number | null
+          wrong_percentage: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "course_completion_stats"
+            referencedColumns: ["course_id"]
+          },
+          {
+            foreignKeyName: "questions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dropout_analysis: {
+        Row: {
+          course_title: string | null
+          current_question_index: number | null
+          dropout_count: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      get_perfect_completions: {
+        Args: { course_ids: string[] }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

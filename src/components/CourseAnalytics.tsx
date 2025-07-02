@@ -10,6 +10,8 @@ import AdvancedAnalytics from '@/components/analytics/AdvancedAnalytics';
 import CourseDifficultyRanking from '@/components/analytics/CourseDifficultyRanking';
 import DropoutPoints from '@/components/analytics/DropoutPoints';
 import DifficultQuestions from '@/components/analytics/DifficultQuestions';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const CourseAnalytics = () => {
   const { user } = useAuth();
@@ -61,31 +63,59 @@ const CourseAnalytics = () => {
         courses={courses}
       />
       <CardContent className="space-y-6">
-        {/* Overview Stats */}
-        <OverviewStats 
-          totalEnrollments={analytics.totalEnrollments}
-          totalQuizAttempts={analytics.totalQuizAttempts}
-          perfectCompletions={analytics.perfectCompletions}
-        />
+        {analytics.error && (
+          <Alert variant="destructive">
+            <AlertDescription>
+              Fehler beim Laden der Analytics-Daten. Bitte versuchen Sie es erneut.
+            </AlertDescription>
+          </Alert>
+        )}
 
-        {/* Advanced Analytics */}
-        <AdvancedAnalytics 
-          completionRate={analytics.completionRate}
-          avgSessionDuration={analytics.avgSessionDuration}
-          avgAttemptsPerQuestion={analytics.avgAttemptsPerQuestion}
-          difficultQuestionsCount={analytics.difficultQuestions.length}
-        />
+        {analytics.isLoading ? (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-16" />
+              ))}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-20" />
+              ))}
+            </div>
+            <Skeleton className="h-40" />
+            <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
+          </div>
+        ) : (
+          <>
+            {/* Overview Stats */}
+            <OverviewStats 
+              totalEnrollments={analytics.totalEnrollments}
+              totalQuizAttempts={analytics.totalQuizAttempts}
+              perfectCompletions={analytics.perfectCompletions}
+            />
 
-        {/* Course Difficulty Ranking */}
-        <CourseDifficultyRanking 
-          courseDifficultyRanking={analytics.courseDifficultyRanking}
-        />
+            {/* Advanced Analytics */}
+            <AdvancedAnalytics 
+              completionRate={analytics.completionRate}
+              avgSessionDuration={analytics.avgSessionDuration}
+              avgAttemptsPerQuestion={analytics.avgAttemptsPerQuestion}
+              difficultQuestionsCount={analytics.difficultQuestions.length}
+            />
 
-        {/* Dropout Points */}
-        <DropoutPoints dropoutPoints={analytics.dropoutPoints} />
+            {/* Course Difficulty Ranking */}
+            <CourseDifficultyRanking 
+              courseDifficultyRanking={analytics.courseDifficultyRanking}
+            />
 
-        {/* Difficult Questions */}
-        <DifficultQuestions difficultQuestions={analytics.difficultQuestions} />
+            {/* Dropout Points */}
+            <DropoutPoints dropoutPoints={analytics.dropoutPoints} />
+
+            {/* Difficult Questions */}
+            <DifficultQuestions difficultQuestions={analytics.difficultQuestions} />
+          </>
+        )}
       </CardContent>
     </Card>
   );
