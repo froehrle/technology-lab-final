@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import CreateQuestionDialog from '@/components/CreateQuestionDialog';
+import EditQuestionDialog from '@/components/EditQuestionDialog';
 
 interface Question {
   id: string;
@@ -34,6 +35,8 @@ const CourseDetail = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
 
   const { data: course, isLoading: courseLoading } = useQuery({
     queryKey: ['course', courseId],
@@ -98,6 +101,17 @@ const CourseDetail = () => {
   const handleQuestionCreated = () => {
     refetchQuestions();
     setShowCreateDialog(false);
+  };
+
+  const handleQuestionUpdated = () => {
+    refetchQuestions();
+    setShowEditDialog(false);
+    setSelectedQuestion(null);
+  };
+
+  const handleEditQuestion = (question: Question) => {
+    setSelectedQuestion(question);
+    setShowEditDialog(true);
   };
 
   if (courseLoading) {
@@ -173,12 +187,16 @@ const CourseDetail = () => {
                         <CardTitle className="text-lg">
                           Frage {index + 1}
                         </CardTitle>
-                        <CardDescription className="mt-2">
+                        <CardDescription className="mt-2 text-base">
                           {question.question_text}
                         </CardDescription>
                       </div>
                       <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleEditQuestion(question)}
+                        >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button 
@@ -192,12 +210,9 @@ const CourseDetail = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
                       <div>
                         <span className="font-medium">Typ:</span> {question.question_type}
-                      </div>
-                      <div>
-                        <span className="font-medium">Punkte:</span> {question.points || 1}
                       </div>
                       <div>
                         <span className="font-medium">Erstellt:</span>{' '}
@@ -207,16 +222,16 @@ const CourseDetail = () => {
                     {question.options && (
                       <div className="mt-4">
                         <span className="font-medium text-sm">Antwortmöglichkeiten:</span>
-                        <ul className="list-disc list-inside mt-2 text-sm">
+                        <ul className="list-disc list-inside mt-2 text-sm space-y-1">
                           {Array.isArray(question.options) 
                             ? question.options.map((option: string, idx: number) => (
-                                <li key={idx} className={option === question.correct_answer ? 'text-green-600 font-medium' : ''}>
-                                  {option} {option === question.correct_answer && '(Richtige Antwort)'}
+                                <li key={idx} className={option === question.correct_answer ? 'text-green-600 font-medium bg-green-50 p-2 rounded' : 'p-2'}>
+                                  {option} {option === question.correct_answer && '✓ (Richtige Antwort)'}
                                 </li>
                               ))
                             : Object.entries(question.options).map(([key, value]) => (
-                                <li key={key} className={value === question.correct_answer ? 'text-green-600 font-medium' : ''}>
-                                  {value as string} {value === question.correct_answer && '(Richtige Antwort)'}
+                                <li key={key} className={value === question.correct_answer ? 'text-green-600 font-medium bg-green-50 p-2 rounded' : 'p-2'}>
+                                  {value as string} {value === question.correct_answer && '✓ (Richtige Antwort)'}
                                 </li>
                               ))
                           }
@@ -237,6 +252,15 @@ const CourseDetail = () => {
         courseId={courseId!}
         onQuestionCreated={handleQuestionCreated}
       />
+
+      {selectedQuestion && (
+        <EditQuestionDialog
+          open={showEditDialog}
+          onOpenChange={setShowEditDialog}
+          question={selectedQuestion}
+          onQuestionUpdated={handleQuestionUpdated}
+        />
+      )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,14 +10,25 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Trash2 } from 'lucide-react';
 
-interface CreateQuestionDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  courseId: string;
-  onQuestionCreated: () => void;
+interface Question {
+  id: string;
+  question_text: string;
+  question_type: string;
+  options: any;
+  correct_answer: string | null;
+  points: number | null;
+  created_at: string;
+  updated_at: string;
 }
 
-const CreateQuestionDialog = ({ open, onOpenChange, courseId, onQuestionCreated }: CreateQuestionDialogProps) => {
+interface EditQuestionDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  question: Question;
+  onQuestionUpdated: () => void;
+}
+
+const EditQuestionDialog = ({ open, onOpenChange, question, onQuestionUpdated }: EditQuestionDialogProps) => {
   const { toast } = useToast();
   const [questionText, setQuestionText] = useState('');
   const [questionType, setQuestionType] = useState('multiple_choice');
@@ -25,12 +36,23 @@ const CreateQuestionDialog = ({ open, onOpenChange, courseId, onQuestionCreated 
   const [correctAnswer, setCorrectAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const resetForm = () => {
-    setQuestionText('');
-    setQuestionType('multiple_choice');
-    setOptions(['']);
-    setCorrectAnswer('');
-  };
+  useEffect(() => {
+    if (question) {
+      setQuestionText(question.question_text);
+      setQuestionType(question.question_type);
+      setCorrectAnswer(question.correct_answer || '');
+      
+      if (question.options) {
+        if (Array.isArray(question.options)) {
+          setOptions(question.options);
+        } else if (typeof question.options === 'object') {
+          setOptions(Object.values(question.options));
+        }
+      } else {
+        setOptions(['']);
+      }
+    }
+  }, [question]);
 
   const addOption = () => {
     setOptions([...options, '']);
@@ -77,37 +99,36 @@ const CreateQuestionDialog = ({ open, onOpenChange, courseId, onQuestionCreated 
     setIsSubmitting(true);
 
     try {
-      const questionData: any = {
-        course_id: courseId,
+      const updateData: any = {
         question_text: questionText,
         question_type: questionType,
         correct_answer: correctAnswer || null,
       };
 
       if (questionType === 'multiple_choice') {
-        questionData.options = options.filter(opt => opt.trim());
+        updateData.options = options.filter(opt => opt.trim());
       } else {
-        questionData.options = null;
+        updateData.options = null;
       }
 
       const { error } = await supabase
         .from('questions')
-        .insert([questionData]);
+        .update(updateData)
+        .eq('id', question.id);
 
       if (error) throw error;
 
       toast({
-        title: "Frage erstellt",
-        description: "Die Frage wurde erfolgreich erstellt.",
+        title: "Frage aktualisiert",
+        description: "Die Frage wurde erfolgreich aktualisiert.",
       });
 
-      resetForm();
-      onQuestionCreated();
+      onQuestionUpdated();
     } catch (error) {
-      console.error('Fehler beim Erstellen der Frage:', error);
+      console.error('Fehler beim Aktualisieren der Frage:', error);
       toast({
         title: "Fehler",
-        description: "Die Frage konnte nicht erstellt werden.",
+        description: "Die Frage konnte nicht aktualisiert werden.",
         variant: "destructive",
       });
     } finally {
@@ -116,13 +137,10 @@ const CreateQuestionDialog = ({ open, onOpenChange, courseId, onQuestionCreated 
   };
 
   return (
-    <Dialog open={open} onOpenChange={(open) => {
-      onOpenChange(open);
-      if (!open) resetForm();
-    }}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Neue Frage erstellen</DialogTitle>
+          <DialogTitle>Frage bearbeiten</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -244,7 +262,7 @@ const CreateQuestionDialog = ({ open, onOpenChange, courseId, onQuestionCreated 
               Abbrechen
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Wird erstellt...' : 'Frage erstellen'}
+              {isSubmitting ? 'Wird gespeichert...' : 'Frage aktualisieren'}
             </Button>
           </div>
         </form>
@@ -253,4 +271,4 @@ const CreateQuestionDialog = ({ open, onOpenChange, courseId, onQuestionCreated 
   );
 };
 
-export default CreateQuestionDialog;
+export default EditQuestionDialog;
