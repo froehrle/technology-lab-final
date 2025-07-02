@@ -15,17 +15,17 @@ const QuizProgressHeader = ({
   currentQuestionIndex, 
   totalQuestions 
 }: QuizProgressHeaderProps) => {
-  // Calculate focus bar color based on points
+  // Calculate focus bar color based on points using design system
   const getFocusBarColor = () => {
-    if (focusPoints >= 70) return 'bg-green-500';
-    if (focusPoints >= 40) return 'bg-yellow-500';
-    return 'bg-red-500';
+    if (focusPoints >= 70) return 'bg-success';
+    if (focusPoints >= 40) return 'bg-warning';
+    return 'bg-error';
   };
 
   const getFocusBarBgColor = () => {
-    if (focusPoints >= 70) return 'bg-green-100';
-    if (focusPoints >= 40) return 'bg-yellow-100';
-    return 'bg-red-100';
+    if (focusPoints >= 70) return 'bg-success/20';
+    if (focusPoints >= 40) return 'bg-warning/20';
+    return 'bg-error/20';
   };
 
   return (
@@ -33,39 +33,39 @@ const QuizProgressHeader = ({
       <div className="flex justify-between items-center mb-6">
         {/* Fokus-Balken */}
         <div className="flex items-center gap-3">
-          <Zap className="h-6 w-6 text-blue-600" />
+          <Zap className="h-6 w-6 text-xp animate-pulse" />
           <div className="flex flex-col">
-            <div className={`w-32 h-3 ${getFocusBarBgColor()} rounded-full overflow-hidden border border-gray-300`}>
+            <div className={`w-32 h-3 ${getFocusBarBgColor()} rounded-full overflow-hidden border border-white/30 shadow-inner`}>
               <div 
-                className={`h-full ${getFocusBarColor()} transition-all duration-300`}
+                className={`h-full ${getFocusBarColor()} transition-all duration-300 rounded-full`}
                 style={{ width: `${Math.max(0, focusPoints)}%` }}
               ></div>
             </div>
-            <span className="text-xs text-gray-600 mt-1">{focusPoints}/100 Fokus</span>
+            <span className="text-xs font-medium mt-1 text-foreground/80">{focusPoints}/100 Fokus</span>
           </div>
           {focusPoints <= 10 && (
-            <div className="text-xs text-red-600 font-medium">
+            <div className="text-xs text-error font-bold bg-error/10 px-2 py-1 rounded-full animate-pulse">
               ⚠️ Pause empfohlen
             </div>
           )}
         </div>
       </div>
       
-      {/* Light Blue Tinted Progress Bar Container */}
-      <div className="relative bg-blue-50 rounded-xl h-24 overflow-hidden border-2 border-gray-200 shadow-sm mb-4">
-        {/* Light blue background for entire container */}
-        <div className="absolute inset-0 bg-blue-50"></div>
+      {/* Colorful Progress Bar Container */}
+      <div className="relative bg-gradient-to-r from-primary/10 to-achievement/10 rounded-xl h-24 overflow-hidden border-2 border-primary/20 shadow-lg mb-4">
+        {/* Gradient background for entire container */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-achievement/5"></div>
         
-        {/* Darker blue progress indication */}
+        {/* Colorful progress indication */}
         <div 
-          className="absolute top-0 left-0 h-full bg-blue-200 opacity-60 transition-all duration-700 ease-out"
+          className="absolute top-0 left-0 h-full bg-gradient-to-r from-success via-warning to-achievement opacity-80 transition-all duration-700 ease-out"
           style={{ width: `${Math.min(progress, 82)}%` }}
         ></div>
         
-        {/* Ultra Visible Finish Line - positioned within container */}
+        {/* Colorful Finish Line */}
         <div className="absolute right-2 top-2 bottom-2 flex items-center z-20">
-          {/* Main finish line */}
-          <div className="w-3 h-full bg-gradient-to-b from-red-600 via-red-700 to-red-800 rounded-lg shadow-xl border-2 border-red-900"></div>
+          {/* Main finish line with achievement colors */}
+          <div className="w-3 h-full bg-gradient-to-b from-achievement via-success to-warning rounded-lg shadow-xl border-2 border-achievement"></div>
           
           {/* Checkered pattern overlay */}
           <div className="absolute inset-0 w-3 opacity-60">
@@ -116,15 +116,15 @@ const QuizProgressHeader = ({
           </div>
         </div>
         
-        {/* Start line without text */}
-        <div className="absolute left-2 top-2 bottom-2 w-1 bg-green-600 opacity-80 z-5 rounded"></div>
+        {/* Colorful Start line */}
+        <div className="absolute left-2 top-2 bottom-2 w-1 bg-success opacity-90 z-5 rounded shadow-lg"></div>
       </div>
       
       <div className="flex justify-between items-center mt-6">
-        <p className="text-base text-gray-700 font-semibold bg-gray-50 px-3 py-2 rounded-lg">
+        <p className="text-base font-bold bg-gradient-to-r from-primary/20 to-primary/10 text-primary px-4 py-2 rounded-full shadow-md">
           Frage {currentQuestionIndex + 1} von {totalQuestions}
         </p>
-        <p className="text-base text-blue-700 font-semibold bg-blue-50 px-3 py-2 rounded-lg">
+        <p className="text-base font-bold bg-gradient-to-r from-achievement/20 to-achievement/10 text-achievement px-4 py-2 rounded-full shadow-md">
           {Math.round((currentQuestionIndex / totalQuestions) * 100)}% abgeschlossen
         </p>
       </div>

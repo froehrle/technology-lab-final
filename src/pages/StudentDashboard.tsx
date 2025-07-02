@@ -23,22 +23,23 @@ const StudentDashboard = () => {
   }, [studentXP]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <div className="flex items-center space-x-4">
-          <CustomAvatar 
-            src={profile?.avatar_url}
-            fallback={user?.email?.charAt(0).toUpperCase() || 'U'}
-            className="h-20 w-20"
-          />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              Willkommen zurück, {user?.user_metadata?.display_name || user?.email}!
-            </h1>
-            <p className="text-gray-600 mt-1">Setzen Sie Ihre Lernreise fort</p>
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-achievement/5">
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <div className="flex items-center space-x-4 bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
+            <CustomAvatar 
+              src={profile?.avatar_url}
+              fallback={user?.email?.charAt(0).toUpperCase() || 'U'}
+              className="h-20 w-20 ring-4 ring-primary/20 shadow-lg"
+            />
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-achievement bg-clip-text text-transparent">
+                Willkommen zurück, {user?.user_metadata?.display_name || user?.email}!
+              </h1>
+              <p className="text-foreground/70 mt-1 font-medium">Setzen Sie Ihre Lernreise fort</p>
+            </div>
           </div>
         </div>
-      </div>
 
       <div className="mb-8">
         <DashboardStats 
@@ -48,13 +49,14 @@ const StudentDashboard = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CoursesList 
-          enrollments={enrollments}
-          courseStats={courseStats}
-          isLoading={isLoading}
-        />
-        <AchievementsDisplay />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <CoursesList 
+            enrollments={enrollments}
+            courseStats={courseStats}
+            isLoading={isLoading}
+          />
+          <AchievementsDisplay />
+        </div>
       </div>
     </div>
   );

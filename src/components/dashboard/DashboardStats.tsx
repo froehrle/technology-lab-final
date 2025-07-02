@@ -12,55 +12,55 @@ interface DashboardStatsProps {
 const DashboardStats = ({ enrollmentsCount, totalXP, averageProgress }: DashboardStatsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <Card>
+      <Card className="border-0 bg-gradient-to-br from-primary/10 to-primary/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Aktive Kurse</CardTitle>
-          <BookOpen className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium text-primary">Aktive Kurse</CardTitle>
+          <BookOpen className="h-5 w-5 text-primary" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{enrollmentsCount}</div>
-          <p className="text-xs text-muted-foreground">
+          <div className="text-3xl font-bold text-primary">{enrollmentsCount}</div>
+          <p className="text-xs text-primary/70 mt-1">
             {enrollmentsCount === 0 ? 'Keine Kurse verfügbar' : 'eingeschriebene Kurse'}
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border-0 bg-gradient-to-br from-xp/20 to-xp/10 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">XP Punkte</CardTitle>
-          <Zap className="h-4 w-4 text-yellow-500" />
+          <CardTitle className="text-sm font-medium text-xp-foreground">XP Punkte</CardTitle>
+          <Zap className="h-5 w-5 text-xp animate-pulse" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-yellow-600">
+          <div className="text-3xl font-bold text-xp-foreground">
             {totalXP || 0}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-xp-foreground/70 mt-1">
             {totalXP ? 'Gesammeltes XP' : 'Beginnen Sie zu lernen!'}
           </p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border-0 bg-gradient-to-br from-warning/20 to-warning/10 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Serie</CardTitle>
-          <Calendar className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium text-warning-foreground">Serie</CardTitle>
+          <Calendar className="h-5 w-5 text-warning" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">0 Tage</div>
-          <p className="text-xs text-muted-foreground">Starten Sie Ihre Serie!</p>
+          <div className="text-3xl font-bold text-warning-foreground">0 Tage</div>
+          <p className="text-xs text-warning-foreground/70 mt-1">Starten Sie Ihre Serie!</p>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border-0 bg-gradient-to-br from-success/20 to-success/10 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Fortschritt</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium text-success-foreground">Fortschritt</CardTitle>
+          <TrendingUp className="h-5 w-5 text-success" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">
+          <div className="text-3xl font-bold text-success-foreground">
             {enrollmentsCount > 0 ? `${Math.round(averageProgress)}%` : '-'}
           </div>
-          <p className="text-xs text-muted-foreground">Durchschnittlicher Fortschritt</p>
+          <p className="text-xs text-success-foreground/70 mt-1">Durchschnittlicher Fortschritt</p>
         </CardContent>
       </Card>
     </div>

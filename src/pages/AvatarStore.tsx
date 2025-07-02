@@ -65,25 +65,26 @@ const AvatarStore = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold">Shop</h1>
-          <CoinBalance />
-        </div>
-        
-        {/* Avatar Preview */}
-        <div className="flex items-center justify-center mb-6">
-          <div className="text-center">
-            <CustomAvatar 
-              src={profile?.avatar_url}
-              fallback={user?.email?.charAt(0).toUpperCase() || 'A'}
-              className="h-24 w-24 mx-auto mb-2"
-            />
-            <p className="text-sm text-muted-foreground">Dein aktueller Avatar</p>
+    <div className="min-h-screen bg-gradient-to-br from-achievement/10 via-background to-warning/5">
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4 bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-achievement to-warning bg-clip-text text-transparent">Shop</h1>
+            <CoinBalance />
+          </div>
+          
+          {/* Avatar Preview */}
+          <div className="flex items-center justify-center mb-6">
+            <div className="text-center bg-white/60 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
+              <CustomAvatar 
+                src={profile?.avatar_url}
+                fallback={user?.email?.charAt(0).toUpperCase() || 'A'}
+                className="h-24 w-24 mx-auto mb-2 ring-4 ring-achievement/20 shadow-lg"
+              />
+              <p className="text-sm font-medium text-foreground/70">Dein aktueller Avatar</p>
+            </div>
           </div>
         </div>
-      </div>
 
       <Tabs defaultValue="badges" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
@@ -130,6 +131,7 @@ const AvatarStore = () => {
           </div>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 };
