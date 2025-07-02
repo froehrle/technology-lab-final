@@ -7,6 +7,7 @@ import { Trophy, Medal, Award, Crown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import CustomAvatar from '@/components/avatar/CustomAvatar';
 
 const Leaderboard = () => {
   const { user } = useAuth();
@@ -29,20 +30,54 @@ const Leaderboard = () => {
       const studentIds = xpData.map(student => student.student_id);
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, display_name, email')
+        .select('id, display_name, email, avatar_url')
         .in('id', studentIds);
 
       if (profilesError) throw profilesError;
 
+      // Get equipped titles and badges for all students
+      const { data: badgePurchases, error: badgesError } = await supabase
+        .from('student_badge_purchases')
+        .select(`
+          student_id,
+          is_equipped,
+          profile_badges (name, badge_type)
+        `)
+        .eq('is_equipped', true)
+        .in('student_id', studentIds);
+
+      if (badgesError) throw badgesError;
+
+      // Get equipped avatar items for all students
+      const { data: avatarPurchases, error: avatarError } = await supabase
+        .from('student_purchases')
+        .select(`
+          student_id,
+          is_equipped,
+          avatar_items (css_class, type)
+        `)
+        .eq('is_equipped', true)
+        .eq('purchase_type', 'avatar_item')
+        .in('student_id', studentIds);
+
+      if (avatarError) throw avatarError;
+
       // Combine XP data with profile information
       return xpData.map((student, index) => {
         const profile = profiles?.find(p => p.id === student.student_id);
+        const equippedBadges = badgePurchases?.filter(p => p.student_id === student.student_id) || [];
+        const equippedTitle = equippedBadges.find(b => b.profile_badges?.badge_type === 'title')?.profile_badges?.name;
+        const equippedAvatarFrame = avatarPurchases?.find(p => p.student_id === student.student_id && p.avatar_items?.type === 'frame')?.avatar_items?.css_class;
+        
         return {
           rank: index + 1,
           studentId: student.student_id,
           displayName: profile?.display_name || profile?.email?.split('@')[0] || 'Unbekannter Student',
           totalXP: student.total_xp,
-          isCurrentUser: student.student_id === user?.id
+          isCurrentUser: student.student_id === user?.id,
+          avatarUrl: profile?.avatar_url,
+          equippedTitle,
+          equippedAvatarFrame
         };
       });
     },
@@ -131,15 +166,28 @@ const Leaderboard = () => {
                       </Badge>
                     </div>
                     
+                    <CustomAvatar
+                      src={student.avatarUrl}
+                      fallback={student.displayName.charAt(0).toUpperCase()}
+                      className="h-10 w-10"
+                    />
+                    
                     <div>
-                      <p className={`font-medium ${student.isCurrentUser ? 'text-primary' : ''}`}>
-                        {student.displayName}
+                      <div className="flex items-center space-x-2">
+                        <p className={`font-medium ${student.isCurrentUser ? 'text-primary' : ''}`}>
+                          {student.displayName}
+                        </p>
                         {student.isCurrentUser && (
-                          <Badge variant="outline" className="ml-2 text-xs">
+                          <Badge variant="outline" className="text-xs">
                             Du
                           </Badge>
                         )}
-                      </p>
+                      </div>
+                      {student.equippedTitle && (
+                        <p className="text-sm text-muted-foreground italic">
+                          {student.equippedTitle}
+                        </p>
+                      )}
                     </div>
                   </div>
                   
