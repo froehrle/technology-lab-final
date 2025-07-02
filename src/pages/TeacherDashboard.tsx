@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import CreateCourseDialog from '@/components/CreateCourseDialog';
 import CoursesList from '@/components/CoursesList';
+import CourseAnalytics from '@/components/CourseAnalytics';
 
 const TeacherDashboard = () => {
   const { user } = useAuth();
@@ -158,7 +159,7 @@ const TeacherDashboard = () => {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
@@ -174,6 +175,10 @@ const TeacherDashboard = () => {
             <CoursesList courses={courses} onCourseUpdated={refetchCourses} />
           </CardContent>
         </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
+        <CourseAnalytics />
       </div>
 
       <CreateCourseDialog
