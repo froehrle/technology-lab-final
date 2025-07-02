@@ -36,36 +36,6 @@ export type Database = {
         }
         Relationships: []
       }
-      app_themes: {
-        Row: {
-          created_at: string
-          css_variables: Json
-          description: string | null
-          id: string
-          name: string
-          preview_image: string | null
-          price: number
-        }
-        Insert: {
-          created_at?: string
-          css_variables: Json
-          description?: string | null
-          id?: string
-          name: string
-          preview_image?: string | null
-          price: number
-        }
-        Update: {
-          created_at?: string
-          css_variables?: Json
-          description?: string | null
-          id?: string
-          name?: string
-          preview_image?: string | null
-          price?: number
-        }
-        Relationships: []
-      }
       avatar_items: {
         Row: {
           created_at: string
@@ -563,7 +533,6 @@ export type Database = {
           purchase_type: string
           purchased_at: string
           student_id: string
-          theme_id: string | null
         }
         Insert: {
           id?: string
@@ -572,7 +541,6 @@ export type Database = {
           purchase_type: string
           purchased_at?: string
           student_id: string
-          theme_id?: string | null
         }
         Update: {
           id?: string
@@ -581,7 +549,6 @@ export type Database = {
           purchase_type?: string
           purchased_at?: string
           student_id?: string
-          theme_id?: string | null
         }
         Relationships: [
           {
@@ -589,13 +556,6 @@ export type Database = {
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "avatar_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "student_purchases_theme_id_fkey"
-            columns: ["theme_id"]
-            isOneToOne: false
-            referencedRelation: "app_themes"
             referencedColumns: ["id"]
           },
         ]
