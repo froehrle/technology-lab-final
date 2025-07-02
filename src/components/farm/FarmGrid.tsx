@@ -34,8 +34,8 @@ const FarmGrid = () => {
         <div className="absolute inset-0 bg-black/10"></div>
         
         {/* Farm Grid */}
-        <div className="relative z-10 p-8">
-          <div className="grid grid-cols-6 gap-4 h-96">
+        <div className="relative z-10 p-8" style={{ perspective: '1000px' }}>
+          <div className="grid grid-cols-6 gap-4 h-96" style={{ transformStyle: 'preserve-3d' }}>
             {gridLayout.map((row, rowIndex) =>
               row.map((slot, colIndex) => 
                 slot && slot.isOwned ? (
