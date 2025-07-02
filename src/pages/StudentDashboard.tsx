@@ -103,7 +103,7 @@ const StudentDashboard = () => {
     enabled: !!user?.id && enrollments.length > 0,
   });
 
-  const { data: studentXP, refetch: refetchXP } = useQuery({
+  const { data: studentXP } = useQuery({
     queryKey: ['student-xp', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
@@ -158,50 +158,6 @@ const StudentDashboard = () => {
     console.log('Current XP data:', studentXP);
   }, [studentXP]);
 
-  // Debug function to manually check database state
-  const debugDatabaseState = async () => {
-    if (!user?.id) return;
-    
-    console.log('=== DATABASE DEBUG ===');
-    
-    // Check student_answers
-    const { data: answers, error: answersError } = await supabase
-      .from('student_answers')
-      .select('*')
-      .eq('student_id', user.id);
-    
-    console.log('All student answers:', answers);
-    if (answersError) console.error('Answers error:', answersError);
-    
-    // Check student_xp
-    const { data: xp, error: xpError } = await supabase
-      .from('student_xp')
-      .select('*')
-      .eq('student_id', user.id);
-    
-    console.log('All student XP records:', xp);
-    if (xpError) console.error('XP error:', xpError);
-    
-    // Try to manually create an XP record if it doesn't exist and we have answers
-    if (answers && answers.length > 0 && (!xp || xp.length === 0)) {
-      const totalXp = answers.reduce((sum, answer) => sum + (answer.xp_earned || 0), 0);
-      console.log('Attempting to manually create XP record with total:', totalXp);
-      
-      const { data: insertData, error: insertError } = await supabase
-        .from('student_xp')
-        .insert([{ student_id: user.id, total_xp: totalXp }])
-        .select()
-        .single();
-      
-      if (insertError) {
-        console.error('Error manually creating XP record:', insertError);
-      } else {
-        console.log('Successfully created XP record:', insertData);
-        refetchXP();
-      }
-    }
-  };
-
   const getCourseStats = (courseId: string) => {
     return courseStats.find(stat => stat.course_id === courseId) || {
       course_id: courseId,
@@ -246,24 +202,6 @@ const StudentDashboard = () => {
             <p className="text-xs text-muted-foreground">
               {studentXP?.total_xp ? 'Gesammeltes XP' : 'Beginnen Sie zu lernen!'}
             </p>
-            <div className="flex gap-2 mt-2">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => refetchXP()}
-                className="text-xs"
-              >
-                Aktualisieren
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={debugDatabaseState}
-                className="text-xs"
-              >
-                Debug DB
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
