@@ -69,7 +69,7 @@ const QuizProgressHeader = ({
           🏁 ZIEL
         </div>
         
-        {/* Running Stickman - positioned to avoid overlap with percentage bubble */}
+        {/* Running Stickman */}
         <div 
           className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-700 ease-out z-10"
           style={{ left: `${Math.min(progress, 70)}%` }}
@@ -101,17 +101,6 @@ const QuizProgressHeader = ({
               </div>
             </div>
           </div>
-        </div>
-        
-        {/* Progress percentage bubble - positioned to avoid overlap with stickman */}
-        <div 
-          className="absolute top-1 bg-blue-700 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg border border-white z-20"
-          style={{ 
-            left: `${Math.min(Math.max(progress + 5, 15), 85)}%`, 
-            transform: 'translateX(-50%)' 
-          }}
-        >
-          {Math.round(progress)}%
         </div>
         
         {/* Start line */}
