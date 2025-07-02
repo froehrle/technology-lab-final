@@ -67,6 +67,8 @@ const CoursesList = ({ enrollments, courseStats, isLoading }: CoursesListProps) 
           <div className="space-y-4">
             {enrollments.map((enrollment) => {
               const stats = getCourseStats(enrollment.course_id);
+              const isCompleted = enrollment.progress >= 100;
+              
               return (
                 <div 
                   key={enrollment.id} 
@@ -111,7 +113,7 @@ const CoursesList = ({ enrollments, courseStats, isLoading }: CoursesListProps) 
                     className="ml-4"
                   >
                     <Play className="h-4 w-4 mr-1" />
-                    {enrollment.progress > 0 ? 'Fortsetzen' : 'Starten'}
+                    {isCompleted ? 'Wiederholen' : (enrollment.progress > 0 ? 'Fortsetzen' : 'Starten')}
                   </Button>
                 </div>
               );
