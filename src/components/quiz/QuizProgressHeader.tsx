@@ -34,30 +34,25 @@ const QuizProgressHeader = ({
       </div>
       
       {/* Enhanced Progress Bar with Better Visibility */}
-      <div className="relative bg-gradient-to-r from-blue-50 to-green-50 rounded-xl h-24 overflow-hidden border-3 border-blue-200 shadow-lg">
+      <div className="relative bg-gradient-to-r from-blue-50 to-green-50 rounded-xl h-24 overflow-hidden border-3 border-blue-200 shadow-lg mb-4">
         {/* Background Track */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100"></div>
         
         {/* Progress Fill */}
         <div 
           className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 opacity-40 transition-all duration-700 ease-out"
-          style={{ width: `${Math.min(progress, 85)}%` }}
+          style={{ width: `${Math.min(progress, 82)}%` }}
         ></div>
         
-        {/* Ultra Visible Finish Line */}
-        <div className="absolute right-4 top-0 h-full flex items-center z-20">
+        {/* Ultra Visible Finish Line - positioned within container */}
+        <div className="absolute right-2 top-2 bottom-2 flex items-center z-20">
           {/* Main finish line */}
-          <div className="w-4 h-full bg-gradient-to-b from-red-600 via-red-700 to-red-800 rounded-lg shadow-xl border-2 border-red-900"></div>
-          
-          {/* Finish flag */}
-          <div className="absolute -top-3 -right-2 bg-red-700 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border-2 border-white">
-            🏁 ZIEL
-          </div>
+          <div className="w-3 h-full bg-gradient-to-b from-red-600 via-red-700 to-red-800 rounded-lg shadow-xl border-2 border-red-900"></div>
           
           {/* Checkered pattern overlay */}
-          <div className="absolute inset-0 w-4 opacity-60">
-            <div className="grid grid-cols-2 grid-rows-12 h-full">
-              {[...Array(24)].map((_, i) => (
+          <div className="absolute inset-0 w-3 opacity-60">
+            <div className="grid grid-cols-2 grid-rows-10 h-full">
+              {[...Array(20)].map((_, i) => (
                 <div
                   key={i}
                   className={`${
@@ -69,64 +64,82 @@ const QuizProgressHeader = ({
           </div>
         </div>
         
+        {/* Finish flag - positioned inside container */}
+        <div className="absolute right-1 top-1 bg-red-700 text-white text-xs font-bold px-2 py-1 rounded shadow-lg border border-white z-30">
+          🏁 ZIEL
+        </div>
+        
         {/* Running Stickman */}
         <div 
           className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-700 ease-out z-10"
-          style={{ left: `${Math.min(progress, 82)}%` }}
+          style={{ left: `${Math.min(progress, 75)}%` }}
         >
           <div className="relative">
             {/* Enhanced Stickman */}
-            <svg width="40" height="40" viewBox="0 0 40 40" className="animate-bounce">
+            <svg width="35" height="35" viewBox="0 0 35 35" className="animate-bounce">
               {/* Head */}
-              <circle cx="20" cy="8" r="6" fill="#1e40af" stroke="#1e3a8a" strokeWidth="2" />
+              <circle cx="17.5" cy="7" r="5" fill="#1e40af" stroke="#1e3a8a" strokeWidth="2" />
               {/* Body */}
-              <line x1="20" y1="14" x2="20" y2="26" stroke="#1e40af" strokeWidth="4" strokeLinecap="round" />
+              <line x1="17.5" y1="12" x2="17.5" y2="23" stroke="#1e40af" strokeWidth="3" strokeLinecap="round" />
               {/* Arms - running motion */}
-              <line x1="20" y1="18" x2="14" y2="22" stroke="#1e40af" strokeWidth="3" strokeLinecap="round" className="animate-pulse" />
-              <line x1="20" y1="18" x2="26" y2="16" stroke="#1e40af" strokeWidth="3" strokeLinecap="round" className="animate-pulse" />
+              <line x1="17.5" y1="16" x2="12" y2="19" stroke="#1e40af" strokeWidth="2.5" strokeLinecap="round" className="animate-pulse" />
+              <line x1="17.5" y1="16" x2="23" y2="14" stroke="#1e40af" strokeWidth="2.5" strokeLinecap="round" className="animate-pulse" />
               {/* Legs - running motion */}
-              <line x1="20" y1="26" x2="14" y2="32" stroke="#1e40af" strokeWidth="3" strokeLinecap="round" className="animate-pulse" />
-              <line x1="20" y1="26" x2="26" y2="30" stroke="#1e40af" strokeWidth="3" strokeLinecap="round" className="animate-pulse" />
+              <line x1="17.5" y1="23" x2="12" y2="28" stroke="#1e40af" strokeWidth="2.5" strokeLinecap="round" className="animate-pulse" />
+              <line x1="17.5" y1="23" x2="23" y2="26" stroke="#1e40af" strokeWidth="2.5" strokeLinecap="round" className="animate-pulse" />
               {/* Feet */}
-              <circle cx="14" cy="32" r="2" fill="#1e40af" />
-              <circle cx="26" cy="30" r="2" fill="#1e40af" />
+              <circle cx="12" cy="28" r="1.5" fill="#1e40af" />
+              <circle cx="23" cy="26" r="1.5" fill="#1e40af" />
             </svg>
             
             {/* Enhanced Speed lines */}
-            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-16">
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-12">
               <div className="flex space-x-1">
-                <div className="w-4 h-1 bg-blue-600 rounded animate-pulse"></div>
-                <div className="w-3 h-1 bg-blue-500 rounded animate-pulse" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-1 bg-blue-400 rounded animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-3 h-0.5 bg-blue-600 rounded animate-pulse"></div>
+                <div className="w-2 h-0.5 bg-blue-500 rounded animate-pulse" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-1 h-0.5 bg-blue-400 rounded animate-pulse" style={{ animationDelay: '0.2s' }}></div>
               </div>
             </div>
-            
-            {/* Progress percentage bubble */}
-            <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-blue-700 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg border-2 border-white">
-              {Math.round(progress)}%
-            </div>
           </div>
+        </div>
+        
+        {/* Progress percentage bubble - positioned to stay within container */}
+        <div 
+          className="absolute top-1 left-1/2 transform -translate-x-1/2 bg-blue-700 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg border border-white z-20"
+          style={{ left: `${Math.min(Math.max(progress, 10), 90)}%` }}
+        >
+          {Math.round(progress)}%
         </div>
         
         {/* Quarter markers with better visibility */}
         {[25, 50, 75].map((marker) => (
           <div
             key={marker}
-            className="absolute top-0 h-full w-1 bg-gray-500 opacity-80 z-5"
+            className="absolute top-0 h-full w-0.5 bg-gray-500 opacity-80 z-5"
             style={{ left: `${marker}%` }}
           >
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-sm text-gray-700 font-semibold bg-white px-2 py-1 rounded shadow">
-              {marker}%
-            </div>
           </div>
         ))}
         
         {/* Start line */}
-        <div className="absolute left-2 top-0 h-full w-1 bg-green-600 opacity-80 z-5">
-          <div className="absolute -top-3 -left-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow">
+        <div className="absolute left-2 top-2 bottom-2 w-1 bg-green-600 opacity-80 z-5 rounded">
+          <div className="absolute -top-1 -left-1 bg-green-600 text-white text-xs font-bold px-1 py-0.5 rounded shadow text-center">
             START
           </div>
         </div>
+      </div>
+      
+      {/* Quarter marker labels positioned outside progress bar */}
+      <div className="relative h-6 mb-2">
+        {[25, 50, 75].map((marker) => (
+          <div
+            key={marker}
+            className="absolute transform -translate-x-1/2 text-sm text-gray-700 font-semibold bg-white px-2 py-1 rounded shadow"
+            style={{ left: `${marker}%` }}
+          >
+            {marker}%
+          </div>
+        ))}
       </div>
       
       <div className="flex justify-between items-center mt-6">
