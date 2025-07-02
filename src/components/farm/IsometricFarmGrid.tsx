@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFarmItems } from '@/hooks/useFarmItems';
 import IsometricFarmSlot from './IsometricFarmSlot';
+import { Button } from '@/components/ui/button';
 import farmBackground from '@/assets/farmville-background.jpg';
 
 const IsometricFarmGrid = () => {
   const { getGridLayout, loading, getNextPurchasableItem } = useFarmItems();
+  const [showGrid, setShowGrid] = useState(false);
 
   if (loading) {
     return (
@@ -22,6 +24,18 @@ const IsometricFarmGrid = () => {
 
   return (
     <div className="relative w-full max-w-5xl mx-auto">
+      {/* Grid Toggle Button */}
+      <div className="absolute top-4 left-4 z-20">
+        <Button
+          onClick={() => setShowGrid(!showGrid)}
+          variant={showGrid ? "default" : "outline"}
+          size="sm"
+          className="bg-white/90 backdrop-blur-sm hover:bg-white/95"
+        >
+          {showGrid ? "🔲 Grid Ein" : "⬜ Grid Aus"}
+        </Button>
+      </div>
+
       {/* Farm Field Background - Using the actual uploaded image */}
       <div 
         className="relative w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-green-500/60"
@@ -32,6 +46,17 @@ const IsometricFarmGrid = () => {
           backgroundPosition: 'center',
         }}
       >
+        {/* Grid Overlay - Only visible when toggled */}
+        {showGrid && (
+          <div className="absolute inset-2 pointer-events-none" style={{
+            padding: '16px',
+            backgroundImage: `
+              linear-gradient(to right, rgba(255,255,255,0.3) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255,255,255,0.3) 1px, transparent 1px)
+            `,
+            backgroundSize: 'calc(100% / 5) calc(100% / 3)'
+          }} />
+        )}
         
         {/* Next Item Indicator */}
         {nextItem && (
