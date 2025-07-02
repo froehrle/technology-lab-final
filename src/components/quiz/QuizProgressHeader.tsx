@@ -33,14 +33,14 @@ const QuizProgressHeader = ({
         </div>
       </div>
       
-      {/* Enhanced Progress Bar with Better Visibility */}
-      <div className="relative bg-gradient-to-r from-blue-50 to-green-50 rounded-xl h-24 overflow-hidden border-3 border-blue-200 shadow-lg mb-4">
+      {/* Enhanced Progress Bar with White Background */}
+      <div className="relative bg-white rounded-xl h-24 overflow-hidden border-2 border-gray-200 shadow-sm mb-4">
         {/* Background Track */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100"></div>
+        <div className="absolute inset-0 bg-gray-50"></div>
         
         {/* Progress Fill */}
         <div 
-          className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 opacity-40 transition-all duration-700 ease-out"
+          className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 opacity-30 transition-all duration-700 ease-out"
           style={{ width: `${Math.min(progress, 82)}%` }}
         ></div>
         
@@ -105,21 +105,11 @@ const QuizProgressHeader = ({
         
         {/* Progress percentage bubble - positioned to stay within container */}
         <div 
-          className="absolute top-1 left-1/2 transform -translate-x-1/2 bg-blue-700 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg border border-white z-20"
-          style={{ left: `${Math.min(Math.max(progress, 10), 90)}%` }}
+          className="absolute top-1 bg-blue-700 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg border border-white z-20"
+          style={{ left: `${Math.min(Math.max(progress, 10), 85)}%`, transform: 'translateX(-50%)' }}
         >
           {Math.round(progress)}%
         </div>
-        
-        {/* Quarter markers with better visibility */}
-        {[25, 50, 75].map((marker) => (
-          <div
-            key={marker}
-            className="absolute top-0 h-full w-0.5 bg-gray-500 opacity-80 z-5"
-            style={{ left: `${marker}%` }}
-          >
-          </div>
-        ))}
         
         {/* Start line */}
         <div className="absolute left-2 top-2 bottom-2 w-1 bg-green-600 opacity-80 z-5 rounded">
@@ -127,19 +117,6 @@ const QuizProgressHeader = ({
             START
           </div>
         </div>
-      </div>
-      
-      {/* Quarter marker labels positioned outside progress bar */}
-      <div className="relative h-6 mb-2">
-        {[25, 50, 75].map((marker) => (
-          <div
-            key={marker}
-            className="absolute transform -translate-x-1/2 text-sm text-gray-700 font-semibold bg-white px-2 py-1 rounded shadow"
-            style={{ left: `${marker}%` }}
-          >
-            {marker}%
-          </div>
-        ))}
       </div>
       
       <div className="flex justify-between items-center mt-6">
