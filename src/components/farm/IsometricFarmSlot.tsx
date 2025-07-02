@@ -1,5 +1,4 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
 
 interface IsometricFarmSlotProps {
   slot: any;
@@ -16,44 +15,28 @@ const IsometricFarmSlot: React.FC<IsometricFarmSlotProps> = ({
 }) => {
   // Only show owned items - empty slots and non-owned items are invisible
   if (isEmpty || !slot || !slot.isOwned) {
-    return <div className="relative" />;
-  }
-
-  // Don't render anything for span cells (cells occupied by multi-cell items but not the main cell)
-  if (slot?.isSpan) {
-    return <div className="relative" />;
+    return <div className="w-full h-full" />;
   }
 
   return (
     <div 
-      className="relative flex items-center justify-center group transition-all duration-500"
+      className="w-full h-full flex items-center justify-center group transition-all duration-300 hover:scale-110"
+      title={slot.name}
       style={{
-        gridColumn: `span ${slot.width || 1}`,
-        gridRow: `span ${slot.height || 1}`,
-        minHeight: '100%',
-        minWidth: '100%'
+        width: '100px',
+        height: '100px'
       }}
     >
-      {/* Item Icon - fills entire grid cell */}
-      <div
-        className="transition-all duration-300 group-hover:scale-110 flex items-center justify-center w-full h-full"
-        title={slot.name}
+      {/* Simple icon display - 60px font size */}
+      <span 
+        className="transition-all duration-300 drop-shadow-lg select-none"
+        style={{
+          fontSize: '60px',
+          lineHeight: '1'
+        }}
       >
-        <span 
-          className="transition-all duration-300 drop-shadow-lg block"
-          style={{
-            fontSize: `${Math.max(slot.width || 1, slot.height || 1) * 8}rem`,
-            lineHeight: '1',
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          {slot.icon}
-        </span>
-      </div>
+        {slot.icon}
+      </span>
     </div>
   );
 };
