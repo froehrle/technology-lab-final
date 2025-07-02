@@ -21,7 +21,7 @@ const FarmSlot: React.FC<FarmSlotProps> = ({ slot, isEmpty }) => {
       title={slot.name}
     >
       <span 
-        className="text-4xl transition-all duration-300 group-hover:scale-110 drop-shadow-lg"
+        className="text-6xl md:text-7xl lg:text-8xl transition-all duration-300 group-hover:scale-110 drop-shadow-lg"
         style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
       >
         {slot.icon}
