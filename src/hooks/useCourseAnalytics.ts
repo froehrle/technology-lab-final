@@ -104,6 +104,8 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
     queryFn: async () => {
       if (filteredCourseIds.length === 0) return 0;
       
+      console.log('Fetching avg attempts for courses:', filteredCourseIds);
+      
       const { data, error } = await supabase
         .from('student_answers')
         .select(`
@@ -112,11 +114,18 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
         `)
         .in('questions.course_id', filteredCourseIds);
 
+      console.log('Avg attempts data:', data, 'error:', error);
+      
       if (error) throw error;
-      if (!data?.length) return 0;
+      if (!data?.length) {
+        console.log('No student answers found for courses:', filteredCourseIds);
+        return 0;
+      }
 
       const totalAttempts = data.reduce((sum, answer) => sum + (answer.attempt_count || 1), 0);
-      return totalAttempts / data.length;
+      const average = totalAttempts / data.length;
+      console.log('Calculated average attempts:', average, 'from', data.length, 'answers');
+      return average;
     },
     enabled: !!userId && filteredCourseIds.length > 0,
   });
