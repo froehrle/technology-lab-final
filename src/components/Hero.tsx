@@ -1,77 +1,75 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Users, Trophy, Star } from 'lucide-react';
+import { ArrowRight, Sparkles, Users, GraduationCap } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Hero = () => {
+  const { user } = useAuth();
+
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-4000"></div>
+    <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <div className="absolute inset-0">
+        <div className="absolute top-10 left-10 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute top-0 right-4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
       </div>
 
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="text-center max-w-4xl mx-auto">
-          {/* Logo/Brand */}
-          <div className="flex items-center justify-center mb-8 animate-fade-in">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-3 rounded-xl shadow-lg">
-              <BookOpen className="h-8 w-8 text-white" />
-            </div>
-            <h1 className="text-4xl font-bold ml-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              CourseLingo
-            </h1>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+        <div className="text-center">
+          <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-medium mb-8 animate-pulse">
+            <Sparkles className="w-4 h-4 mr-2" />
+            Transform Any Subject Into Engaging Lessons
           </div>
-
-          {/* Main Headline */}
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 animate-fade-in animation-delay-300">
-            Turn Any Subject Into
-            <span className="block bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Duolingo-Style Learning
-            </span>
-          </h2>
-
-          {/* Subheadline */}
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto animate-fade-in animation-delay-600">
-            Teachers upload PDFs, get AI-generated questions instantly. Students learn through bite-sized lessons with streaks, XP, and instant feedback.
+          
+          <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            Learn Like <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Duolingo</span>,
+            <br />But for <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">Any Subject</span>
+          </h1>
+          
+          <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Teachers upload PDFs and get AI-generated questions instantly. 
+            Students learn through gamified experiences with streaks, XP, and personalized lessons.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12 animate-fade-in animation-delay-900">
-            <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-              Start Teaching
-            </Button>
-            <Button size="lg" variant="outline" className="border-2 border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white px-8 py-4 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-              Start Learning
-            </Button>
-          </div>
-
-          {/* Feature Highlights */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg animate-fade-in animation-delay-1200 hover:scale-105 transition-transform duration-300">
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-3 rounded-xl w-fit mx-auto mb-4">
-                <Users className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">For Teachers</h3>
-              <p className="text-gray-600">Upload PDFs, get AI questions, track student progress</p>
+          {!user ? (
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+              <Link to="/auth">
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <Users className="w-5 h-5 mr-2" />
+                  Start Learning as Student
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+              
+              <Link to="/auth">
+                <Button variant="outline" size="lg" className="border-2 border-green-500 text-green-600 hover:bg-green-50 px-8 py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <GraduationCap className="w-5 h-5 mr-2" />
+                  Create Courses as Teacher
+                </Button>
+              </Link>
             </div>
-
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg animate-fade-in animation-delay-1500 hover:scale-105 transition-transform duration-300">
-              <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-3 rounded-xl w-fit mx-auto mb-4">
-                <Trophy className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">For Students</h3>
-              <p className="text-gray-600">Learn with streaks, XP, and personalized lessons</p>
+          ) : (
+            <div className="mb-16">
+              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-6 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                Go to Dashboard
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
             </div>
+          )}
 
-            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg animate-fade-in animation-delay-1800 hover:scale-105 transition-transform duration-300">
-              <div className="bg-gradient-to-r from-pink-500 to-pink-600 p-3 rounded-xl w-fit mx-auto mb-4">
-                <Star className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">AI-Powered</h3>
-              <p className="text-gray-600">Automatic question generation and adaptive learning</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="text-center p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg">
+              <div className="text-3xl font-bold text-blue-600 mb-2">10x</div>
+              <div className="text-gray-600">Faster Course Creation</div>
+            </div>
+            <div className="text-center p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg">
+              <div className="text-3xl font-bold text-purple-600 mb-2">85%</div>
+              <div className="text-gray-600">Student Engagement</div>
+            </div>
+            <div className="text-center p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-white/20 shadow-lg">
+              <div className="text-3xl font-bold text-pink-600 mb-2">24/7</div>
+              <div className="text-gray-600">AI-Powered Learning</div>
             </div>
           </div>
         </div>
