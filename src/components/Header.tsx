@@ -3,10 +3,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LogOut, User, BookOpen, LayoutDashboard, GraduationCap, Trophy, ShoppingBag } from 'lucide-react';
+import { LogOut, GraduationCap } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import CustomAvatar from '@/components/avatar/CustomAvatar';
 import CoinBalance from '@/components/store/CoinBalance';
+import DuolingoHomeIcon from '@/components/icons/DuolingoHomeIcon';
+import DuolingoLearnIcon from '@/components/icons/DuolingoLearnIcon';
+import DuolingoLeaderboardIcon from '@/components/icons/DuolingoLeaderboardIcon';
+import DuolingoShopIcon from '@/components/icons/DuolingoShopIcon';
+import DuolingoProfileIcon from '@/components/icons/DuolingoProfileIcon';
 const Header = () => {
   const {
     user,
@@ -46,19 +51,19 @@ const Header = () => {
                     </Link>}
                   {isStudent && <>
                       <Link to="/dashboard" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                        <LayoutDashboard className="h-4 w-4" />
+                        <DuolingoHomeIcon size={20} />
                         <span>Startseite</span>
                       </Link>
                       <Link to="/courses" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                        <BookOpen className="h-4 w-4" />
+                        <DuolingoLearnIcon size={20} />
                         <span>Kurse</span>
                       </Link>
                       <Link to="/leaderboard" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                        <Trophy className="h-4 w-4" />
+                        <DuolingoLeaderboardIcon size={20} />
                         <span>Rangliste</span>
                       </Link>
                       <Link to="/avatar-store" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
-                        <ShoppingBag className="h-4 w-4" />
+                        <DuolingoShopIcon size={20} />
                         <span>Shop</span>
                       </Link>
                     </>}
@@ -80,7 +85,7 @@ const Header = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/profile" className="flex items-center">
-                        <User className="mr-2 h-4 w-4" />
+                        <DuolingoProfileIcon size={16} className="mr-2" />
                         Profil
                       </Link>
                     </DropdownMenuItem>
