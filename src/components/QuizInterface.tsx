@@ -26,6 +26,8 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     focusPoints,
     questionAttempts,
     canProceed,
+    isValidating,
+    apiError,
     handleAnswerSelect,
     handleTextAnswerChange,
     handleSubmitAnswer,
@@ -34,7 +36,6 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     toast
   } = useQuizActions(courseId);
 
-  // Handle focus points warning with useEffect to avoid render issues - changed to 20
   useEffect(() => {
     if (focusPoints <= 20 && focusPoints > 0) {
       toast({
@@ -53,7 +54,6 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     );
   }
 
-  // Show game over when focus points reach 0 - this should be checked first and stay visible
   if (focusPoints <= 0) {
     return <GameOverCard onRestart={handleRestart} />;
   }
@@ -66,12 +66,9 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     return <QuizCompletedCard onRestart={handleRestart} />;
   }
 
-  // Handle case where current question index might be beyond the current questions length
-  // This can happen if questions were removed, so we adjust to the last available question
   const adjustedQuestionIndex = Math.min(currentQuestionIndex, questions.length - 1);
   const currentQuestion = questions[adjustedQuestionIndex];
   
-  // Use the actual questions length for progress calculation (handles dynamically added questions)
   const progress = questions.length > 0 ? ((adjustedQuestionIndex + 1) / questions.length) * 100 : 0;
   const hasAnswer = currentQuestion?.question_type === 'multiple_choice' ? !!selectedAnswer : !!textAnswer;
   const currentAttempts = questionAttempts[currentQuestion?.id] || 0;
@@ -91,9 +88,11 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
         textAnswer={textAnswer}
         showResult={showResult}
         isCorrect={isCorrect}
+        attemptCount={currentAttempts}
+        isValidating={isValidating}
+        apiError={apiError}
         onAnswerSelect={handleAnswerSelect}
         onTextAnswerChange={handleTextAnswerChange}
-        attemptCount={currentAttempts}
       />
 
       <QuizActions
@@ -102,6 +101,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
         currentQuestionIndex={adjustedQuestionIndex}
         totalQuestions={questions.length}
         canProceed={canProceed}
+        isValidating={isValidating}
         onSubmitAnswer={handleSubmitAnswer}
         onNextQuestion={handleNextQuestion}
       />

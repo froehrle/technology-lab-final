@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 interface QuizActionsProps {
   showResult: boolean;
@@ -8,6 +9,7 @@ interface QuizActionsProps {
   currentQuestionIndex: number;
   totalQuestions: number;
   canProceed: boolean;
+  isValidating?: boolean;
   onSubmitAnswer: () => void;
   onNextQuestion: () => void;
 }
@@ -18,6 +20,7 @@ const QuizActions = ({
   currentQuestionIndex,
   totalQuestions,
   canProceed,
+  isValidating = false,
   onSubmitAnswer,
   onNextQuestion
 }: QuizActionsProps) => {
@@ -26,11 +29,18 @@ const QuizActions = ({
       {!showResult || !canProceed ? (
         <Button 
           onClick={onSubmitAnswer} 
-          disabled={!hasAnswer}
+          disabled={!hasAnswer || isValidating}
           className="flex-1"
           size="lg"
         >
-          Antwort bestätigen
+          {isValidating ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Validierung...
+            </>
+          ) : (
+            'Antwort bestätigen'
+          )}
         </Button>
       ) : (
         <Button 

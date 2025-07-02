@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 interface Question {
   id: string;
@@ -20,6 +20,8 @@ interface QuestionDisplayProps {
   showResult: boolean;
   isCorrect: boolean;
   attemptCount: number;
+  isValidating?: boolean;
+  apiError?: string | null;
   onAnswerSelect: (answer: string) => void;
   onTextAnswerChange: (answer: string) => void;
 }
@@ -31,17 +33,17 @@ const QuestionDisplay = ({
   showResult,
   isCorrect,
   attemptCount,
+  isValidating = false,
+  apiError = null,
   onAnswerSelect,
   onTextAnswerChange
 }: QuestionDisplayProps) => {
   const shouldShowFeedback = showResult && (isCorrect || attemptCount >= 3);
 
-  // Determine if this is a multiple choice or true/false question
   const isMultipleChoice = question.question_type === 'multiple_choice';
   const isTrueFalse = question.question_type === 'true_false' || question.question_type === 'boolean';
   const isTextQuestion = question.question_type === 'text';
 
-  // For true/false questions, use German labels but map to English values
   const displayOptions = isTrueFalse ? [
     { label: 'Wahr', value: 'True' },
     { label: 'Falsch', value: 'False' }
@@ -76,7 +78,7 @@ const QuestionDisplay = ({
                     : ''
                 }`}
                 onClick={() => onAnswerSelect(option.value)}
-                disabled={shouldShowFeedback}
+                disabled={shouldShowFeedback || isValidating}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm font-medium">
@@ -94,20 +96,40 @@ const QuestionDisplay = ({
             ))
           ) : isTextQuestion ? (
             <div className="space-y-4">
-              <Input
-                type="text"
-                placeholder="Geben Sie Ihre Antwort ein..."
-                value={textAnswer}
-                onChange={(e) => onTextAnswerChange(e.target.value)}
-                disabled={shouldShowFeedback}
-                className={`text-lg p-4 ${
-                  shouldShowFeedback
-                    ? isCorrect
-                      ? 'bg-green-100 border-green-500'
-                      : 'bg-red-100 border-red-500'
-                    : ''
-                }`}
-              />
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="Geben Sie Ihre Antwort ein..."
+                  value={textAnswer}
+                  onChange={(e) => onTextAnswerChange(e.target.value)}
+                  disabled={shouldShowFeedback || isValidating}
+                  className={`text-lg p-4 ${
+                    shouldShowFeedback
+                      ? isCorrect
+                        ? 'bg-green-100 border-green-500'
+                        : 'bg-red-100 border-red-500'
+                      : ''
+                  }`}
+                />
+                {isValidating && (
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                    <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                  </div>
+                )}
+              </div>
+              
+              {apiError && (
+                <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
+                  {apiError}
+                </div>
+              )}
+              
+              {isValidating && (
+                <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded">
+                  Antwort wird validiert...
+                </div>
+              )}
+              
               {shouldShowFeedback && (
                 <div className="text-sm text-gray-600">
                   {isCorrect ? (
