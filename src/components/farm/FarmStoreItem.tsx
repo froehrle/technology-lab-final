@@ -34,12 +34,16 @@ const FarmStoreItem: React.FC<FarmStoreItemProps> = ({
 
   const getTypeIcon = (type: string) => {
     switch (type) {
+      case 'Gebäude':
       case 'building':
         return '🏠';
+      case 'Tier':
       case 'animal':
         return '🐄';
+      case 'Ausrüstung':
       case 'equipment':
         return '🚜';
+      case 'Feld':
       case 'crop':
         return '🌾';
       default:
@@ -49,12 +53,16 @@ const FarmStoreItem: React.FC<FarmStoreItemProps> = ({
 
   const getTypeColor = (type: string) => {
     switch (type) {
+      case 'Gebäude':
       case 'building':
         return 'bg-stone-100 text-stone-700';
+      case 'Tier':
       case 'animal':
         return 'bg-green-100 text-green-700';
+      case 'Ausrüstung':
       case 'equipment':
         return 'bg-yellow-100 text-yellow-700';
+      case 'Feld':
       case 'crop':
         return 'bg-lime-100 text-lime-700';
       default:
