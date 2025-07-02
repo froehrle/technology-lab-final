@@ -21,28 +21,35 @@ const FarmGrid = () => {
   return (
     <div className="w-full max-w-6xl mx-auto">
       {/* Farm Background */}
-      <div className="relative bg-gradient-to-b from-sky-200 via-green-200 to-green-400 rounded-2xl overflow-hidden shadow-2xl border-4 border-green-300">
-        {/* Sky gradient for depth */}
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-100/50 to-transparent"></div>
+      <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-green-300">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{
+            backgroundImage: `url('https://images.unsplash.com/photo-1465379944081-7f47de8d74ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+          }}
+        />
+        
+        {/* Overlay for better contrast */}
+        <div className="absolute inset-0 bg-black/10"></div>
         
         {/* Farm Grid */}
         <div className="relative z-10 p-8">
           <div className="grid grid-cols-6 gap-4 h-96">
             {gridLayout.map((row, rowIndex) =>
-              row.map((slot, colIndex) => (
-                <FarmGridSlot
-                  key={`${rowIndex}-${colIndex}`}
-                  slot={slot}
-                  rowIndex={rowIndex}
-                  colIndex={colIndex}
-                />
-              ))
+              row.map((slot, colIndex) => 
+                slot && slot.isOwned ? (
+                  <FarmGridSlot
+                    key={`${rowIndex}-${colIndex}`}
+                    slot={slot}
+                    rowIndex={rowIndex}
+                    colIndex={colIndex}
+                  />
+                ) : null
+              )
             )}
           </div>
         </div>
-
-        {/* Farm path decoration */}
-        <div className="absolute bottom-0 left-1/4 right-1/4 h-4 bg-amber-700/30 rounded-t-full"></div>
       </div>
 
       {/* Farm Stats */}

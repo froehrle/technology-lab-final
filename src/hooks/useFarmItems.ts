@@ -141,11 +141,16 @@ export const useFarmItems = () => {
     
     farmItems.forEach(item => {
       if (grid[item.grid_y] && grid[item.grid_y][item.grid_x] === null) {
-        grid[item.grid_y][item.grid_x] = {
+        const itemWithStatus = {
           ...item,
           isOwned: isOwned(item.id),
           canPurchase: canPurchase(item)
         };
+        
+        // Only place owned items in the grid
+        if (itemWithStatus.isOwned) {
+          grid[item.grid_y][item.grid_x] = itemWithStatus;
+        }
       }
     });
 
