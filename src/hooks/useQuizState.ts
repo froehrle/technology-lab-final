@@ -22,7 +22,7 @@ export const useQuizState = (courseId: string) => {
 
   // Get data and mutations
   const { questions, quizAttempt, questionsLoading, attemptLoading } = useQuizData(courseId);
-  const { updateQuizAttemptMutation, submitAnswerMutation, updateProgressMutation } = useQuizMutations(quizAttemptId);
+  const { updateQuizAttemptMutation, submitAnswerMutation, updateProgressMutation } = useQuizMutations(quizAttemptId, courseId);
 
   // Initialize state from quiz attempt
   useEffect(() => {

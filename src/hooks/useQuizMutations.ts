@@ -12,7 +12,7 @@ interface QuizAttempt {
   completed_at?: string;
 }
 
-export const useQuizMutations = (quizAttemptId: string | null) => {
+export const useQuizMutations = (quizAttemptId: string | null, courseId?: string) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -74,10 +74,12 @@ export const useQuizMutations = (quizAttemptId: string | null) => {
   // Update course progress mutation
   const updateProgressMutation = useMutation({
     mutationFn: async (progress: number) => {
+      if (!courseId) throw new Error('Course ID is required');
+
       const { data, error } = await supabase
         .from('course_enrollments')
         .update({ progress })
-        .eq('course_id', progress)
+        .eq('course_id', courseId)
         .eq('student_id', user!.id)
         .select()
         .single();
