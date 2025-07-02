@@ -56,12 +56,13 @@ export const useQuizActions = (courseId: string) => {
       [currentQuestion.id]: newAttempts
     }));
 
+    // Calculate XP based on attempt count - only first correct attempt gets XP
     const xpEarned = calculateXP(newAttempts, correct);
     const newFocusPoints = calculateNewFocusPoints(focusPoints, correct);
     const newScore = correct ? score + (currentQuestion.points || 1) + xpEarned : score;
     const canProceed = shouldAllowProceed(correct, newAttempts);
 
-    console.log('XP calculation:', { newAttempts, correct, xpEarned });
+    console.log('XP calculation:', { newAttempts, correct, xpEarned, isFirstAttempt: newAttempts === 1 });
 
     setCanProceed(canProceed);
 
@@ -82,7 +83,7 @@ export const useQuizActions = (courseId: string) => {
       focus_points: newFocusPoints
     });
     
-    // Submit answer with XP
+    // Submit answer with correct XP calculation
     try {
       await submitAnswerMutation.mutateAsync({
         questionId: currentQuestion.id,
@@ -92,7 +93,7 @@ export const useQuizActions = (courseId: string) => {
         xpEarned
       });
 
-      // Check for achievements after successful submission
+      // Check for achievements only if XP was actually earned
       if (xpEarned > 0) {
         console.log('Checking for new achievements with XP:', xpEarned);
         await checkForNewAchievements(xpEarned);
