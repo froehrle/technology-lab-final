@@ -39,7 +39,7 @@ export const useQuizMutations = (quizAttemptId: string | null, courseId?: string
     }
   });
 
-  // Submit answer mutation - now uses upsert to handle retries
+  // Submit answer mutation - handles both new answers and retries correctly
   const submitAnswerMutation = useMutation({
     mutationFn: async ({ questionId, answer, correct, attemptCount, xpEarned }: { 
       questionId: string; 
@@ -50,25 +50,53 @@ export const useQuizMutations = (quizAttemptId: string | null, courseId?: string
     }) => {
       console.log('Submitting answer with XP:', xpEarned);
       
-      const { data, error } = await supabase
+      // First, check if an answer already exists
+      const { data: existingAnswer } = await supabase
         .from('student_answers')
-        .upsert({
-          student_id: user!.id,
-          question_id: questionId,
-          selected_answer: answer,
-          is_correct: correct,
-          attempt_count: attemptCount,
-          xp_earned: xpEarned,
-          answered_at: new Date().toISOString()
-        }, {
-          onConflict: 'student_id,question_id'
-        })
-        .select()
+        .select('*')
+        .eq('student_id', user!.id)
+        .eq('question_id', questionId)
         .single();
 
-      if (error) throw error;
-      console.log('Answer submitted successfully:', data);
-      return data;
+      if (existingAnswer) {
+        // Update existing answer - the trigger will handle XP correctly
+        const { data, error } = await supabase
+          .from('student_answers')
+          .update({
+            selected_answer: answer,
+            is_correct: correct,
+            attempt_count: attemptCount,
+            xp_earned: xpEarned,
+            answered_at: new Date().toISOString()
+          })
+          .eq('student_id', user!.id)
+          .eq('question_id', questionId)
+          .select()
+          .single();
+
+        if (error) throw error;
+        console.log('Answer updated successfully:', data);
+        return data;
+      } else {
+        // Insert new answer
+        const { data, error } = await supabase
+          .from('student_answers')
+          .insert({
+            student_id: user!.id,
+            question_id: questionId,
+            selected_answer: answer,
+            is_correct: correct,
+            attempt_count: attemptCount,
+            xp_earned: xpEarned,
+            answered_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        console.log('Answer inserted successfully:', data);
+        return data;
+      }
     },
     onSuccess: () => {
       console.log('Invalidating queries after answer submission');

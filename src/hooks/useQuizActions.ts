@@ -56,13 +56,20 @@ export const useQuizActions = (courseId: string) => {
       [currentQuestion.id]: newAttempts
     }));
 
-    // Calculate XP based on attempt count - only first correct attempt gets XP
+    // Calculate XP - only award XP for first correct attempt
     const xpEarned = calculateXP(newAttempts, correct);
     const newFocusPoints = calculateNewFocusPoints(focusPoints, correct);
     const newScore = correct ? score + (currentQuestion.points || 1) + xpEarned : score;
     const canProceed = shouldAllowProceed(correct, newAttempts);
 
-    console.log('XP calculation:', { newAttempts, correct, xpEarned, isFirstAttempt: newAttempts === 1 });
+    console.log('XP calculation:', { 
+      questionId: currentQuestion.id,
+      newAttempts, 
+      correct, 
+      xpEarned, 
+      isFirstAttempt: newAttempts === 1,
+      currentAttempts 
+    });
 
     setCanProceed(canProceed);
 
