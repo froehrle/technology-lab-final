@@ -34,7 +34,7 @@ const CustomAvatar = ({ src, fallback, className }: CustomAvatarProps) => {
   );
 
   const containerClasses = cn(
-    "relative",
+    "relative inline-block", // Changed to inline-block for proper sizing
     equippedItems.frame, // Apply ring classes to container
     equippedItems.frame ? "p-1" : "" // Add padding when frame is equipped
   );

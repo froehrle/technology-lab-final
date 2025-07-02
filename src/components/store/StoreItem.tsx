@@ -53,7 +53,7 @@ const StoreItem = ({
         {/* Preview Avatar */}
         <div className="flex justify-center p-8">
           <div className={cn(
-            "relative",
+            "relative inline-block", // Changed to inline-block for proper sizing
             item.css_class, // Apply ring classes to container
             item.css_class ? "p-1" : "" // Add padding when ring is present
           )}>
