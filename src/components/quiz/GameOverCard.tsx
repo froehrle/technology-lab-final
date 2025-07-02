@@ -26,9 +26,17 @@ const GameOverCard = ({ onRestart }: GameOverCardProps) => {
           <CardTitle className="text-red-600 text-center">Game Over</CardTitle>
         </CardHeader>
         <CardContent className="text-center">
-          <p className="text-gray-600 mb-6">
-            Ihre Fokuspunkte sind auf 0 gefallen. Sie können das Quiz neu starten oder zum Dashboard zurückkehren.
+          <p className="text-gray-600 mb-4">
+            Ihre Fokuspunkte sind auf 0 gefallen.
           </p>
+          <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6 text-left">
+            <h4 className="font-semibold text-blue-800 mb-2">Empfehlungen:</h4>
+            <ul className="text-sm text-blue-700 space-y-1">
+              <li>• Machen Sie eine kurze Pause</li>
+              <li>• Überprüfen Sie das Kursmaterial noch einmal</li>
+              <li>• Kommen Sie ausgeruht zurück</li>
+            </ul>
+          </div>
           <div className="space-y-3">
             <Button 
               className="w-full" 
