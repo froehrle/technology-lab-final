@@ -47,7 +47,7 @@ const Header = () => {
                   {isStudent && <>
                       <Link to="/dashboard" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <LayoutDashboard className="h-4 w-4" />
-                        <span>Dashboard</span>
+                        <span>Startseite</span>
                       </Link>
                       <Link to="/courses" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <BookOpen className="h-4 w-4" />
