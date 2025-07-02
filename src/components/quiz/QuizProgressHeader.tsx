@@ -33,97 +33,107 @@ const QuizProgressHeader = ({
         </div>
       </div>
       
-      {/* Enhanced Running Stickman Progress */}
-      <div className="relative bg-gradient-to-r from-green-100 to-blue-100 rounded-xl h-20 overflow-hidden border-2 border-gray-200 shadow-lg">
-        {/* Progress Track */}
-        <div className="absolute inset-0 bg-gradient-to-r from-green-200 via-yellow-200 to-orange-200 opacity-50"></div>
+      {/* Enhanced Progress Bar with Better Visibility */}
+      <div className="relative bg-gradient-to-r from-blue-50 to-green-50 rounded-xl h-24 overflow-hidden border-3 border-blue-200 shadow-lg">
+        {/* Background Track */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100"></div>
         
         {/* Progress Fill */}
         <div 
-          className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-400 to-blue-500 opacity-30 transition-all duration-700 ease-out"
-          style={{ width: `${Math.min(progress, 90)}%` }}
+          className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 opacity-40 transition-all duration-700 ease-out"
+          style={{ width: `${Math.min(progress, 85)}%` }}
         ></div>
         
-        {/* Finish Line - Much More Visible */}
-        <div className="absolute right-3 top-0 h-full flex items-center">
-          <div className="w-3 h-full bg-gradient-to-b from-red-500 via-red-600 to-red-700 rounded-sm shadow-lg border border-red-800"></div>
-          <div className="absolute -top-2 -right-1 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
-            ZIEL
+        {/* Ultra Visible Finish Line */}
+        <div className="absolute right-4 top-0 h-full flex items-center z-20">
+          {/* Main finish line */}
+          <div className="w-4 h-full bg-gradient-to-b from-red-600 via-red-700 to-red-800 rounded-lg shadow-xl border-2 border-red-900"></div>
+          
+          {/* Finish flag */}
+          <div className="absolute -top-3 -right-2 bg-red-700 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg border-2 border-white">
+            🏁 ZIEL
+          </div>
+          
+          {/* Checkered pattern overlay */}
+          <div className="absolute inset-0 w-4 opacity-60">
+            <div className="grid grid-cols-2 grid-rows-12 h-full">
+              {[...Array(24)].map((_, i) => (
+                <div
+                  key={i}
+                  className={`${
+                    (Math.floor(i / 2) + i) % 2 === 0 ? 'bg-black' : 'bg-white'
+                  }`}
+                ></div>
+              ))}
+            </div>
           </div>
         </div>
         
-        {/* Checkered Pattern at Finish */}
-        <div className="absolute right-0 top-0 h-full w-8 opacity-40">
-          <div className="grid grid-cols-4 grid-rows-8 h-full">
-            {[...Array(32)].map((_, i) => (
-              <div
-                key={i}
-                className={`${
-                  (Math.floor(i / 4) + i) % 2 === 0 ? 'bg-black' : 'bg-white'
-                }`}
-              ></div>
-            ))}
-          </div>
-        </div>
-        
-        {/* Running Stickman with enhanced animation */}
+        {/* Running Stickman */}
         <div 
           className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-700 ease-out z-10"
-          style={{ left: `${Math.min(progress, 87)}%` }}
+          style={{ left: `${Math.min(progress, 82)}%` }}
         >
           <div className="relative">
             {/* Enhanced Stickman */}
-            <svg width="36" height="36" viewBox="0 0 36 36" className="animate-bounce">
+            <svg width="40" height="40" viewBox="0 0 40 40" className="animate-bounce">
               {/* Head */}
-              <circle cx="18" cy="7" r="5" fill="#2563eb" stroke="#1e40af" strokeWidth="1" />
+              <circle cx="20" cy="8" r="6" fill="#1e40af" stroke="#1e3a8a" strokeWidth="2" />
               {/* Body */}
-              <line x1="18" y1="12" x2="18" y2="24" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" />
+              <line x1="20" y1="14" x2="20" y2="26" stroke="#1e40af" strokeWidth="4" strokeLinecap="round" />
               {/* Arms - running motion */}
-              <line x1="18" y1="16" x2="13" y2="20" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" className="animate-pulse" />
-              <line x1="18" y1="16" x2="23" y2="14" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" className="animate-pulse" />
+              <line x1="20" y1="18" x2="14" y2="22" stroke="#1e40af" strokeWidth="3" strokeLinecap="round" className="animate-pulse" />
+              <line x1="20" y1="18" x2="26" y2="16" stroke="#1e40af" strokeWidth="3" strokeLinecap="round" className="animate-pulse" />
               {/* Legs - running motion */}
-              <line x1="18" y1="24" x2="13" y2="30" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" className="animate-pulse" />
-              <line x1="18" y1="24" x2="23" y2="28" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" className="animate-pulse" />
+              <line x1="20" y1="26" x2="14" y2="32" stroke="#1e40af" strokeWidth="3" strokeLinecap="round" className="animate-pulse" />
+              <line x1="20" y1="26" x2="26" y2="30" stroke="#1e40af" strokeWidth="3" strokeLinecap="round" className="animate-pulse" />
               {/* Feet */}
-              <circle cx="13" cy="30" r="1.5" fill="#2563eb" />
-              <circle cx="23" cy="28" r="1.5" fill="#2563eb" />
+              <circle cx="14" cy="32" r="2" fill="#1e40af" />
+              <circle cx="26" cy="30" r="2" fill="#1e40af" />
             </svg>
             
             {/* Enhanced Speed lines */}
-            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-12">
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-16">
               <div className="flex space-x-1">
-                <div className="w-3 h-1 bg-blue-500 rounded animate-pulse"></div>
-                <div className="w-2 h-1 bg-blue-400 rounded animate-pulse" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-1 bg-blue-300 rounded animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-4 h-1 bg-blue-600 rounded animate-pulse"></div>
+                <div className="w-3 h-1 bg-blue-500 rounded animate-pulse" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-2 h-1 bg-blue-400 rounded animate-pulse" style={{ animationDelay: '0.2s' }}></div>
               </div>
             </div>
             
             {/* Progress percentage bubble */}
-            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+            <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-blue-700 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg border-2 border-white">
               {Math.round(progress)}%
             </div>
           </div>
         </div>
         
-        {/* Mile markers */}
+        {/* Quarter markers with better visibility */}
         {[25, 50, 75].map((marker) => (
           <div
             key={marker}
-            className="absolute top-0 h-full w-0.5 bg-gray-400 opacity-60"
+            className="absolute top-0 h-full w-1 bg-gray-500 opacity-80 z-5"
             style={{ left: `${marker}%` }}
           >
-            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-500 font-medium">
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-sm text-gray-700 font-semibold bg-white px-2 py-1 rounded shadow">
               {marker}%
             </div>
           </div>
         ))}
+        
+        {/* Start line */}
+        <div className="absolute left-2 top-0 h-full w-1 bg-green-600 opacity-80 z-5">
+          <div className="absolute -top-3 -left-2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow">
+            START
+          </div>
+        </div>
       </div>
       
-      <div className="flex justify-between items-center mt-4">
-        <p className="text-sm text-gray-600 font-medium">
+      <div className="flex justify-between items-center mt-6">
+        <p className="text-base text-gray-700 font-semibold bg-gray-50 px-3 py-2 rounded-lg">
           Frage {currentQuestionIndex + 1} von {totalQuestions}
         </p>
-        <p className="text-sm text-blue-600 font-medium">
+        <p className="text-base text-blue-700 font-semibold bg-blue-50 px-3 py-2 rounded-lg">
           {Math.round((currentQuestionIndex / totalQuestions) * 100)}% abgeschlossen
         </p>
       </div>

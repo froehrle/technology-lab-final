@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,6 +26,7 @@ interface QuizAttempt {
   lives_remaining: number;
   current_score: number;
   is_completed: boolean;
+  completed_at?: string;
 }
 
 interface QuizInterfaceProps {
@@ -212,7 +212,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
       current_score: newScore,
       lives_remaining: newLives
     });
-
+    
     submitAnswerMutation.mutate({
       questionId: currentQuestion.id,
       answer: answerToSubmit,
