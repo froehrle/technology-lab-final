@@ -72,8 +72,8 @@ const IsometricFarmGrid = () => {
         {/* Farm Grid - Starts exactly at corners */}
         <div className="absolute inset-0" style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(20, 1fr)', 
-          gridTemplateRows: 'repeat(12, 1fr)', 
+          gridTemplateColumns: 'repeat(10, 1fr)', 
+          gridTemplateRows: 'repeat(6, 1fr)', 
           gap: '0px'
         }}>
           {gridLayout.map((row, rowIndex) =>
