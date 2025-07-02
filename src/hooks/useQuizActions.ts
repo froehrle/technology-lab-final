@@ -129,6 +129,15 @@ export const useQuizActions = (courseId: string) => {
     }
     
     try {
+      console.log('About to submit answer with values:', {
+        questionId: currentQuestion.id,
+        answer: answerToSubmit,
+        correct,
+        attemptCount: newAttempts,
+        xpEarned,
+        correctType: typeof correct
+      });
+      
       await submitAnswerMutation.mutateAsync({
         questionId: currentQuestion.id,
         answer: answerToSubmit,
