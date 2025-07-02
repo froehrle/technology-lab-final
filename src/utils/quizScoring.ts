@@ -2,12 +2,16 @@
 export const calculateXP = (attemptCount: number, correct: boolean): number => {
   if (!correct) return 0;
   
-  // Only award XP for the first correct attempt
+  // Award XP based on attempt number
   if (attemptCount === 1) {
     return 20; // First attempt gets full XP
+  } else if (attemptCount === 2) {
+    return 10; // Second attempt gets half XP
+  } else if (attemptCount === 3) {
+    return 5; // Third attempt gets quarter XP
   }
   
-  return 0; // No additional XP for subsequent attempts
+  return 0; // No XP for attempts beyond 3
 };
 
 export const calculateNewFocusPoints = (currentFocusPoints: number, correct: boolean): number => {
