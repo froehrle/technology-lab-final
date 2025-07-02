@@ -22,42 +22,16 @@ const IsometricFarmGrid = () => {
 
   return (
     <div className="relative w-full max-w-5xl mx-auto">
-      {/* Farm Field Background - Rolling Green Hills */}
+      {/* Farm Field Background - Using the actual uploaded image */}
       <div 
         className="relative w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-green-500/60"
         style={{
           aspectRatio: '5/3',
-          background: `
-            linear-gradient(180deg, 
-              #a8e6a3 0%, 
-              #8fbc8f 25%, 
-              #90ee90 50%, 
-              #98fb98 75%, 
-              #7cb342 100%
-            )
-          `
+          backgroundImage: 'url(/lovable-uploads/c8b636c7-2619-4138-8984-c6f44b8e5bef.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       >
-        {/* Rolling Hills Effect */}
-        <div className="absolute inset-0" style={{
-          background: `
-            radial-gradient(ellipse 120% 50% at 20% 70%, rgba(139, 195, 74, 0.3) 0%, transparent 50%),
-            radial-gradient(ellipse 100% 60% at 80% 60%, rgba(76, 175, 80, 0.2) 0%, transparent 50%),
-            radial-gradient(ellipse 150% 40% at 50% 80%, rgba(104, 159, 56, 0.4) 0%, transparent 60%)
-          `
-        }}></div>
-        
-        {/* Grass at the Bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-green-700 to-transparent opacity-80"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-4" style={{
-          background: `repeating-linear-gradient(90deg, 
-            transparent 0px, 
-            rgba(56, 142, 60, 0.6) 1px, 
-            rgba(56, 142, 60, 0.6) 2px, 
-            transparent 3px, 
-            transparent 8px
-          )`
-        }}></div>
         
         {/* Next Item Indicator */}
         {nextItem && (
