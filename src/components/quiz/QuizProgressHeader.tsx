@@ -1,9 +1,9 @@
 
 import React from 'react';
-import { Heart } from 'lucide-react';
+import { Zap } from 'lucide-react';
 
 interface QuizProgressHeaderProps {
-  lives: number;
+  focusPoints: number;
   score: number;
   progress: number;
   currentQuestionIndex: number;
@@ -11,23 +11,47 @@ interface QuizProgressHeaderProps {
 }
 
 const QuizProgressHeader = ({ 
-  lives, 
+  focusPoints, 
   score, 
   progress, 
   currentQuestionIndex, 
   totalQuestions 
 }: QuizProgressHeaderProps) => {
+  // Calculate focus bar color based on points
+  const getFocusBarColor = () => {
+    if (focusPoints >= 70) return 'bg-green-500';
+    if (focusPoints >= 40) return 'bg-yellow-500';
+    return 'bg-red-500';
+  };
+
+  const getFocusBarBgColor = () => {
+    if (focusPoints >= 70) return 'bg-green-100';
+    if (focusPoints >= 40) return 'bg-yellow-100';
+    return 'bg-red-100';
+  };
+
   return (
     <div className="mb-8">
       <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-2">
-          {[...Array(5)].map((_, i) => (
-            <Heart 
-              key={i} 
-              className={`h-7 w-7 ${i < lives ? 'text-red-500 fill-current' : 'text-gray-300'}`} 
-            />
-          ))}
+        {/* Fokus-Balken */}
+        <div className="flex items-center gap-3">
+          <Zap className="h-6 w-6 text-blue-600" />
+          <div className="flex flex-col">
+            <div className={`w-32 h-3 ${getFocusBarBgColor()} rounded-full overflow-hidden border border-gray-300`}>
+              <div 
+                className={`h-full ${getFocusBarColor()} transition-all duration-300`}
+                style={{ width: `${Math.max(0, focusPoints)}%` }}
+              ></div>
+            </div>
+            <span className="text-xs text-gray-600 mt-1">{focusPoints}/100 Fokus</span>
+          </div>
+          {focusPoints <= 10 && (
+            <div className="text-xs text-red-600 font-medium">
+              ⚠️ Pause empfohlen
+            </div>
+          )}
         </div>
+        
         <div className="text-xl font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-lg">
           Score: {score}
         </div>

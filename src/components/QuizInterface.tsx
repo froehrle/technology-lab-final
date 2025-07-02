@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,7 +24,7 @@ interface Question {
 interface QuizAttempt {
   id: string;
   current_question_index: number;
-  lives_remaining: number;
+  focus_points: number;
   current_score: number;
   is_completed: boolean;
   completed_at?: string;
@@ -44,9 +45,10 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
   const [textAnswer, setTextAnswer] = useState<string>('');
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  const [lives, setLives] = useState(5);
+  const [focusPoints, setFocusPoints] = useState(100);
   const [score, setScore] = useState(0);
   const [quizAttemptId, setQuizAttemptId] = useState<string | null>(null);
+  const [questionAttempts, setQuestionAttempts] = useState<{ [key: string]: number }>({});
 
   // Fetch questions
   const { data: questions = [], isLoading: questionsLoading } = useQuery({
@@ -94,7 +96,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
             student_id: user.id,
             course_id: courseId,
             current_question_index: 0,
-            lives_remaining: 5,
+            focus_points: 100,
             current_score: 0,
             is_completed: false
           }
@@ -113,7 +115,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     if (quizAttempt) {
       setQuizAttemptId(quizAttempt.id);
       setCurrentQuestionIndex(quizAttempt.current_question_index);
-      setLives(quizAttempt.lives_remaining);
+      setFocusPoints(quizAttempt.focus_points || 100);
       setScore(quizAttempt.current_score);
     }
   }, [quizAttempt]);
@@ -143,7 +145,13 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
 
   // Submit answer mutation
   const submitAnswerMutation = useMutation({
-    mutationFn: async ({ questionId, answer, correct }: { questionId: string; answer: string; correct: boolean }) => {
+    mutationFn: async ({ questionId, answer, correct, attemptCount, xpEarned }: { 
+      questionId: string; 
+      answer: string; 
+      correct: boolean;
+      attemptCount: number;
+      xpEarned: number;
+    }) => {
       const { data, error } = await supabase
         .from('student_answers')
         .upsert([
@@ -151,7 +159,9 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
             student_id: user!.id,
             question_id: questionId,
             selected_answer: answer,
-            is_correct: correct
+            is_correct: correct,
+            attempt_count: attemptCount,
+            xp_earned: xpEarned
           }
         ])
         .select()
@@ -193,31 +203,74 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     setTextAnswer(answer);
   };
 
+  const calculateXP = (attemptCount: number, correct: boolean): number => {
+    if (!correct) return 0;
+    
+    switch (attemptCount) {
+      case 1: return 20;
+      case 2: return 10;
+      default: return 0;
+    }
+  };
+
   const handleSubmitAnswer = () => {
     const answerToSubmit = currentQuestion?.question_type === 'text' ? textAnswer : selectedAnswer;
     if (!answerToSubmit || !currentQuestion) return;
 
     const correct = answerToSubmit === currentQuestion.correct_answer;
+    const currentAttempts = questionAttempts[currentQuestion.id] || 0;
+    const newAttempts = currentAttempts + 1;
+    
     setIsCorrect(correct);
     setShowResult(true);
+    
+    // Update attempt count for current question
+    setQuestionAttempts(prev => ({
+      ...prev,
+      [currentQuestion.id]: newAttempts
+    }));
 
-    const newScore = correct ? score + (currentQuestion.points || 1) : score;
-    const newLives = correct ? lives : lives - 1;
+    // Calculate XP and focus points changes
+    const xpEarned = calculateXP(newAttempts, correct);
+    let newFocusPoints = focusPoints;
+    let newScore = score;
 
+    if (correct) {
+      newFocusPoints = Math.min(100, focusPoints + 5);
+      newScore = score + (currentQuestion.points || 1) + xpEarned;
+    } else {
+      newFocusPoints = Math.max(0, focusPoints - 10);
+    }
+
+    setFocusPoints(newFocusPoints);
     setScore(newScore);
-    setLives(newLives);
 
     // Update quiz attempt
     updateQuizAttemptMutation.mutate({
       current_score: newScore,
-      lives_remaining: newLives
+      focus_points: newFocusPoints
     });
     
     submitAnswerMutation.mutate({
       questionId: currentQuestion.id,
       answer: answerToSubmit,
-      correct
+      correct,
+      attemptCount: newAttempts,
+      xpEarned
     });
+
+    // Show XP feedback
+    if (xpEarned > 0) {
+      toast({
+        title: `+${xpEarned} XP!`,
+        description: `${newAttempts === 1 ? 'Perfekt beim ersten Versuch!' : 'Richtig beim zweiten Versuch!'}`,
+      });
+    } else if (correct && newAttempts >= 3) {
+      toast({
+        title: "Richtig!",
+        description: "Kein XP nach dem 3. Versuch, aber weiter so!",
+      });
+    }
   };
 
   const handleNextQuestion = () => {
@@ -257,7 +310,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     if (quizAttemptId) {
       updateQuizAttemptMutation.mutate({
         current_question_index: 0,
-        lives_remaining: 5,
+        focus_points: 100,
         current_score: 0,
         is_completed: false
       });
@@ -268,8 +321,9 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     setSelectedAnswer('');
     setTextAnswer('');
     setShowResult(false);
-    setLives(5);
+    setFocusPoints(100);
     setScore(0);
+    setQuestionAttempts({});
   };
 
   if (questionsLoading || attemptLoading) {
@@ -289,8 +343,13 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     return <QuizCompletedCard score={quizAttempt.current_score} onRestart={handleRestart} />;
   }
 
-  if (lives <= 0) {
-    return <GameOverCard score={score} onRestart={handleRestart} />;
+  // Show focus warning but allow continuation
+  if (focusPoints <= 0) {
+    toast({
+      title: "Fokus erschöpft",
+      description: "Eine Pause wird empfohlen, aber Sie können fortfahren.",
+      variant: "destructive"
+    });
   }
 
   const hasAnswer = currentQuestion?.question_type === 'multiple_choice' ? !!selectedAnswer : !!textAnswer;
@@ -298,7 +357,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <QuizProgressHeader
-        lives={lives}
+        focusPoints={focusPoints}
         score={score}
         progress={progress}
         currentQuestionIndex={currentQuestionIndex}

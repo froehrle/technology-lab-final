@@ -152,6 +152,7 @@ export type Database = {
           created_at: string
           current_question_index: number | null
           current_score: number | null
+          focus_points: number | null
           id: string
           is_completed: boolean | null
           lives_remaining: number | null
@@ -164,6 +165,7 @@ export type Database = {
           created_at?: string
           current_question_index?: number | null
           current_score?: number | null
+          focus_points?: number | null
           id?: string
           is_completed?: boolean | null
           lives_remaining?: number | null
@@ -176,6 +178,7 @@ export type Database = {
           created_at?: string
           current_question_index?: number | null
           current_score?: number | null
+          focus_points?: number | null
           id?: string
           is_completed?: boolean | null
           lives_remaining?: number | null
@@ -195,27 +198,33 @@ export type Database = {
       student_answers: {
         Row: {
           answered_at: string
+          attempt_count: number | null
           id: string
           is_correct: boolean
           question_id: string
           selected_answer: string
           student_id: string
+          xp_earned: number | null
         }
         Insert: {
           answered_at?: string
+          attempt_count?: number | null
           id?: string
           is_correct: boolean
           question_id: string
           selected_answer: string
           student_id: string
+          xp_earned?: number | null
         }
         Update: {
           answered_at?: string
+          attempt_count?: number | null
           id?: string
           is_correct?: boolean
           question_id?: string
           selected_answer?: string
           student_id?: string
+          xp_earned?: number | null
         }
         Relationships: [
           {
