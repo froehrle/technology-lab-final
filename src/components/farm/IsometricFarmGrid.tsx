@@ -22,18 +22,18 @@ const IsometricFarmGrid = () => {
 
   return (
     <div className="relative w-full max-w-5xl mx-auto">
-      {/* Farm Puzzle Container with proper 5:3 aspect ratio */}
+      {/* Farm Puzzle Container with farmish green background */}
       <div 
-        className="relative w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-green-400/80"
+        className="relative w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-green-500/80 bg-gradient-to-br from-green-400 via-green-500 to-green-600"
         style={{
           aspectRatio: '5/3',
-          backgroundImage: `url(${farmBackground})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
         }}
       >
-        {/* Bright sunny overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-yellow-100/30 via-transparent to-green-100/30"></div>
+        {/* Farm field pattern overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-green-300/40 via-transparent to-green-700/20"></div>
+        <div className="absolute inset-0" style={{
+          backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 40px)`
+        }}></div>
         
         {/* Next Item Indicator */}
         {nextItem && (
