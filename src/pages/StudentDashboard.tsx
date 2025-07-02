@@ -11,53 +11,53 @@ const StudentDashboard = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
-          Welcome back, {user?.user_metadata?.display_name || user?.email}!
+          Willkommen zurück, {user?.user_metadata?.display_name || user?.email}!
         </h1>
-        <p className="text-gray-600 mt-2">Continue your learning journey</p>
+        <p className="text-gray-600 mt-2">Setzen Sie Ihre Lernreise fort</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Courses</CardTitle>
+            <CardTitle className="text-sm font-medium">Aktive Kurse</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
-            <p className="text-xs text-muted-foreground">+1 from last week</p>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">Keine Kurse verfügbar</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">XP Points</CardTitle>
+            <CardTitle className="text-sm font-medium">XP Punkte</CardTitle>
             <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,247</div>
-            <p className="text-xs text-muted-foreground">+180 this week</p>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-muted-foreground">Beginnen Sie zu lernen!</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Streak</CardTitle>
+            <CardTitle className="text-sm font-medium">Serie</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">7 days</div>
-            <p className="text-xs text-muted-foreground">Keep it up!</p>
+            <div className="text-2xl font-bold">0 Tage</div>
+            <p className="text-xs text-muted-foreground">Starten Sie Ihre Serie!</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Progress</CardTitle>
+            <CardTitle className="text-sm font-medium">Fortschritt</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">73%</div>
-            <p className="text-xs text-muted-foreground">Average completion</p>
+            <div className="text-2xl font-bold">-</div>
+            <p className="text-xs text-muted-foreground">Noch keine Daten</p>
           </CardContent>
         </Card>
       </div>
@@ -65,67 +65,28 @@ const StudentDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Recent Courses</CardTitle>
-            <CardDescription>Continue where you left off</CardDescription>
+            <CardTitle>Aktuelle Kurse</CardTitle>
+            <CardDescription>Machen Sie dort weiter, wo Sie aufgehört haben</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <BookOpen className="h-6 w-6 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium">Spanish Basics</h3>
-                  <p className="text-sm text-gray-500">Progress: 65%</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <BookOpen className="h-6 w-6 text-green-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium">Math Fundamentals</h3>
-                  <p className="text-sm text-gray-500">Progress: 80%</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <BookOpen className="h-6 w-6 text-purple-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium">Science Explorer</h3>
-                  <p className="text-sm text-gray-500">Progress: 45%</p>
-                </div>
-              </div>
+            <div className="text-center py-8">
+              <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">Noch keine Kurse vorhanden</p>
+              <p className="text-sm text-gray-400 mt-2">Melden Sie sich für Ihren ersten Kurs an, um zu beginnen!</p>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Achievements</CardTitle>
-            <CardDescription>Your recent accomplishments</CardDescription>
+            <CardTitle>Erfolge</CardTitle>
+            <CardDescription>Ihre neuesten Errungenschaften</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <Trophy className="h-6 w-6 text-yellow-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium">Week Warrior</h3>
-                  <p className="text-sm text-gray-500">7-day streak completed</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Trophy className="h-6 w-6 text-blue-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium">Quick Learner</h3>
-                  <p className="text-sm text-gray-500">Completed 10 lessons this week</p>
-                </div>
-              </div>
+            <div className="text-center py-8">
+              <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500">Noch keine Erfolge</p>
+              <p className="text-sm text-gray-400 mt-2">Beginnen Sie zu lernen, um Erfolge zu erzielen!</p>
             </div>
           </CardContent>
         </Card>

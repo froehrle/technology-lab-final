@@ -48,7 +48,7 @@ const Header = () => {
                     className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
                   >
                     <BookOpen className="h-4 w-4" />
-                    <span>Courses</span>
+                    <span>Kurse</span>
                   </Link>
                 </nav>
 
@@ -70,14 +70,14 @@ const Header = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" />
-                      Sign Out
+                      Abmelden
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
             ) : (
               <Link to="/auth">
-                <Button>Sign In</Button>
+                <Button>Anmelden</Button>
               </Link>
             )}
           </div>

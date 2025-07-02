@@ -35,14 +35,14 @@ const Auth = () => {
         const { error } = await signUp(email, password, selectedRole, displayName || email);
         if (error) throw error;
         toast({
-          title: "Success!",
-          description: "Check your email to confirm your account.",
+          title: "Erfolgreich!",
+          description: "Überprüfen Sie Ihre E-Mail, um Ihr Konto zu bestätigen.",
         });
       }
     } catch (error: any) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: "Fehler",
         description: error.message,
       });
     } finally {
@@ -53,39 +53,30 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="mb-4 text-blue-600 hover:text-blue-700"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Button>
-
         <Card>
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-gray-900">
-              {isLogin ? 'Welcome Back!' : 'Join CourseLingo'}
+              {isLogin ? 'Willkommen zurück!' : 'Bei CourseLingo anmelden'}
             </CardTitle>
             <CardDescription>
-              {isLogin ? 'Sign in to continue learning' : 'Create your account to get started'}
+              {isLogin ? 'Melden Sie sich an, um weiterzulernen' : 'Erstellen Sie Ihr Konto, um zu beginnen'}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs value={isLogin ? 'login' : 'signup'} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login" onClick={() => setIsLogin(true)}>
-                  Sign In
+                  Anmelden
                 </TabsTrigger>
                 <TabsTrigger value="signup" onClick={() => setIsLogin(false)}>
-                  Sign Up
+                  Registrieren
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="login">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">E-Mail</Label>
                     <Input
                       id="email"
                       type="email"
@@ -95,7 +86,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">Passwort</Label>
                     <Input
                       id="password"
                       type="password"
@@ -105,7 +96,7 @@ const Auth = () => {
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Signing In...' : 'Sign In'}
+                    {loading ? 'Anmeldung läuft...' : 'Anmelden'}
                   </Button>
                 </form>
               </TabsContent>
@@ -113,7 +104,7 @@ const Auth = () => {
               <TabsContent value="signup">
                 <div className="space-y-4">
                   <div className="space-y-3">
-                    <Label>I am a...</Label>
+                    <Label>Ich bin ein...</Label>
                     <div className="grid grid-cols-2 gap-3">
                       <Card 
                         className={`cursor-pointer border-2 transition-colors ${
@@ -125,8 +116,8 @@ const Auth = () => {
                       >
                         <CardContent className="p-4 text-center">
                           <Users className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                          <div className="font-medium text-sm">Student</div>
-                          <div className="text-xs text-gray-500">Learn with courses</div>
+                          <div className="font-medium text-sm">Schüler</div>
+                          <div className="text-xs text-gray-500">Mit Kursen lernen</div>
                         </CardContent>
                       </Card>
                       <Card 
@@ -139,8 +130,8 @@ const Auth = () => {
                       >
                         <CardContent className="p-4 text-center">
                           <GraduationCap className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                          <div className="font-medium text-sm">Teacher</div>
-                          <div className="text-xs text-gray-500">Create courses</div>
+                          <div className="font-medium text-sm">Lehrer</div>
+                          <div className="text-xs text-gray-500">Kurse erstellen</div>
                         </CardContent>
                       </Card>
                     </div>
@@ -148,17 +139,17 @@ const Auth = () => {
 
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="displayName">Display Name (Optional)</Label>
+                      <Label htmlFor="displayName">Anzeigename (Optional)</Label>
                       <Input
                         id="displayName"
                         type="text"
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
-                        placeholder="How should we call you?"
+                        placeholder="Wie sollen wir Sie nennen?"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email">E-Mail</Label>
                       <Input
                         id="email"
                         type="email"
@@ -168,7 +159,7 @@ const Auth = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
+                      <Label htmlFor="password">Passwort</Label>
                       <Input
                         id="password"
                         type="password"
@@ -179,7 +170,7 @@ const Auth = () => {
                       />
                     </div>
                     <Button type="submit" className="w-full" disabled={loading}>
-                      {loading ? 'Creating Account...' : `Sign Up as ${selectedRole === 'teacher' ? 'Teacher' : 'Student'}`}
+                      {loading ? 'Konto wird erstellt...' : `Als ${selectedRole === 'teacher' ? 'Lehrer' : 'Schüler'} registrieren`}
                     </Button>
                   </form>
                 </div>
