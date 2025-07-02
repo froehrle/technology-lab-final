@@ -7,9 +7,9 @@ import { useCourseAnalytics } from '@/hooks/useCourseAnalytics';
 import AnalyticsHeader from '@/components/analytics/AnalyticsHeader';
 import OverviewStats from '@/components/analytics/OverviewStats';
 import AdvancedAnalytics from '@/components/analytics/AdvancedAnalytics';
+
 import CourseDifficultyRanking from '@/components/analytics/CourseDifficultyRanking';
 import DropoutPoints from '@/components/analytics/DropoutPoints';
-import DifficultQuestions from '@/components/analytics/DifficultQuestions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -78,13 +78,12 @@ const CourseAnalytics = () => {
                 <Skeleton key={i} className="h-16" />
               ))}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[...Array(4)].map((_, i) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[...Array(3)].map((_, i) => (
                 <Skeleton key={i} className="h-20" />
               ))}
             </div>
             <Skeleton className="h-40" />
-            <Skeleton className="h-32" />
             <Skeleton className="h-32" />
           </div>
         ) : (
@@ -100,8 +99,6 @@ const CourseAnalytics = () => {
             <AdvancedAnalytics 
               completionRate={analytics.completionRate}
               avgSessionDuration={analytics.avgSessionDuration}
-              avgAttemptsPerQuestion={analytics.avgAttemptsPerQuestion}
-              difficultQuestionsCount={analytics.difficultQuestions.length}
             />
 
             {/* Course Difficulty Ranking */}
@@ -111,9 +108,6 @@ const CourseAnalytics = () => {
 
             {/* Dropout Points */}
             <DropoutPoints dropoutPoints={analytics.dropoutPoints} />
-
-            {/* Difficult Questions */}
-            <DifficultQuestions difficultQuestions={analytics.difficultQuestions} />
           </>
         )}
       </CardContent>

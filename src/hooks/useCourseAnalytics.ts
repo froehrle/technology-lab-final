@@ -98,52 +98,6 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
     enabled: !!userId && filteredCourseIds.length > 0,
   });
 
-  const avgAttemptsPerQuestion = useQuery({
-    queryKey: ['analytics-avg-attempts', userId, filteredCourseIds],
-    queryFn: async () => {
-      if (filteredCourseIds.length === 0) return 0;
-      
-      console.log('Fetching avg attempts for courses:', filteredCourseIds);
-      
-      // First get question IDs for the courses
-      const { data: questions, error: questionsError } = await supabase
-        .from('questions')
-        .select('id')
-        .in('course_id', filteredCourseIds);
-        
-      console.log('Questions query result:', questions, 'error:', questionsError);
-        
-      if (questionsError) throw questionsError;
-      if (!questions?.length) {
-        console.log('No questions found for courses:', filteredCourseIds);
-        return 0;
-      }
-      
-      const questionIds = questions.map(q => q.id);
-      console.log('Found question IDs:', questionIds);
-      
-      // Then get student answers for those questions
-      const { data, error } = await supabase
-        .from('student_answers')
-        .select('attempt_count')
-        .in('question_id', questionIds);
-
-      console.log('Avg attempts data:', data, 'error:', error);
-      
-      if (error) throw error;
-      if (!data?.length) {
-        console.log('No student answers found for questions:', questionIds);
-        return 0;
-      }
-
-      const totalAttempts = data.reduce((sum, answer) => sum + (answer.attempt_count || 1), 0);
-      const average = totalAttempts / data.length;
-      console.log('Calculated average attempts:', average, 'from', data.length, 'answers');
-      return average;
-    },
-    enabled: !!userId && filteredCourseIds.length > 0,
-  });
-
   // Course Difficulty Ranking
   const courseDifficultyRanking = useQuery({
     queryKey: ['analytics-course-difficulty', userId],
@@ -222,45 +176,21 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
     enabled: !!userId && filteredCourseIds.length > 0,
   });
 
-  // Most difficult questions using optimized view
-  const difficultQuestions = useQuery({
-    queryKey: ['analytics-difficult', userId, filteredCourseIds],
-    queryFn: async () => {
-      if (filteredCourseIds.length === 0) return [];
-      
-      const { data, error } = await supabase
-        .from('difficult_questions_stats')
-        .select('*')
-        .in('course_id', filteredCourseIds)
-        .order('wrong_percentage', { ascending: false })
-        .order('avg_attempts', { ascending: false })
-        .limit(5);
-
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!userId && filteredCourseIds.length > 0,
-  });
-
   return {
     totalEnrollments: totalEnrollments.data || 0,
     totalQuizAttempts: totalQuizAttempts.data || 0,
     perfectCompletions: perfectCompletions.data || 0,
     avgSessionDuration: avgSessionDuration.data || 0,
     completionRate: completionRate.data || 0,
-    avgAttemptsPerQuestion: avgAttemptsPerQuestion.data || 0,
     courseDifficultyRanking: courseDifficultyRanking.data || [],
     dropoutPoints: dropoutPoints.data || [],
-    difficultQuestions: difficultQuestions.data || [],
     isLoading: totalEnrollments.isLoading || totalQuizAttempts.isLoading || 
                perfectCompletions.isLoading || avgSessionDuration.isLoading ||
-               completionRate.isLoading || avgAttemptsPerQuestion.isLoading ||
-               courseDifficultyRanking.isLoading || dropoutPoints.isLoading ||
-               difficultQuestions.isLoading,
+               completionRate.isLoading || courseDifficultyRanking.isLoading || 
+               dropoutPoints.isLoading,
     error: totalEnrollments.error || totalQuizAttempts.error || 
            perfectCompletions.error || avgSessionDuration.error ||
-           completionRate.error || avgAttemptsPerQuestion.error ||
-           courseDifficultyRanking.error || dropoutPoints.error ||
-           difficultQuestions.error
+           completionRate.error || courseDifficultyRanking.error ||
+           dropoutPoints.error
   };
 };
