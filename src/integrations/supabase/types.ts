@@ -168,6 +168,42 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_badges: {
+        Row: {
+          badge_type: string
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          is_purchasable: boolean
+          name: string
+          price: number
+          rarity: string
+        }
+        Insert: {
+          badge_type: string
+          created_at?: string
+          description?: string | null
+          icon: string
+          id?: string
+          is_purchasable?: boolean
+          name: string
+          price: number
+          rarity?: string
+        }
+        Update: {
+          badge_type?: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          is_purchasable?: boolean
+          name?: string
+          price?: number
+          rarity?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -376,6 +412,38 @@ export type Database = {
             columns: ["question_id"]
             isOneToOne: false
             referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_badge_purchases: {
+        Row: {
+          badge_id: string
+          id: string
+          is_equipped: boolean
+          purchased_at: string
+          student_id: string
+        }
+        Insert: {
+          badge_id: string
+          id?: string
+          is_equipped?: boolean
+          purchased_at?: string
+          student_id: string
+        }
+        Update: {
+          badge_id?: string
+          id?: string
+          is_equipped?: boolean
+          purchased_at?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_badge_purchases_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "profile_badges"
             referencedColumns: ["id"]
           },
         ]

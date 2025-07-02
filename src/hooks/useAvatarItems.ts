@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 export interface AvatarItem {
   id: string;
   name: string;
-  type: 'border' | 'background' | 'effect';
+  type: 'frame';
   css_class: string;
   price: number;
   description: string;
@@ -26,9 +26,7 @@ export const useAvatarItems = () => {
   const [allItems, setAllItems] = useState<AvatarItem[]>([]);
   const [ownedItems, setOwnedItems] = useState<StudentPurchase[]>([]);
   const [equippedItems, setEquippedItems] = useState<{
-    border?: string;
-    background?: string;
-    effect?: string;
+    frame?: string;
   }>({});
   const [loading, setLoading] = useState(true);
 
@@ -73,11 +71,13 @@ export const useAvatarItems = () => {
       const purchases = data as any[] || [];
       setOwnedItems(purchases);
 
-      // Set equipped items
+      // Set equipped items - only frames now
       const equipped: any = {};
       purchases.forEach(purchase => {
         if (purchase.is_equipped && purchase.avatar_items) {
-          equipped[purchase.avatar_items.type] = purchase.avatar_items.css_class;
+          if (purchase.avatar_items.type === 'frame') {
+            equipped.frame = purchase.avatar_items.css_class;
+          }
         }
       });
       setEquippedItems(equipped);
@@ -131,7 +131,7 @@ export const useAvatarItems = () => {
         .update({ is_equipped: false })
         .eq('student_id', user.id)
         .eq('purchase_type', 'avatar_item')
-        .in('item_id', allItems.filter(item => item.type === itemType).map(item => item.id));
+        .in('item_id', allItems.filter(item => item.type === 'frame').map(item => item.id));
 
       // Then equip the selected item
       const { error } = await supabase
@@ -183,6 +183,10 @@ export const useAvatarItems = () => {
     return ownedItems.some(purchase => purchase.item_id === itemId);
   };
 
+  const getFrames = () => {
+    return allItems.filter(item => item.type === 'frame');
+  };
+
   return {
     allItems,
     ownedItems,
@@ -192,6 +196,7 @@ export const useAvatarItems = () => {
     equipItem,
     unequipItem,
     isOwned,
+    getFrames,
     refetch: fetchOwnedItems
   };
 };

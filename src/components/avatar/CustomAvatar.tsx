@@ -28,17 +28,15 @@ const CustomAvatar = ({ src, fallback, className }: CustomAvatarProps) => {
   console.log('Equipped items:', equippedItems);
 
   const avatarClasses = cn(
-    "relative overflow-hidden",
-    equippedItems.background || "bg-muted",
+    "relative overflow-hidden bg-muted",
     className
   );
 
   const containerClasses = cn(
     "relative",
-    equippedItems.border, // ring classes need container padding
-    equippedItems.effect,
+    equippedItems.frame, // ring classes for frames
     // Add padding for rings to be visible
-    (equippedItems.border && equippedItems.border.includes('ring')) ? "p-1" : ""
+    (equippedItems.frame && equippedItems.frame.includes('ring')) ? "p-1" : ""
   );
 
   return (
