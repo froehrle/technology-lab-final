@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Heart } from 'lucide-react';
 
@@ -63,9 +64,9 @@ const QuizProgressHeader = ({
           </div>
         </div>
         
-        {/* Finish flag - positioned inside container */}
+        {/* Finish flag without text - positioned inside container */}
         <div className="absolute right-1 top-1 bg-red-700 text-white text-xs font-bold px-2 py-1 rounded shadow-lg border border-white z-30">
-          🏁 ZIEL
+          🏁
         </div>
         
         {/* Running Stickman */}
@@ -102,12 +103,8 @@ const QuizProgressHeader = ({
           </div>
         </div>
         
-        {/* Start line */}
-        <div className="absolute left-2 top-2 bottom-2 w-1 bg-green-600 opacity-80 z-5 rounded">
-          <div className="absolute -top-1 -left-1 bg-green-600 text-white text-xs font-bold px-1 py-0.5 rounded shadow text-center">
-            START
-          </div>
-        </div>
+        {/* Start line without text */}
+        <div className="absolute left-2 top-2 bottom-2 w-1 bg-green-600 opacity-80 z-5 rounded"></div>
       </div>
       
       <div className="flex justify-between items-center mt-6">
