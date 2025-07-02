@@ -34,9 +34,9 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     toast
   } = useQuizActions(courseId);
 
-  // Handle focus points warning with useEffect to avoid render issues
+  // Handle focus points warning with useEffect to avoid render issues - changed to 20
   useEffect(() => {
-    if (focusPoints <= 10 && focusPoints > 0) {
+    if (focusPoints <= 20 && focusPoints > 0) {
       toast({
         title: "Fokus niedrig",
         description: "Ihre Fokuspunkte sind niedrig. Eine Pause wird empfohlen.",
@@ -53,7 +53,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     );
   }
 
-  // Show game over when focus points reach 0 - this should be checked first
+  // Show game over when focus points reach 0 - this should be checked first and stay visible
   if (focusPoints <= 0) {
     return <GameOverCard onRestart={handleRestart} />;
   }

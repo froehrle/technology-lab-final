@@ -81,10 +81,12 @@ export const useQuizActions = (courseId: string) => {
 
     setFocusPoints(newFocusPoints);
 
-    // Update quiz attempt without score
-    updateQuizAttemptMutation.mutate({
-      focus_points: newFocusPoints
-    });
+    // Only update quiz attempt if focus points haven't reached 0
+    if (newFocusPoints > 0) {
+      updateQuizAttemptMutation.mutate({
+        focus_points: newFocusPoints
+      });
+    }
     
     // Submit answer with correct XP calculation
     try {
@@ -143,6 +145,7 @@ export const useQuizActions = (courseId: string) => {
   };
 
   const handleRestart = () => {
+    // Only restart if explicitly called, not automatically
     if (rest.quizAttempt?.id) {
       updateQuizAttemptMutation.mutate({
         current_question_index: 0,
