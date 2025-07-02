@@ -50,10 +50,12 @@ const StoreItem = ({
       
       <CardContent className="space-y-4">
         {/* Preview Avatar */}
-        <div className="flex justify-center">
-          <Avatar className={cn("h-16 w-16", item.css_class)}>
-            <AvatarFallback>A</AvatarFallback>
-          </Avatar>
+        <div className="flex justify-center p-4">
+          <div className={cn("relative", item.css_class)}>
+            <Avatar className="h-16 w-16 relative overflow-hidden">
+              <AvatarFallback className="font-medium">A</AvatarFallback>
+            </Avatar>
+          </div>
         </div>
         
         {/* Price */}

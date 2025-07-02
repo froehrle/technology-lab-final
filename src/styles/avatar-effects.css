@@ -1,13 +1,23 @@
 /* Custom Avatar Effects */
 
-/* Rainbow gradient ring effect */
+/* Rainbow gradient ring effect - Applied as border/ring */
 .ring-gradient-rainbow {
-  @apply ring-4 ring-offset-2;
+  position: relative;
+  border-radius: 50%;
+}
+
+.ring-gradient-rainbow::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  padding: 4px;
   background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
   background-size: 400%;
-  animation: rainbow-gradient 3s ease infinite;
   border-radius: 50%;
-  padding: 4px;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: subtract;
+  animation: rainbow-gradient 3s ease infinite;
+  z-index: -1;
 }
 
 @keyframes rainbow-gradient {
