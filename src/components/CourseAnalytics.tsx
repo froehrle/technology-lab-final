@@ -118,6 +118,153 @@ const CourseAnalytics = () => {
     enabled: !!user?.id && filteredCourseIds.length > 0,
   });
 
+  // Average Session Duration
+  const { data: avgSessionDuration = 0 } = useQuery({
+    queryKey: ['analytics-session-duration', user?.id, filteredCourseIds, selectedCourseId],
+    queryFn: async () => {
+      if (filteredCourseIds.length === 0) return 0;
+      
+      const { data, error } = await supabase
+        .from('quiz_attempts')
+        .select('created_at, completed_at')
+        .in('course_id', filteredCourseIds)
+        .not('completed_at', 'is', null);
+
+      if (error) throw error;
+      if (!data?.length) return 0;
+
+      const durations = data.map(attempt => {
+        const start = new Date(attempt.created_at);
+        const end = new Date(attempt.completed_at!);
+        return (end.getTime() - start.getTime()) / (1000 * 60); // minutes
+      });
+
+      return durations.reduce((sum, duration) => sum + duration, 0) / durations.length;
+    },
+    enabled: !!user?.id && filteredCourseIds.length > 0,
+  });
+
+  // Completion Rate
+  const { data: completionRate = 0 } = useQuery({
+    queryKey: ['analytics-completion-rate', user?.id, filteredCourseIds, selectedCourseId],
+    queryFn: async () => {
+      if (filteredCourseIds.length === 0) return 0;
+      
+      const { data: enrollments, error: enrollError } = await supabase
+        .from('course_enrollments')
+        .select('id, completed_at')
+        .in('course_id', filteredCourseIds);
+
+      if (enrollError) throw enrollError;
+      if (!enrollments?.length) return 0;
+
+      const completedCount = enrollments.filter(e => e.completed_at).length;
+      return Math.round((completedCount / enrollments.length) * 100);
+    },
+    enabled: !!user?.id && filteredCourseIds.length > 0,
+  });
+
+  // Average Attempts per Question
+  const { data: avgAttemptsPerQuestion = 0 } = useQuery({
+    queryKey: ['analytics-avg-attempts', user?.id, filteredCourseIds, selectedCourseId],
+    queryFn: async () => {
+      if (filteredCourseIds.length === 0) return 0;
+      
+      const { data, error } = await supabase
+        .from('student_answers')
+        .select(`
+          attempt_count,
+          questions!inner(course_id)
+        `)
+        .in('questions.course_id', filteredCourseIds);
+
+      if (error) throw error;
+      if (!data?.length) return 0;
+
+      const totalAttempts = data.reduce((sum, answer) => sum + (answer.attempt_count || 1), 0);
+      return (totalAttempts / data.length).toFixed(1);
+    },
+    enabled: !!user?.id && filteredCourseIds.length > 0,
+  });
+
+  // Course Difficulty Ranking
+  const { data: courseDifficultyRanking = [] } = useQuery({
+    queryKey: ['analytics-course-difficulty', user?.id],
+    queryFn: async () => {
+      const { data: courseStats, error } = await supabase
+        .from('course_enrollments')
+        .select(`
+          course_id,
+          completed_at,
+          courses!inner(title)
+        `)
+        .in('course_id', courses.map(c => c.id));
+
+      if (error) throw error;
+      if (!courseStats?.length) return [];
+
+      const statsMap = courseStats.reduce((acc: any, enrollment: any) => {
+        const courseId = enrollment.course_id;
+        if (!acc[courseId]) {
+          acc[courseId] = {
+            courseId,
+            title: enrollment.courses.title,
+            totalEnrollments: 0,
+            completions: 0
+          };
+        }
+        acc[courseId].totalEnrollments++;
+        if (enrollment.completed_at) {
+          acc[courseId].completions++;
+        }
+        return acc;
+      }, {});
+
+      return Object.values(statsMap)
+        .map((stat: any) => ({
+          ...stat,
+          completionRate: stat.totalEnrollments > 0 ? (stat.completions / stat.totalEnrollments) * 100 : 0
+        }))
+        .sort((a: any, b: any) => a.completionRate - b.completionRate);
+    },
+    enabled: !!user?.id && courses.length > 0,
+  });
+
+  // Dropout Points
+  const { data: dropoutPoints = [] } = useQuery({
+    queryKey: ['analytics-dropout-points', user?.id, filteredCourseIds, selectedCourseId],
+    queryFn: async () => {
+      if (filteredCourseIds.length === 0) return [];
+      
+      const { data: attempts, error } = await supabase
+        .from('quiz_attempts')
+        .select('current_question_index, is_completed, course_id, courses!inner(title)')
+        .in('course_id', filteredCourseIds)
+        .eq('is_completed', false);
+
+      if (error) throw error;
+      if (!attempts?.length) return [];
+
+      const dropoutMap = attempts.reduce((acc: any, attempt: any) => {
+        const key = `${attempt.course_id}-${attempt.current_question_index}`;
+        if (!acc[key]) {
+          acc[key] = {
+            courseTitle: attempt.courses.title,
+            questionIndex: attempt.current_question_index || 0,
+            dropoutCount: 0
+          };
+        }
+        acc[key].dropoutCount++;
+        return acc;
+      }, {});
+
+      return Object.values(dropoutMap)
+        .sort((a: any, b: any) => b.dropoutCount - a.dropoutCount)
+        .slice(0, 5);
+    },
+    enabled: !!user?.id && filteredCourseIds.length > 0,
+  });
+
   // Most difficult questions (highest attempt count or most wrong answers)
   const { data: difficultQuestions = [] } = useQuery({
     queryKey: ['analytics-difficult', user?.id, filteredCourseIds, selectedCourseId],
@@ -259,6 +406,81 @@ const CourseAnalytics = () => {
               <p className="text-2xl font-bold">{perfectCompletions}</p>
             </div>
           </div>
+        </div>
+
+        {/* Advanced Analytics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-4 border rounded-lg">
+            <p className="text-sm text-muted-foreground mb-1">Abschlussrate</p>
+            <p className="text-2xl font-bold text-green-600">{completionRate}%</p>
+          </div>
+          
+          <div className="p-4 border rounded-lg">
+            <p className="text-sm text-muted-foreground mb-1">Ø Session-Dauer</p>
+            <p className="text-2xl font-bold text-blue-600">{avgSessionDuration.toFixed(1)} min</p>
+          </div>
+          
+          <div className="p-4 border rounded-lg">
+            <p className="text-sm text-muted-foreground mb-1">Ø Versuche pro Frage</p>
+            <p className="text-2xl font-bold text-orange-600">{avgAttemptsPerQuestion}</p>
+          </div>
+          
+          <div className="p-4 border rounded-lg">
+            <p className="text-sm text-muted-foreground mb-1">Schwierigste Fragen</p>
+            <p className="text-2xl font-bold text-red-600">{difficultQuestions.length}</p>
+          </div>
+        </div>
+
+        {/* Course Difficulty Ranking */}
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Kurs-Schwierigkeitsranking</h3>
+          {courseDifficultyRanking.length > 0 ? (
+            <div className="space-y-2">
+              {courseDifficultyRanking.map((course: any, index: number) => (
+                <div key={course.courseId} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <Badge variant={index === 0 ? "destructive" : index === courseDifficultyRanking.length - 1 ? "default" : "secondary"}>
+                      #{index + 1}
+                    </Badge>
+                    <span className="font-medium">{course.title}</span>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold">{course.completionRate.toFixed(1)}%</p>
+                    <p className="text-xs text-muted-foreground">
+                      {course.completions}/{course.totalEnrollments} abgeschlossen
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">Noch keine Daten verfügbar.</p>
+          )}
+        </div>
+
+        {/* Dropout Points */}
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Abbruchpunkte</h3>
+          {dropoutPoints.length > 0 ? (
+            <div className="space-y-2">
+              {dropoutPoints.map((point: any, index: number) => (
+                <div key={`${point.courseTitle}-${point.questionIndex}`} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div>
+                    <p className="font-medium">{point.courseTitle}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Frage {point.questionIndex + 1}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-red-600">{point.dropoutCount}</p>
+                    <p className="text-xs text-muted-foreground">Abbrüche</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted-foreground">Keine Abbruchpunkte gefunden.</p>
+          )}
         </div>
 
         {/* Difficult Questions */}
