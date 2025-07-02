@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Heart } from 'lucide-react';
 
@@ -33,14 +32,14 @@ const QuizProgressHeader = ({
         </div>
       </div>
       
-      {/* Clean White Progress Bar Container */}
-      <div className="relative bg-white rounded-xl h-24 overflow-hidden border-2 border-gray-200 shadow-sm mb-4">
-        {/* Completely white background - no colored overlay */}
-        <div className="absolute inset-0 bg-white"></div>
+      {/* Light Blue Tinted Progress Bar Container */}
+      <div className="relative bg-blue-50 rounded-xl h-24 overflow-hidden border-2 border-gray-200 shadow-sm mb-4">
+        {/* Light blue background for entire container */}
+        <div className="absolute inset-0 bg-blue-50"></div>
         
-        {/* Subtle progress indication with light blue tint */}
+        {/* Darker blue progress indication */}
         <div 
-          className="absolute top-0 left-0 h-full bg-blue-100 opacity-40 transition-all duration-700 ease-out"
+          className="absolute top-0 left-0 h-full bg-blue-200 opacity-60 transition-all duration-700 ease-out"
           style={{ width: `${Math.min(progress, 82)}%` }}
         ></div>
         
