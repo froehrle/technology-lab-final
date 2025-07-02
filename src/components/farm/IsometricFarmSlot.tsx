@@ -30,24 +30,31 @@ const IsometricFarmSlot: React.FC<IsometricFarmSlotProps> = ({
       style={{
         gridColumn: `span ${slot.width || 1}`,
         gridRow: `span ${slot.height || 1}`,
-        aspectRatio: (slot.width || 1) / (slot.height || 1),
+        minHeight: '100%',
+        minWidth: '100%',
+        backgroundColor: 'rgba(255, 0, 0, 0.1)' // Temporary debugging
       }}
     >
       {/* Item Icon - fills entire grid cell */}
       <div
         className="transition-all duration-300 group-hover:scale-110 flex items-center justify-center w-full h-full"
         title={slot.name}
+        style={{
+          backgroundColor: 'rgba(0, 255, 0, 0.1)' // Temporary debugging
+        }}
       >
         <span 
           className="transition-all duration-300 drop-shadow-lg block"
           style={{
-            fontSize: '8rem',
+            fontSize: `${Math.max(slot.width || 1, slot.height || 1) * 2}rem`,
             lineHeight: '1',
             width: '100%',
             height: '100%',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            transform: `scale(${Math.max(slot.width || 1, slot.height || 1) * 0.8})`,
+            backgroundColor: 'rgba(0, 0, 255, 0.1)' // Temporary debugging
           }}
         >
           {slot.icon}
