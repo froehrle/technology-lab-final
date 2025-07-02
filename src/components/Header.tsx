@@ -66,6 +66,10 @@ const Header = () => {
                         <DuolingoShopIcon size={20} />
                         <span>Shop</span>
                       </Link>
+                      <Link to="/farm" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                        <span className="text-lg">🚜</span>
+                        <span>Farm</span>
+                      </Link>
                       <Link to="/profile" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <DuolingoProfileIcon size={20} />
                         <span>Profil</span>

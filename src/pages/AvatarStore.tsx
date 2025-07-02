@@ -4,10 +4,12 @@ import { useCoins } from '@/hooks/useCoins';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import BadgeStoreItem from '@/components/store/BadgeStoreItem';
+import FarmStoreItem from '@/components/farm/FarmStoreItem';
 import CoinBalance from '@/components/store/CoinBalance';
 import CustomAvatar from '@/components/avatar/CustomAvatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
+import { useFarmItems } from '@/hooks/useFarmItems';
 
 const AvatarStore = () => {
   const { user } = useAuth();
@@ -22,11 +24,26 @@ const AvatarStore = () => {
     loading: badgesLoading 
   } = useProfileBadges();
   const { coins, spendCoins } = useCoins();
+  const {
+    farmItems,
+    getFarmItemsByType,
+    isOwned: isFarmItemOwned,
+    canPurchase,
+    purchaseItem,
+    loading: farmLoading
+  } = useFarmItems();
 
   const handleBadgePurchase = async (badge: any) => {
     const spendResult = await spendCoins(badge.price);
     if (spendResult.success) {
       await purchaseBadge(badge);
+    }
+  };
+
+  const handleFarmItemPurchase = async (item: any) => {
+    const spendResult = await spendCoins(item.price);
+    if (spendResult.success) {
+      await purchaseItem(item);
     }
   };
 
@@ -56,7 +73,7 @@ const AvatarStore = () => {
     return (coins?.total_coins || 0) >= price;
   };
 
-  if (badgesLoading) {
+  if (badgesLoading || farmLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">Lade Shop...</div>
@@ -86,8 +103,11 @@ const AvatarStore = () => {
           </div>
         </div>
 
-      <Tabs defaultValue="badges" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+      <Tabs defaultValue="farm" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="farm">
+            🚜 Farm ({farmItems.length})
+          </TabsTrigger>
           <TabsTrigger value="badges">
             Badges ({getBadgesByType('badge').length})
           </TabsTrigger>
@@ -96,6 +116,21 @@ const AvatarStore = () => {
           </TabsTrigger>
         </TabsList>
 
+
+        <TabsContent value="farm" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {farmItems.map((item) => (
+              <FarmStoreItem
+                key={item.id}
+                item={item}
+                isOwned={isFarmItemOwned(item.id)}
+                canPurchase={canPurchase(item)}
+                onPurchase={() => handleFarmItemPurchase(item)}
+                canAfford={canAfford(item.price)}
+              />
+            ))}
+          </div>
+        </TabsContent>
 
         <TabsContent value="badges" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

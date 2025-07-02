@@ -168,6 +168,48 @@ export type Database = {
         }
         Relationships: []
       }
+      farm_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          grid_x: number
+          grid_y: number
+          icon: string
+          id: string
+          name: string
+          prerequisite_item_id: string | null
+          price: number
+          rarity: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          grid_x: number
+          grid_y: number
+          icon: string
+          id?: string
+          name: string
+          prerequisite_item_id?: string | null
+          price: number
+          rarity?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          grid_x?: number
+          grid_y?: number
+          icon?: string
+          id?: string
+          name?: string
+          prerequisite_item_id?: string | null
+          price?: number
+          rarity?: string | null
+          type?: string
+        }
+        Relationships: []
+      }
       profile_badges: {
         Row: {
           badge_type: string
@@ -471,6 +513,38 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      student_farm_purchases: {
+        Row: {
+          farm_item_id: string
+          id: string
+          is_placed: boolean | null
+          purchased_at: string
+          student_id: string
+        }
+        Insert: {
+          farm_item_id: string
+          id?: string
+          is_placed?: boolean | null
+          purchased_at?: string
+          student_id: string
+        }
+        Update: {
+          farm_item_id?: string
+          id?: string
+          is_placed?: boolean | null
+          purchased_at?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_farm_purchases_farm_item_id_fkey"
+            columns: ["farm_item_id"]
+            isOneToOne: false
+            referencedRelation: "farm_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       student_purchases: {
         Row: {
