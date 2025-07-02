@@ -174,6 +174,7 @@ export type Database = {
           description: string | null
           grid_x: number
           grid_y: number
+          height: number | null
           icon: string
           id: string
           name: string
@@ -181,12 +182,14 @@ export type Database = {
           price: number
           rarity: string | null
           type: string
+          width: number | null
         }
         Insert: {
           created_at?: string
           description?: string | null
           grid_x: number
           grid_y: number
+          height?: number | null
           icon: string
           id?: string
           name: string
@@ -194,12 +197,14 @@ export type Database = {
           price: number
           rarity?: string | null
           type: string
+          width?: number | null
         }
         Update: {
           created_at?: string
           description?: string | null
           grid_x?: number
           grid_y?: number
+          height?: number | null
           icon?: string
           id?: string
           name?: string
@@ -207,6 +212,7 @@ export type Database = {
           price?: number
           rarity?: string | null
           type?: string
+          width?: number | null
         }
         Relationships: []
       }

@@ -57,25 +57,47 @@ const IsometricFarmSlot: React.FC<IsometricFarmSlotProps> = ({
     );
   }
 
+  // Don't render anything for span cells (cells occupied by multi-cell items but not the main cell)
+  if (slot?.isSpan) {
+    return (
+      <div 
+        className="relative aspect-square"
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        {/* This is part of a larger item, don't render anything here */}
+      </div>
+    );
+  }
+
   return (
     <div 
-      className="relative aspect-square flex items-center justify-center group cursor-move"
+      className="relative flex items-center justify-center group cursor-move"
       draggable
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
+      style={{
+        gridColumn: `span ${slot.width || 1}`,
+        gridRow: `span ${slot.height || 1}`,
+        aspectRatio: (slot.width || 1) / (slot.height || 1),
+      }}
     >
-      {/* Blended Icon */}
+      {/* Blended Icon with dynamic sizing based on item size */}
       <div
         className={cn(
           "transition-all duration-300 group-hover:scale-110 group-active:scale-95",
           "backdrop-blur-sm rounded-lg p-2",
-          "hover:bg-white/10 active:bg-white/20"
+          "hover:bg-white/10 active:bg-white/20",
+          "flex items-center justify-center w-full h-full"
         )}
         title={slot.name}
       >
         <span 
-          className="text-4xl md:text-5xl transition-all duration-300 drop-shadow-lg"
+          className={cn(
+            "transition-all duration-300 drop-shadow-lg",
+            slot.width > 1 || slot.height > 1 ? "text-6xl md:text-8xl" : "text-4xl md:text-5xl"
+          )}
           style={{
             filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3)) drop-shadow(0 0 8px rgba(255,255,255,0.4))',
           }}

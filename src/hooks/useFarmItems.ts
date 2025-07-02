@@ -14,6 +14,8 @@ export interface FarmItem {
   icon: string;
   rarity: string | null;
   prerequisite_item_id: string | null;
+  width: number;
+  height: number;
   created_at: string;
 }
 
@@ -148,17 +150,44 @@ export const useFarmItems = () => {
         const gridX = purchase.custom_grid_x !== null ? purchase.custom_grid_x : item.grid_x;
         const gridY = purchase.custom_grid_y !== null ? purchase.custom_grid_y : item.grid_y;
         
-        if (grid[gridY] && grid[gridY][gridX] === null) {
-          const itemWithStatus = {
-            ...item,
-            isOwned: true,
-            canPurchase: canPurchase(item),
-            currentGridX: gridX,
-            currentGridY: gridY,
-            purchaseId: purchase.id
-          };
+        // Check if the item fits in the grid with its width and height
+        const canPlace = gridY + item.height <= 4 && gridX + item.width <= 6;
+        
+        if (canPlace) {
+          // Check if all cells are available
+          let allCellsAvailable = true;
+          for (let y = gridY; y < gridY + item.height; y++) {
+            for (let x = gridX; x < gridX + item.width; x++) {
+              if (grid[y][x] !== null) {
+                allCellsAvailable = false;
+                break;
+              }
+            }
+            if (!allCellsAvailable) break;
+          }
           
-          grid[gridY][gridX] = itemWithStatus;
+          if (allCellsAvailable) {
+            const itemWithStatus = {
+              ...item,
+              isOwned: true,
+              canPurchase: canPurchase(item),
+              currentGridX: gridX,
+              currentGridY: gridY,
+              purchaseId: purchase.id
+            };
+            
+            // Place the item in all its required cells
+            for (let y = gridY; y < gridY + item.height; y++) {
+              for (let x = gridX; x < gridX + item.width; x++) {
+                // Only the top-left cell gets the full item, others get a reference
+                if (y === gridY && x === gridX) {
+                  grid[y][x] = itemWithStatus;
+                } else {
+                  grid[y][x] = { ...itemWithStatus, isSpan: true, mainX: gridX, mainY: gridY };
+                }
+              }
+            }
+          }
         }
       }
     });
@@ -170,13 +199,22 @@ export const useFarmItems = () => {
     if (!user) return { success: false, error: 'No user' };
 
     try {
-      // Find the purchase record for this item
+      // Find the purchase record and item details
       const purchase = ownedItems.find(p => p.farm_item_id === itemId);
-      if (!purchase) return { success: false, error: 'Item not purchased' };
-
-      // Find the item details for the toast message
       const item = farmItems.find(item => item.id === itemId);
+      
+      if (!purchase) return { success: false, error: 'Item not purchased' };
       if (!item) return { success: false, error: 'Item not found' };
+
+      // Check if the new position is valid for this item's size
+      if (newRow + item.height > 4 || newCol + item.width > 6) {
+        toast({
+          title: "Ungültige Position",
+          description: "Der Gegenstand passt nicht an diese Position.",
+          variant: "destructive",
+        });
+        return { success: false, error: 'Invalid position for item size' };
+      }
 
       // Update the user's custom position for this item
       const { error } = await supabase

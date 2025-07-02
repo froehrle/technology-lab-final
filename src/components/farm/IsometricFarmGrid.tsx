@@ -41,7 +41,7 @@ const IsometricFarmGrid = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-yellow-100/20 via-transparent to-green-100/20"></div>
         
         {/* Invisible Grid Overlay */}
-        <div className="absolute inset-0 grid grid-cols-6 grid-rows-4 gap-0 p-6">
+        <div className="absolute inset-0 p-6" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridTemplateRows: 'repeat(4, 1fr)', gap: '0' }}>
           {gridLayout.map((row, rowIndex) =>
             row.map((slot, colIndex) => (
               <IsometricFarmSlot
