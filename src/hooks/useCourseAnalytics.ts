@@ -196,6 +196,120 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
     enabled: !!userId && filteredCourseIds.length > 0,
   });
 
+  // Student performance analytics
+  const studentAnalytics = useQuery({
+    queryKey: ['analytics-students', userId, filteredCourseIds],
+    queryFn: async () => {
+      if (filteredCourseIds.length === 0) return { topStudents: [], bottomStudents: [], averages: {} };
+      
+      // Get student performance data
+      const { data: enrollments, error } = await supabase
+        .from('course_enrollments')
+        .select(`
+          student_id,
+          progress,
+          completed_at,
+          courses!inner(title)
+        `)
+        .in('course_id', filteredCourseIds);
+
+      if (error) throw error;
+      if (!enrollments?.length) return { topStudents: [], bottomStudents: [], averages: {} };
+
+      // Get quiz attempts for additional metrics
+      const { data: quizAttempts } = await supabase
+        .from('quiz_attempts')
+        .select('student_id, current_score, is_completed')
+        .in('course_id', filteredCourseIds)
+        .eq('is_completed', true);
+
+      // Get student XP data
+      const studentIds = enrollments.map(e => e.student_id);
+      const { data: studentXP } = await supabase
+        .from('student_xp')
+        .select('student_id, total_xp')
+        .in('student_id', studentIds);
+
+      // Calculate student performance metrics
+      const studentMetrics = enrollments.reduce((acc: any, enrollment: any) => {
+        const studentId = enrollment.student_id;
+        if (!acc[studentId]) {
+          acc[studentId] = {
+            studentId,
+            coursesEnrolled: 0,
+            coursesCompleted: 0,
+            totalProgress: 0,
+            totalXP: 0,
+            quizScores: []
+          };
+        }
+        
+        acc[studentId].coursesEnrolled++;
+        acc[studentId].totalProgress += enrollment.progress || 0;
+        if (enrollment.completed_at) {
+          acc[studentId].coursesCompleted++;
+        }
+        
+        return acc;
+      }, {});
+
+      // Add XP data
+      studentXP?.forEach((xp: any) => {
+        if (studentMetrics[xp.student_id]) {
+          studentMetrics[xp.student_id].totalXP = xp.total_xp;
+        }
+      });
+
+      // Add quiz scores
+      quizAttempts?.forEach((attempt: any) => {
+        if (studentMetrics[attempt.student_id]) {
+          studentMetrics[attempt.student_id].quizScores.push(attempt.current_score || 0);
+        }
+      });
+
+      // Calculate final metrics and anonymize
+      const studentsArray = Object.values(studentMetrics).map((student: any, index: number) => {
+        const avgProgress = student.coursesEnrolled > 0 ? student.totalProgress / student.coursesEnrolled : 0;
+        const avgQuizScore = student.quizScores.length > 0 
+          ? student.quizScores.reduce((sum: number, score: number) => sum + score, 0) / student.quizScores.length 
+          : 0;
+        const completionRate = student.coursesEnrolled > 0 ? (student.coursesCompleted / student.coursesEnrolled) * 100 : 0;
+        
+        return {
+          anonymizedName: `Student ${index + 1}`,
+          avgProgress: Math.round(avgProgress),
+          avgQuizScore: Math.round(avgQuizScore),
+          totalXP: student.totalXP,
+          completionRate: Math.round(completionRate),
+          coursesCompleted: student.coursesCompleted,
+          coursesEnrolled: student.coursesEnrolled
+        };
+      });
+
+      // Sort by overall performance (combination of progress, completion rate, and XP)
+      studentsArray.sort((a, b) => {
+        const scoreA = (a.avgProgress * 0.4) + (a.completionRate * 0.4) + (a.totalXP * 0.2);
+        const scoreB = (b.avgProgress * 0.4) + (b.completionRate * 0.4) + (b.totalXP * 0.2);
+        return scoreB - scoreA;
+      });
+
+      // Calculate averages
+      const averages = {
+        avgProgress: Math.round(studentsArray.reduce((sum, s) => sum + s.avgProgress, 0) / studentsArray.length) || 0,
+        avgCompletionRate: Math.round(studentsArray.reduce((sum, s) => sum + s.completionRate, 0) / studentsArray.length) || 0,
+        avgXP: Math.round(studentsArray.reduce((sum, s) => sum + s.totalXP, 0) / studentsArray.length) || 0,
+        totalStudents: studentsArray.length
+      };
+
+      return {
+        topStudents: studentsArray.slice(0, 3),
+        bottomStudents: studentsArray.slice(-3).reverse(),
+        averages
+      };
+    },
+    enabled: !!userId && filteredCourseIds.length > 0,
+  });
+
   return {
     totalEnrollments: totalEnrollments.data || 0,
     totalQuizAttempts: totalQuizAttempts.data || 0,
@@ -205,13 +319,16 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
     courseDifficultyRanking: courseDifficultyRanking.data || [],
     dropoutPoints: dropoutPoints.data || [],
     difficultQuestions: difficultQuestions.data || [],
+    studentAnalytics: studentAnalytics.data || { topStudents: [], bottomStudents: [], averages: {} },
     isLoading: totalEnrollments.isLoading || totalQuizAttempts.isLoading || 
                perfectCompletions.isLoading || avgSessionDuration.isLoading ||
                completionRate.isLoading || courseDifficultyRanking.isLoading || 
-               dropoutPoints.isLoading || difficultQuestions.isLoading,
+               dropoutPoints.isLoading || difficultQuestions.isLoading ||
+               studentAnalytics.isLoading,
     error: totalEnrollments.error || totalQuizAttempts.error || 
            perfectCompletions.error || avgSessionDuration.error ||
            completionRate.error || courseDifficultyRanking.error ||
-           dropoutPoints.error || difficultQuestions.error
+           dropoutPoints.error || difficultQuestions.error ||
+           studentAnalytics.error
   };
 };
