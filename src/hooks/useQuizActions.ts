@@ -184,12 +184,14 @@ export const useQuizActions = (courseId: string) => {
 
   return {
     ...rest,
+    questions,
     currentQuestionIndex,
     selectedAnswer,
     textAnswer,
     focusPoints,
     score,
     questionAttempts,
+    toast,
     handleAnswerSelect,
     handleTextAnswerChange,
     handleSubmitAnswer,
