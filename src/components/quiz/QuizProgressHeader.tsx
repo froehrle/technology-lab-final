@@ -82,10 +82,10 @@ const QuizProgressHeader = ({
           </div>
         </div>
         
-        {/* Running Stickman */}
+        {/* Running Stickman - now starts at 0% */}
         <div 
           className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-700 ease-out z-10"
-          style={{ left: `${Math.min(progress, 70)}%` }}
+          style={{ left: `${Math.min(progress * 0.82, 70)}%` }}
         >
           <div className="relative">
             {/* Enhanced Stickman */}
