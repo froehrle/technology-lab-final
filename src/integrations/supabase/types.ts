@@ -145,6 +145,53 @@ export type Database = {
           },
         ]
       }
+      quiz_attempts: {
+        Row: {
+          completed_at: string | null
+          course_id: string
+          created_at: string
+          current_question_index: number | null
+          current_score: number | null
+          id: string
+          is_completed: boolean | null
+          lives_remaining: number | null
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          course_id: string
+          created_at?: string
+          current_question_index?: number | null
+          current_score?: number | null
+          id?: string
+          is_completed?: boolean | null
+          lives_remaining?: number | null
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          course_id?: string
+          created_at?: string
+          current_question_index?: number | null
+          current_score?: number | null
+          id?: string
+          is_completed?: boolean | null
+          lives_remaining?: number | null
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_answers: {
         Row: {
           answered_at: string
