@@ -17,7 +17,8 @@ const IsometricFarmSlot: React.FC<IsometricFarmSlotProps> = ({
   onDrop
 }) => {
   const handleDragStart = (e: React.DragEvent) => {
-    if (isEmpty) return;
+    if (isEmpty || !slot) return;
+    console.log('Dragging item:', slot.name, 'from position:', rowIndex, colIndex);
     e.dataTransfer.setData('text/plain', JSON.stringify({
       slot,
       sourceRow: rowIndex,
@@ -36,6 +37,7 @@ const IsometricFarmSlot: React.FC<IsometricFarmSlotProps> = ({
     try {
       const dragData = JSON.parse(e.dataTransfer.getData('text/plain'));
       if (onDrop && dragData.slot) {
+        console.log('Dropping item:', dragData.slot.name, 'at position:', rowIndex, colIndex);
         onDrop(dragData.slot, rowIndex, colIndex);
       }
     } catch (error) {

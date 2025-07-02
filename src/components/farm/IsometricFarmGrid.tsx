@@ -19,9 +19,10 @@ const IsometricFarmGrid = () => {
 
   const gridLayout = getGridLayout();
 
-  const handleDrop = (slot: any, targetRow: number, targetCol: number) => {
-    if (moveItem) {
-      moveItem(slot.id, targetRow, targetCol);
+  const handleDrop = (draggedSlot: any, targetRow: number, targetCol: number) => {
+    if (moveItem && draggedSlot) {
+      console.log('Moving item:', draggedSlot.name, 'to position:', targetRow, targetCol);
+      moveItem(draggedSlot.id, targetRow, targetCol);
     }
   };
 

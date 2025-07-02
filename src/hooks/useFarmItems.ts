@@ -23,6 +23,8 @@ export interface FarmPurchase {
   farm_item_id: string;
   purchased_at: string;
   is_placed: boolean;
+  custom_grid_x?: number | null;
+  custom_grid_y?: number | null;
 }
 
 export const useFarmItems = () => {
@@ -140,16 +142,23 @@ export const useFarmItems = () => {
     const grid = Array(4).fill(null).map(() => Array(6).fill(null));
     
     farmItems.forEach(item => {
-      if (grid[item.grid_y] && grid[item.grid_y][item.grid_x] === null) {
-        const itemWithStatus = {
-          ...item,
-          isOwned: isOwned(item.id),
-          canPurchase: canPurchase(item)
-        };
+      const purchase = ownedItems.find(p => p.farm_item_id === item.id);
+      if (purchase) {
+        // Use custom position if available, otherwise use default position
+        const gridX = purchase.custom_grid_x !== null ? purchase.custom_grid_x : item.grid_x;
+        const gridY = purchase.custom_grid_y !== null ? purchase.custom_grid_y : item.grid_y;
         
-        // Only place owned items in the grid
-        if (itemWithStatus.isOwned) {
-          grid[item.grid_y][item.grid_x] = itemWithStatus;
+        if (grid[gridY] && grid[gridY][gridX] === null) {
+          const itemWithStatus = {
+            ...item,
+            isOwned: true,
+            canPurchase: canPurchase(item),
+            currentGridX: gridX,
+            currentGridY: gridY,
+            purchaseId: purchase.id
+          };
+          
+          grid[gridY][gridX] = itemWithStatus;
         }
       }
     });
@@ -161,23 +170,28 @@ export const useFarmItems = () => {
     if (!user) return { success: false, error: 'No user' };
 
     try {
-      // Find the item in the farmItems array
+      // Find the purchase record for this item
+      const purchase = ownedItems.find(p => p.farm_item_id === itemId);
+      if (!purchase) return { success: false, error: 'Item not purchased' };
+
+      // Find the item details for the toast message
       const item = farmItems.find(item => item.id === itemId);
       if (!item) return { success: false, error: 'Item not found' };
 
-      // Update the item's grid position
+      // Update the user's custom position for this item
       const { error } = await supabase
-        .from('farm_items')
+        .from('student_farm_purchases')
         .update({ 
-          grid_x: newCol, 
-          grid_y: newRow 
+          custom_grid_x: newCol, 
+          custom_grid_y: newRow 
         })
-        .eq('id', itemId);
+        .eq('id', purchase.id)
+        .eq('student_id', user.id);
 
       if (error) throw error;
 
       // Refresh the data
-      await fetchFarmItems();
+      await fetchOwnedItems();
       
       toast({
         title: "Verschoben!",
