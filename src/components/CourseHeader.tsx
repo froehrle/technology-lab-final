@@ -1,8 +1,9 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Plus, Upload } from 'lucide-react';
+import PdfUploadDialog from './PdfUploadDialog';
 
 interface Course {
   id: string;
@@ -18,28 +19,44 @@ interface CourseHeaderProps {
 }
 
 const CourseHeader = ({ course, onCreateQuestion }: CourseHeaderProps) => {
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+
   return (
-    <div className="mb-6">
-      <Link to="/teacher-dashboard">
-        <Button variant="outline" className="mb-4">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Zurück zum Dashboard
-        </Button>
-      </Link>
-      
-      <div className="flex justify-between items-start mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
-          {course.description && (
-            <p className="text-gray-600 mt-2">{course.description}</p>
-          )}
+    <>
+      <div className="mb-6">
+        <Link to="/teacher-dashboard">
+          <Button variant="outline" className="mb-4">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Zurück zum Dashboard
+          </Button>
+        </Link>
+        
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
+            {course.description && (
+              <p className="text-gray-600 mt-2">{course.description}</p>
+            )}
+          </div>
+          <div className="flex space-x-2">
+            <Button variant="outline" onClick={() => setShowUploadDialog(true)}>
+              <Upload className="h-4 w-4 mr-2" />
+              PDF-Dateien hochladen
+            </Button>
+            <Button onClick={onCreateQuestion}>
+              <Plus className="h-4 w-4 mr-2" />
+              Neue Frage hinzufügen
+            </Button>
+          </div>
         </div>
-        <Button onClick={onCreateQuestion}>
-          <Plus className="h-4 w-4 mr-2" />
-          Neue Frage hinzufügen
-        </Button>
       </div>
-    </div>
+
+      <PdfUploadDialog
+        open={showUploadDialog}
+        onOpenChange={setShowUploadDialog}
+        courseId={course.id}
+      />
+    </>
   );
 };
 
