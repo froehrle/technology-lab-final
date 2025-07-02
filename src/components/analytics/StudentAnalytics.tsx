@@ -22,7 +22,7 @@ const StudentAnalytics = ({ studentAnalytics }: StudentAnalyticsProps) => {
       </div>
       
       {/* Averages Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div className="p-3 border rounded-lg">
           <p className="text-sm text-muted-foreground mb-1">Ø Fortschritt</p>
           <p className="text-xl font-bold text-blue-600">{averages.avgProgress || 0}%</p>
@@ -30,10 +30,6 @@ const StudentAnalytics = ({ studentAnalytics }: StudentAnalyticsProps) => {
         <div className="p-3 border rounded-lg">
           <p className="text-sm text-muted-foreground mb-1">Ø Abschlussrate</p>
           <p className="text-xl font-bold text-green-600">{averages.avgCompletionRate || 0}%</p>
-        </div>
-        <div className="p-3 border rounded-lg">
-          <p className="text-sm text-muted-foreground mb-1">Ø XP</p>
-          <p className="text-xl font-bold text-yellow-600">{averages.avgXP || 0}</p>
         </div>
       </div>
 
@@ -107,6 +103,18 @@ const StudentAnalytics = ({ studentAnalytics }: StudentAnalyticsProps) => {
                     <span>Abschlüsse: {student.coursesCompleted}/{student.coursesEnrolled}</span>
                     <span>Rate: {student.completionRate}%</span>
                   </div>
+                  {student.strugglingCourses.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-xs text-muted-foreground mb-1">Schwierigkeiten in:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {student.strugglingCourses.map((course: string, courseIndex: number) => (
+                          <Badge key={courseIndex} variant="outline" className="text-xs">
+                            {course}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

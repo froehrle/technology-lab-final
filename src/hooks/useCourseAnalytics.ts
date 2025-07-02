@@ -275,6 +275,11 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
           : 0;
         const completionRate = student.coursesEnrolled > 0 ? (student.coursesCompleted / student.coursesEnrolled) * 100 : 0;
         
+        // Get courses where this student is struggling (progress < 50% or not completed)
+        const strugglingCourses = enrollments
+          .filter((e: any) => e.student_id === student.studentId && ((e.progress || 0) < 50 || !e.completed_at))
+          .map((e: any) => e.courses.title);
+        
         return {
           anonymizedName: `Student ${index + 1}`,
           avgProgress: Math.round(avgProgress),
@@ -282,7 +287,8 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
           totalXP: student.totalXP,
           completionRate: Math.round(completionRate),
           coursesCompleted: student.coursesCompleted,
-          coursesEnrolled: student.coursesEnrolled
+          coursesEnrolled: student.coursesEnrolled,
+          strugglingCourses
         };
       });
 
