@@ -26,7 +26,7 @@ const StudentDashboard = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <div className="flex items-center space-x-4">
-          <Avatar className="h-16 w-16">
+          <Avatar className="h-20 w-20">
             <AvatarImage src={profile?.avatar_url || undefined} />
             <AvatarFallback className="text-lg">
               {user?.email?.charAt(0).toUpperCase()}
