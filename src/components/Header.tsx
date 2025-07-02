@@ -36,7 +36,7 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           <Link to={user ? isTeacher ? "/teacher-dashboard" : "/dashboard" : "/"} className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">CL</span>
+              <span className="text-white font-bold text-sm">DQ</span>
             </div>
             <span className="text-xl font-bold text-gray-900">DuoQuanto</span>
           </Link>
