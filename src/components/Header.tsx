@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -9,6 +10,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 const Header = () => {
   const { user, signOut } = useAuth();
+  const { profile } = useProfile();
   const location = useLocation();
 
   const handleSignOut = async () => {
@@ -79,7 +81,7 @@ const Header = () => {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">
-                        <AvatarImage src={user.user_metadata?.avatar_url} />
+                        <AvatarImage src={profile?.avatar_url || undefined} />
                         <AvatarFallback>
                           {user.email?.charAt(0).toUpperCase()}
                         </AvatarFallback>
