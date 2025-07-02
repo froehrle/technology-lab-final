@@ -17,94 +17,152 @@ const IsometricFarmSlot: React.FC<IsometricFarmSlotProps> = ({
   if (isEmpty) {
     return (
       <div 
-        className="relative aspect-square flex items-center justify-center opacity-30 hover:opacity-50 transition-opacity"
+        className="relative aspect-square flex items-center justify-center"
         style={{
           transform: `translateZ(${rowIndex * 2}px)`,
         }}
       >
-        <div className="w-8 h-8 border-2 border-dashed border-white/30 rounded-lg flex items-center justify-center">
-          <span className="text-white/50 text-xs">+</span>
+        <div className="w-16 h-16 bg-amber-100/80 border-2 border-dashed border-amber-400/60 rounded-xl flex items-center justify-center backdrop-blur-sm shadow-lg">
+          <span className="text-amber-600 text-xl font-bold">+</span>
         </div>
       </div>
     );
   }
 
   // Calculate isometric positioning
-  const depth = rowIndex * 4;
-  const elevation = slot.type === 'building' ? 20 : slot.type === 'equipment' ? 10 : 5;
+  const depth = rowIndex * 6;
+  const elevation = slot.type === 'building' ? 30 : slot.type === 'equipment' ? 20 : 15;
   
+  // Custom 3D Icon Components
+  const CustomIcon = ({ type, icon }: { type: string; icon: string }) => {
+    const getIconStyle = () => {
+      switch (type) {
+        case 'building':
+          return {
+            container: "w-20 h-20 bg-gradient-to-br from-stone-200 to-stone-400 border-4 border-stone-600 rounded-2xl shadow-2xl",
+            icon: "text-4xl",
+            glow: "shadow-stone-500/50"
+          };
+        case 'animal':
+          return {
+            container: "w-18 h-18 bg-gradient-to-br from-green-200 to-green-400 border-4 border-green-700 rounded-full shadow-2xl",
+            icon: "text-3xl",
+            glow: "shadow-green-500/50"
+          };
+        case 'equipment':
+          return {
+            container: "w-18 h-18 bg-gradient-to-br from-yellow-200 to-yellow-500 border-4 border-yellow-700 rounded-2xl shadow-2xl",
+            icon: "text-3xl",
+            glow: "shadow-yellow-500/50"
+          };
+        case 'crop':
+          return {
+            container: "w-16 h-16 bg-gradient-to-br from-lime-200 to-lime-400 border-4 border-lime-700 rounded-xl shadow-2xl",
+            icon: "text-3xl",
+            glow: "shadow-lime-500/50"
+          };
+        default:
+          return {
+            container: "w-16 h-16 bg-gradient-to-br from-gray-200 to-gray-400 border-4 border-gray-600 rounded-xl shadow-2xl",
+            icon: "text-3xl",
+            glow: "shadow-gray-500/50"
+          };
+      }
+    };
+
+    const style = getIconStyle();
+    
+    return (
+      <div
+        className={cn(
+          "relative flex items-center justify-center transition-all duration-300 hover:scale-110 hover:-translate-y-1",
+          style.container,
+          style.glow
+        )}
+        style={{
+          boxShadow: `
+            inset 0 2px 4px rgba(255,255,255,0.8),
+            inset 0 -2px 4px rgba(0,0,0,0.2),
+            0 8px 16px rgba(0,0,0,0.3),
+            0 0 20px rgba(255,255,255,0.2)
+          `,
+        }}
+      >
+        {/* Inner highlight */}
+        <div className="absolute inset-1 bg-gradient-to-br from-white/40 to-transparent rounded-xl" />
+        
+        {/* Icon */}
+        <span 
+          className={cn("relative z-10 transition-all duration-300", style.icon)}
+          style={{
+            filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.5))',
+            textShadow: '0 0 8px rgba(255,255,255,0.8)',
+          }}
+        >
+          {icon}
+        </span>
+
+        {/* Shine effect */}
+        <div 
+          className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent rounded-xl opacity-60"
+          style={{ transform: 'rotate(-45deg) scale(1.2)' }}
+        />
+      </div>
+    );
+  };
+
   return (
     <div
       className="relative aspect-square flex items-center justify-center group cursor-pointer"
       style={{
         transform: `
           translateZ(${depth + elevation}px)
-          scale(${1 + rowIndex * 0.05})
+          scale(${1 + rowIndex * 0.08})
         `,
         transformStyle: 'preserve-3d',
       }}
     >
-      {/* Item Shadow */}
+      {/* Enhanced Shadow */}
       <div
-        className="absolute bg-black/30 rounded-full blur-sm"
+        className="absolute bg-black/40 rounded-full blur-md"
         style={{
-          width: '80%',
-          height: '20%',
-          bottom: '-10px',
+          width: '90%',
+          height: '25%',
+          bottom: '-15px',
           transform: `translateZ(-${elevation}px) rotateX(90deg)`,
         }}
       />
       
-      {/* Item Container */}
+      {/* Plot Background */}
       <div
-        className={cn(
-          "relative flex items-center justify-center transition-all duration-300",
-          "group-hover:scale-110 group-hover:-translate-y-2",
-          slot.type === 'building' && "bg-white/20 backdrop-blur-sm rounded-lg p-2 border border-white/30",
-          slot.type === 'equipment' && "bg-yellow-400/20 backdrop-blur-sm rounded-lg p-1 border border-yellow-400/40",
-          slot.type === 'animal' && "bg-green-400/20 backdrop-blur-sm rounded-full p-1 border border-green-400/40",
-          slot.type === 'crop' && "bg-lime-400/20 backdrop-blur-sm rounded-lg p-1 border border-lime-400/40"
-        )}
-        title={slot.name}
+        className="absolute inset-0 bg-gradient-to-br from-amber-100/80 to-amber-200/80 rounded-2xl border-2 border-amber-300/60 backdrop-blur-sm"
         style={{
-          transform: 'translateZ(0px)',
-          boxShadow: `
-            0 ${2 + elevation/5}px ${4 + elevation/3}px rgba(0,0,0,0.3),
-            0 0 ${8 + elevation/2}px rgba(255,255,255,0.1)
-          `,
+          transform: 'translateZ(-5px)',
+          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)',
         }}
-      >
-        {/* Main Item Icon */}
-        <span 
-          className="text-2xl md:text-3xl transition-all duration-300 group-hover:text-4xl"
-          style={{
-            filter: `
-              drop-shadow(2px 2px 4px rgba(0,0,0,0.5))
-              drop-shadow(0px 0px 8px rgba(255,255,255,0.3))
-            `,
-            textShadow: '0 0 10px rgba(255,255,255,0.5)',
-          }}
-        >
-          {slot.icon}
-        </span>
+      />
+
+      {/* Custom 3D Icon */}
+      <div className="relative z-10">
+        <CustomIcon type={slot.type} icon={slot.icon} />
       </div>
 
-      {/* Rarity Glow */}
+      {/* Enhanced Rarity Effects */}
       {slot.rarity === 'rare' && (
-        <div 
-          className="absolute inset-0 bg-purple-500/20 rounded-lg blur-lg animate-pulse"
-          style={{ transform: 'translateZ(-1px)' }}
-        />
+        <>
+          <div className="absolute inset-0 bg-purple-400/30 rounded-2xl blur-xl animate-pulse" />
+          <div className="absolute inset-0 border-2 border-purple-400/60 rounded-2xl animate-pulse" />
+        </>
       )}
       {slot.rarity === 'uncommon' && (
-        <div 
-          className="absolute inset-0 bg-blue-500/20 rounded-lg blur-lg animate-pulse"
-          style={{ transform: 'translateZ(-1px)' }}
-        />
+        <>
+          <div className="absolute inset-0 bg-blue-400/30 rounded-2xl blur-xl animate-pulse" />
+          <div className="absolute inset-0 border-2 border-blue-400/60 rounded-2xl animate-pulse" />
+        </>
       )}
 
-      {/* Hover Effect */}
-      <div className="absolute inset-0 bg-white/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      {/* Hover Glow */}
+      <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-300 blur-sm" />
     </div>
   );
 };
