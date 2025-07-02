@@ -4,7 +4,6 @@ import { Zap } from 'lucide-react';
 
 interface QuizProgressHeaderProps {
   focusPoints: number;
-  score: number;
   progress: number;
   currentQuestionIndex: number;
   totalQuestions: number;
@@ -12,7 +11,6 @@ interface QuizProgressHeaderProps {
 
 const QuizProgressHeader = ({ 
   focusPoints, 
-  score, 
   progress, 
   currentQuestionIndex, 
   totalQuestions 
@@ -50,10 +48,6 @@ const QuizProgressHeader = ({
               ⚠️ Pause empfohlen
             </div>
           )}
-        </div>
-        
-        <div className="text-xl font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-lg">
-          Score: {score}
         </div>
       </div>
       

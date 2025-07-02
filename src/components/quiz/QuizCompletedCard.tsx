@@ -5,11 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Trophy, CheckCircle } from 'lucide-react';
 
 interface QuizCompletedCardProps {
-  score: number;
   onRestart: () => void;
 }
 
-const QuizCompletedCard = ({ score, onRestart }: QuizCompletedCardProps) => {
+const QuizCompletedCard = ({ onRestart }: QuizCompletedCardProps) => {
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="max-w-md mx-auto border-green-200 bg-green-50">
@@ -26,9 +25,6 @@ const QuizCompletedCard = ({ score, onRestart }: QuizCompletedCardProps) => {
           <p className="text-green-600 mb-4 text-lg">
             Herzlichen Glückwunsch! Sie haben das Quiz bereits erfolgreich abgeschlossen.
           </p>
-          <div className="bg-green-100 rounded-lg p-4 mb-6">
-            <p className="text-green-800 font-semibold">Ihre Endpunktzahl: {score}</p>
-          </div>
           <p className="text-sm text-gray-600 mb-4">
             Jedes Quiz kann nur einmal durchgeführt werden. Wenn Sie es erneut versuchen möchten, wird Ihr Fortschritt zurückgesetzt.
           </p>

@@ -10,7 +10,6 @@ export const useQuizActions = (courseId: string) => {
     selectedAnswer,
     textAnswer,
     focusPoints,
-    score,
     questionAttempts,
     questions,
     setSelectedAnswer,
@@ -18,7 +17,6 @@ export const useQuizActions = (courseId: string) => {
     setShowResult,
     setIsCorrect,
     setFocusPoints,
-    setScore,
     setQuestionAttempts,
     setCanProceed,
     setCurrentQuestionIndex,
@@ -59,7 +57,6 @@ export const useQuizActions = (courseId: string) => {
     // Calculate XP - only award XP for first correct attempt
     const xpEarned = calculateXP(newAttempts, correct);
     const newFocusPoints = calculateNewFocusPoints(focusPoints, correct);
-    const newScore = correct ? score + (currentQuestion.points || 1) + xpEarned : score;
     const canProceed = shouldAllowProceed(correct, newAttempts);
 
     console.log('XP calculation:', { 
@@ -82,11 +79,9 @@ export const useQuizActions = (courseId: string) => {
     }
 
     setFocusPoints(newFocusPoints);
-    setScore(newScore);
 
-    // Update quiz attempt
+    // Update quiz attempt without score
     updateQuizAttemptMutation.mutate({
-      current_score: newScore,
       focus_points: newFocusPoints
     });
     
@@ -135,7 +130,7 @@ export const useQuizActions = (courseId: string) => {
       
       updateProgressMutation.mutate(100);
       
-      showQuizCompletionToast(score, toast);
+      showQuizCompletionToast(toast);
     }
   };
 
@@ -144,7 +139,6 @@ export const useQuizActions = (courseId: string) => {
       updateQuizAttemptMutation.mutate({
         current_question_index: 0,
         focus_points: 100,
-        current_score: 0,
         is_completed: false
       });
     }
@@ -154,7 +148,6 @@ export const useQuizActions = (courseId: string) => {
     setTextAnswer('');
     setShowResult(false);
     setFocusPoints(100);
-    setScore(0);
     setQuestionAttempts({});
     setCanProceed(false);
   };
@@ -166,7 +159,6 @@ export const useQuizActions = (courseId: string) => {
     selectedAnswer,
     textAnswer,
     focusPoints,
-    score,
     questionAttempts,
     toast,
     handleAnswerSelect,

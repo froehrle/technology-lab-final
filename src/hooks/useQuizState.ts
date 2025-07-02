@@ -15,7 +15,6 @@ export const useQuizState = (courseId: string) => {
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [focusPoints, setFocusPoints] = useState(100);
-  const [score, setScore] = useState(0);
   const [quizAttemptId, setQuizAttemptId] = useState<string | null>(null);
   const [questionAttempts, setQuestionAttempts] = useState<{ [key: string]: number }>({});
   const [canProceed, setCanProceed] = useState(false);
@@ -30,7 +29,6 @@ export const useQuizState = (courseId: string) => {
       setQuizAttemptId(quizAttempt.id);
       setCurrentQuestionIndex(quizAttempt.current_question_index);
       setFocusPoints(quizAttempt.focus_points || 100);
-      setScore(quizAttempt.current_score);
     }
   }, [quizAttempt]);
 
@@ -42,7 +40,6 @@ export const useQuizState = (courseId: string) => {
     showResult,
     isCorrect,
     focusPoints,
-    score,
     questionAttempts,
     canProceed,
     
@@ -59,7 +56,6 @@ export const useQuizState = (courseId: string) => {
     setShowResult,
     setIsCorrect,
     setFocusPoints,
-    setScore,
     setQuestionAttempts,
     setCanProceed,
     

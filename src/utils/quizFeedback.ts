@@ -47,9 +47,9 @@ export const showAnswerFeedback = (
   }
 };
 
-export const showQuizCompletionToast = (score: number, toast: ToastFunction) => {
+export const showQuizCompletionToast = (toast: ToastFunction) => {
   toast({
     title: "Quiz abgeschlossen!",
-    description: `Glückwunsch! Sie haben ${score} Punkte erreicht.`,
+    description: `Glückwunsch! Sie haben das Quiz abgeschlossen.`,
   });
 };

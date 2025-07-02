@@ -7,7 +7,6 @@ interface QuizAttempt {
   id: string;
   current_question_index: number;
   focus_points: number;
-  current_score: number;
   is_completed: boolean;
   completed_at?: string;
 }

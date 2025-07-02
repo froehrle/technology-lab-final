@@ -24,7 +24,6 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     showResult,
     isCorrect,
     focusPoints,
-    score,
     questionAttempts,
     canProceed,
     handleAnswerSelect,
@@ -48,7 +47,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
   }
 
   if (quizAttempt?.is_completed) {
-    return <QuizCompletedCard score={quizAttempt.current_score} onRestart={handleRestart} />;
+    return <QuizCompletedCard onRestart={handleRestart} />;
   }
 
   if (focusPoints <= 0) {
@@ -68,7 +67,6 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <QuizProgressHeader
         focusPoints={focusPoints}
-        score={score}
         progress={progress}
         currentQuestionIndex={currentQuestionIndex}
         totalQuestions={questions.length}
