@@ -15,10 +15,19 @@ const FarmSlot: React.FC<FarmSlotProps> = ({ slot, isEmpty }) => {
     );
   }
 
+  // Check if this is a multi-grid item and we're not at the top-left position
+  if (slot.isMultiGridChild) {
+    return null; // Don't render anything for child cells
+  }
+
   return (
     <div 
       className="w-full h-full bg-white/10 border border-white/30 rounded-lg flex items-center justify-center group transition-all duration-300 hover:bg-white/20 hover:scale-105 cursor-pointer"
       title={slot.name}
+      style={{
+        gridColumn: slot.width > 1 ? `span ${slot.width}` : undefined,
+        gridRow: slot.height > 1 ? `span ${slot.height}` : undefined,
+      }}
     >
       <span 
         className="text-6xl md:text-7xl lg:text-8xl transition-all duration-300 group-hover:scale-110 drop-shadow-lg"
