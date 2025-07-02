@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -228,8 +227,8 @@ const CreateQuestionDialog = ({ open, onOpenChange, courseId, onQuestionCreated 
                   <SelectValue placeholder="Wählen Sie die richtige Antwort" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="true">Wahr</SelectItem>
-                  <SelectItem value="false">Falsch</SelectItem>
+                  <SelectItem value="True">Wahr</SelectItem>
+                  <SelectItem value="False">Falsch</SelectItem>
                 </SelectContent>
               </Select>
             </div>

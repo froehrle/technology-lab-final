@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,7 +15,6 @@ interface Question {
   question_type: string;
   options: any;
   correct_answer: string | null;
-  points: number | null;
   created_at: string;
   updated_at: string;
 }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -16,7 +15,6 @@ interface Question {
   question_type: string;
   options: any;
   correct_answer: string | null;
-  points: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -246,8 +244,8 @@ const EditQuestionDialog = ({ open, onOpenChange, question, onQuestionUpdated }:
                   <SelectValue placeholder="Wählen Sie die richtige Antwort" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="true">Wahr</SelectItem>
-                  <SelectItem value="false">Falsch</SelectItem>
+                  <SelectItem value="True">Wahr</SelectItem>
+                  <SelectItem value="False">Falsch</SelectItem>
                 </SelectContent>
               </Select>
             </div>

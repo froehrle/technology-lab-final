@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,7 +8,6 @@ interface Question {
   question_type: string;
   options: string[];
   correct_answer: string;
-  points: number;
 }
 
 interface QuizAttempt {

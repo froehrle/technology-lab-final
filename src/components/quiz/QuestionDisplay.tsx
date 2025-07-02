@@ -11,7 +11,6 @@ interface Question {
   question_type: string;
   options: string[];
   correct_answer: string;
-  points: number;
 }
 
 interface QuestionDisplayProps {
