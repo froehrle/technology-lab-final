@@ -58,7 +58,7 @@ const QuizProgressHeader = ({
         
         {/* Colorful progress indication */}
         <div 
-          className="absolute top-0 left-0 h-full bg-gradient-to-r from-success via-warning to-achievement opacity-80 transition-all duration-700 ease-out"
+          className="absolute top-0 left-0 h-full bg-primary transition-all duration-700 ease-out"
           style={{ width: `${Math.min(progress, 82)}%` }}
         ></div>
         
