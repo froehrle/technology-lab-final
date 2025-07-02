@@ -26,6 +26,7 @@ const CustomAvatar = ({ src, fallback, className }: CustomAvatarProps) => {
 
   // Debug logging
   console.log('Equipped items:', equippedItems);
+  console.log('Frame classes:', equippedItems.frame);
 
   const avatarClasses = cn(
     "relative overflow-hidden bg-muted",

@@ -36,6 +36,7 @@ const StoreItem = ({
   onUnequip, 
   canAfford 
 }: StoreItemProps) => {
+  console.log('StoreItem css_class:', item.css_class);
   return (
     <Card className="relative">
       <CardHeader className="pb-2">
