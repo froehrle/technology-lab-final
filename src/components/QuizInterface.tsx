@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,6 +48,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
   const [score, setScore] = useState(0);
   const [quizAttemptId, setQuizAttemptId] = useState<string | null>(null);
   const [questionAttempts, setQuestionAttempts] = useState<{ [key: string]: number }>({});
+  const [canProceed, setCanProceed] = useState(false);
 
   // Fetch questions
   const { data: questions = [], isLoading: questionsLoading } = useQuery({
@@ -195,7 +195,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
   const progress = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
 
   const handleAnswerSelect = (answer: string) => {
-    if (showResult) return;
+    if (showResult && canProceed) return;
     setSelectedAnswer(answer);
   };
 
@@ -222,7 +222,6 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     const newAttempts = currentAttempts + 1;
     
     setIsCorrect(correct);
-    setShowResult(true);
     
     // Update attempt count for current question
     setQuestionAttempts(prev => ({
@@ -238,8 +237,25 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     if (correct) {
       newFocusPoints = Math.min(100, focusPoints + 5);
       newScore = score + (currentQuestion.points || 1) + xpEarned;
+      setCanProceed(true);
     } else {
       newFocusPoints = Math.max(0, focusPoints - 10);
+      // Allow to try again unless it's the 3rd attempt or more
+      if (newAttempts < 3) {
+        setCanProceed(false);
+      } else {
+        setCanProceed(true);
+      }
+    }
+
+    // Show result only from 3rd attempt or if correct
+    if (correct || newAttempts >= 3) {
+      setShowResult(true);
+    } else {
+      setShowResult(false);
+      // Reset answer fields for next attempt
+      setSelectedAnswer('');
+      setTextAnswer('');
     }
 
     setFocusPoints(newFocusPoints);
@@ -259,17 +275,33 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
       xpEarned
     });
 
-    // Show XP feedback
-    if (xpEarned > 0) {
-      toast({
-        title: `+${xpEarned} XP!`,
-        description: `${newAttempts === 1 ? 'Perfekt beim ersten Versuch!' : 'Richtig beim zweiten Versuch!'}`,
-      });
-    } else if (correct && newAttempts >= 3) {
-      toast({
-        title: "Richtig!",
-        description: "Kein XP nach dem 3. Versuch, aber weiter so!",
-      });
+    // Show feedback based on attempts and correctness
+    if (correct) {
+      if (xpEarned > 0) {
+        toast({
+          title: `+${xpEarned} XP!`,
+          description: `${newAttempts === 1 ? 'Perfekt beim ersten Versuch!' : 'Richtig beim zweiten Versuch!'}`,
+        });
+      } else if (newAttempts >= 3) {
+        toast({
+          title: "Richtig!",
+          description: "Kein XP nach dem 3. Versuch, aber weiter so!",
+        });
+      }
+    } else {
+      if (newAttempts < 3) {
+        toast({
+          title: "Noch nicht richtig",
+          description: `Versuch ${newAttempts} von 3. Versuchen Sie es erneut!`,
+          variant: "default"
+        });
+      } else {
+        toast({
+          title: "Falsch",
+          description: `Die richtige Antwort ist: ${currentQuestion.correct_answer}`,
+          variant: "destructive"
+        });
+      }
     }
   };
 
@@ -280,6 +312,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
       setSelectedAnswer('');
       setTextAnswer('');
       setShowResult(false);
+      setCanProceed(false);
       
       // Update quiz attempt with new question index
       updateQuizAttemptMutation.mutate({
@@ -324,6 +357,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     setFocusPoints(100);
     setScore(0);
     setQuestionAttempts({});
+    setCanProceed(false);
   };
 
   if (questionsLoading || attemptLoading) {
@@ -353,6 +387,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
   }
 
   const hasAnswer = currentQuestion?.question_type === 'multiple_choice' ? !!selectedAnswer : !!textAnswer;
+  const currentAttempts = questionAttempts[currentQuestion?.id] || 0;
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
@@ -372,6 +407,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
         isCorrect={isCorrect}
         onAnswerSelect={handleAnswerSelect}
         onTextAnswerChange={handleTextAnswerChange}
+        attemptCount={currentAttempts}
       />
 
       <QuizActions
@@ -379,6 +415,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
         hasAnswer={hasAnswer}
         currentQuestionIndex={currentQuestionIndex}
         totalQuestions={questions.length}
+        canProceed={canProceed}
         onSubmitAnswer={handleSubmitAnswer}
         onNextQuestion={handleNextQuestion}
       />

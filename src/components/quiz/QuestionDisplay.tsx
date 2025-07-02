@@ -20,6 +20,7 @@ interface QuestionDisplayProps {
   textAnswer: string;
   showResult: boolean;
   isCorrect: boolean;
+  attemptCount: number;
   onAnswerSelect: (answer: string) => void;
   onTextAnswerChange: (answer: string) => void;
 }
@@ -30,13 +31,23 @@ const QuestionDisplay = ({
   textAnswer,
   showResult,
   isCorrect,
+  attemptCount,
   onAnswerSelect,
   onTextAnswerChange
 }: QuestionDisplayProps) => {
+  const shouldShowFeedback = showResult && (isCorrect || attemptCount >= 3);
+
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle className="text-xl">{question.question_text}</CardTitle>
+        <div className="flex justify-between items-start">
+          <CardTitle className="text-xl">{question.question_text}</CardTitle>
+          {attemptCount > 0 && (
+            <div className="text-sm text-gray-500">
+              Versuch {attemptCount}/3
+            </div>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -46,7 +57,7 @@ const QuestionDisplay = ({
                 key={index}
                 variant={selectedAnswer === option ? "default" : "outline"}
                 className={`w-full text-left justify-start h-auto p-4 ${
-                  showResult
+                  shouldShowFeedback
                     ? option === question.correct_answer
                       ? 'bg-green-100 border-green-500 text-green-800'
                       : selectedAnswer === option && !isCorrect
@@ -55,17 +66,17 @@ const QuestionDisplay = ({
                     : ''
                 }`}
                 onClick={() => onAnswerSelect(option)}
-                disabled={showResult}
+                disabled={shouldShowFeedback}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm font-medium">
                     {String.fromCharCode(65 + index)}
                   </div>
                   <span>{option}</span>
-                  {showResult && option === question.correct_answer && (
+                  {shouldShowFeedback && option === question.correct_answer && (
                     <CheckCircle className="h-5 w-5 text-green-600 ml-auto" />
                   )}
-                  {showResult && selectedAnswer === option && !isCorrect && (
+                  {shouldShowFeedback && selectedAnswer === option && !isCorrect && (
                     <XCircle className="h-5 w-5 text-red-600 ml-auto" />
                   )}
                 </div>
@@ -78,16 +89,16 @@ const QuestionDisplay = ({
                 placeholder="Geben Sie Ihre Antwort ein..."
                 value={textAnswer}
                 onChange={(e) => onTextAnswerChange(e.target.value)}
-                disabled={showResult}
+                disabled={shouldShowFeedback}
                 className={`text-lg p-4 ${
-                  showResult
+                  shouldShowFeedback
                     ? isCorrect
                       ? 'bg-green-100 border-green-500'
                       : 'bg-red-100 border-red-500'
                     : ''
                 }`}
               />
-              {showResult && (
+              {shouldShowFeedback && (
                 <div className="text-sm text-gray-600">
                   {isCorrect ? (
                     <div className="flex items-center gap-2 text-green-600">

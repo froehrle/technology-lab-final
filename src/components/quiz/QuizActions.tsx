@@ -7,6 +7,7 @@ interface QuizActionsProps {
   hasAnswer: boolean;
   currentQuestionIndex: number;
   totalQuestions: number;
+  canProceed: boolean;
   onSubmitAnswer: () => void;
   onNextQuestion: () => void;
 }
@@ -16,12 +17,13 @@ const QuizActions = ({
   hasAnswer,
   currentQuestionIndex,
   totalQuestions,
+  canProceed,
   onSubmitAnswer,
   onNextQuestion
 }: QuizActionsProps) => {
   return (
     <div className="flex gap-4">
-      {!showResult ? (
+      {!showResult || !canProceed ? (
         <Button 
           onClick={onSubmitAnswer} 
           disabled={!hasAnswer}
