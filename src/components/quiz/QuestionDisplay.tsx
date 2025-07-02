@@ -37,6 +37,14 @@ const QuestionDisplay = ({
 }: QuestionDisplayProps) => {
   const shouldShowFeedback = showResult && (isCorrect || attemptCount >= 3);
 
+  // Determine if this is a multiple choice or true/false question
+  const isMultipleChoice = question.question_type === 'multiple_choice';
+  const isTrueFalse = question.question_type === 'true_false' || question.question_type === 'boolean';
+  const isTextQuestion = question.question_type === 'text';
+
+  // For true/false questions, use predefined options
+  const displayOptions = isTrueFalse ? ['True', 'False'] : question.options;
+
   return (
     <Card className="mb-6">
       <CardHeader>
@@ -51,8 +59,8 @@ const QuestionDisplay = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {question.question_type === 'multiple_choice' ? (
-            question.options?.map((option, index) => (
+          {(isMultipleChoice || isTrueFalse) ? (
+            displayOptions?.map((option, index) => (
               <Button
                 key={index}
                 variant={selectedAnswer === option ? "default" : "outline"}
@@ -70,7 +78,7 @@ const QuestionDisplay = ({
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm font-medium">
-                    {String.fromCharCode(65 + index)}
+                    {isTrueFalse ? (option === 'True' ? 'T' : 'F') : String.fromCharCode(65 + index)}
                   </div>
                   <span>{option}</span>
                   {shouldShowFeedback && option === question.correct_answer && (
@@ -82,7 +90,7 @@ const QuestionDisplay = ({
                 </div>
               </Button>
             ))
-          ) : (
+          ) : isTextQuestion ? (
             <div className="space-y-4">
               <Input
                 type="text"
@@ -117,7 +125,7 @@ const QuestionDisplay = ({
                 </div>
               )}
             </div>
-          )}
+          ) : null}
         </div>
       </CardContent>
     </Card>
