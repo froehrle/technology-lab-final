@@ -36,6 +36,69 @@ export type Database = {
         }
         Relationships: []
       }
+      app_themes: {
+        Row: {
+          created_at: string
+          css_variables: Json
+          description: string | null
+          id: string
+          name: string
+          preview_image: string | null
+          price: number
+        }
+        Insert: {
+          created_at?: string
+          css_variables: Json
+          description?: string | null
+          id?: string
+          name: string
+          preview_image?: string | null
+          price: number
+        }
+        Update: {
+          created_at?: string
+          css_variables?: Json
+          description?: string | null
+          id?: string
+          name?: string
+          preview_image?: string | null
+          price?: number
+        }
+        Relationships: []
+      }
+      avatar_items: {
+        Row: {
+          created_at: string
+          css_class: string
+          description: string | null
+          id: string
+          name: string
+          price: number
+          rarity: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          css_class: string
+          description?: string | null
+          id?: string
+          name: string
+          price: number
+          rarity?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string
+          css_class?: string
+          description?: string | null
+          id?: string
+          name?: string
+          price?: number
+          rarity?: string | null
+          type?: string
+        }
+        Relationships: []
+      }
       course_enrollments: {
         Row: {
           completed_at: string | null
@@ -316,6 +379,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      student_coins: {
+        Row: {
+          created_at: string
+          id: string
+          student_id: string
+          total_coins: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          student_id: string
+          total_coins?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          student_id?: string
+          total_coins?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      student_purchases: {
+        Row: {
+          id: string
+          is_equipped: boolean | null
+          item_id: string | null
+          purchase_type: string
+          purchased_at: string
+          student_id: string
+          theme_id: string | null
+        }
+        Insert: {
+          id?: string
+          is_equipped?: boolean | null
+          item_id?: string | null
+          purchase_type: string
+          purchased_at?: string
+          student_id: string
+          theme_id?: string | null
+        }
+        Update: {
+          id?: string
+          is_equipped?: boolean | null
+          item_id?: string | null
+          purchase_type?: string
+          purchased_at?: string
+          student_id?: string
+          theme_id?: string | null
+        }
+        Relationships: []
       }
       student_xp: {
         Row: {

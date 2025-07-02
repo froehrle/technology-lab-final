@@ -1,0 +1,100 @@
+/* Custom Avatar Effects */
+
+/* Rainbow gradient ring effect */
+.ring-gradient-rainbow {
+  @apply ring-4 ring-offset-2;
+  background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+  background-size: 400%;
+  animation: rainbow-gradient 3s ease infinite;
+  border-radius: 50%;
+  padding: 4px;
+}
+
+@keyframes rainbow-gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Floating animation for avatars */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.avatar-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Sparkle effect */
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.1);
+  }
+}
+
+.avatar-sparkle::after {
+  content: '✨';
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+/* Crown effect for borders */
+.crown-border::before {
+  content: '👑';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.2rem;
+  z-index: 10;
+}
+
+/* Fire glow effect */
+.fire-glow {
+  box-shadow: 0 0 20px rgba(255, 69, 0, 0.8), 0 0 40px rgba(255, 69, 0, 0.6), 0 0 60px rgba(255, 69, 0, 0.4);
+  animation: fire-flicker 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes fire-flicker {
+  0% {
+    box-shadow: 0 0 20px rgba(255, 69, 0, 0.8), 0 0 40px rgba(255, 69, 0, 0.6), 0 0 60px rgba(255, 69, 0, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 25px rgba(255, 140, 0, 0.9), 0 0 50px rgba(255, 140, 0, 0.7), 0 0 75px rgba(255, 140, 0, 0.5);
+  }
+}
+
+/* Ice crystal effect */
+.ice-crystal {
+  box-shadow: 0 0 15px rgba(0, 191, 255, 0.8), inset 0 0 15px rgba(0, 191, 255, 0.3);
+  border: 2px solid rgba(0, 191, 255, 0.5);
+}
+
+/* Lightning effect */
+.lightning-effect {
+  animation: lightning-flash 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes lightning-flash {
+  0% {
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 30px rgba(255, 255, 0, 1), 0 0 40px rgba(255, 255, 255, 0.8);
+  }
+}

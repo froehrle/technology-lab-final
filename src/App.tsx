@@ -17,6 +17,7 @@ import CourseQuiz from "./pages/CourseQuiz";
 import NotFound from "./pages/NotFound";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
+import AvatarStore from "./pages/AvatarStore";
 
 const queryClient = new QueryClient();
 
@@ -92,6 +93,14 @@ const App = () => (
                 element={
                   <AuthGuard requireAuth={true}>
                     <Profile />
+                  </AuthGuard>
+                } 
+              />
+              <Route 
+                path="/avatar-store" 
+                element={
+                  <AuthGuard requireAuth={true} allowedRoles={['student']}>
+                    <AvatarStore />
                   </AuthGuard>
                 } 
               />

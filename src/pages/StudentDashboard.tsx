@@ -5,8 +5,8 @@ import AchievementsDisplay from '@/components/AchievementsDisplay';
 import DashboardStats from '@/components/dashboard/DashboardStats';
 import CoursesList from '@/components/dashboard/CoursesList';
 import { useStudentData } from '@/hooks/useStudentData';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useProfile } from '@/hooks/useProfile';
+import CustomAvatar from '@/components/avatar/CustomAvatar';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -26,12 +26,11 @@ const StudentDashboard = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <div className="flex items-center space-x-4">
-          <Avatar className="h-20 w-20">
-            <AvatarImage src={profile?.avatar_url || undefined} />
-            <AvatarFallback className="text-lg">
-              {user?.email?.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <CustomAvatar 
+            src={profile?.avatar_url}
+            fallback={user?.email?.charAt(0).toUpperCase() || 'U'}
+            className="h-20 w-20"
+          />
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
               Willkommen zurück, {user?.user_metadata?.display_name || user?.email}!

@@ -1,0 +1,33 @@
+import React from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useAvatarItems } from '@/hooks/useAvatarItems';
+import { cn } from '@/lib/utils';
+
+interface CustomAvatarProps {
+  src?: string | null;
+  fallback: string;
+  className?: string;
+}
+
+const CustomAvatar = ({ src, fallback, className }: CustomAvatarProps) => {
+  const { equippedItems } = useAvatarItems();
+
+  const avatarClasses = cn(
+    "relative",
+    equippedItems.background || "bg-muted",
+    equippedItems.border,
+    equippedItems.effect,
+    className
+  );
+
+  return (
+    <Avatar className={avatarClasses}>
+      <AvatarImage src={src || undefined} />
+      <AvatarFallback className="font-medium">
+        {fallback}
+      </AvatarFallback>
+    </Avatar>
+  );
+};
+
+export default CustomAvatar;

@@ -3,10 +3,11 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LogOut, User, BookOpen, LayoutDashboard, GraduationCap, Trophy } from 'lucide-react';
+import { LogOut, User, BookOpen, LayoutDashboard, GraduationCap, Trophy, ShoppingBag } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import CustomAvatar from '@/components/avatar/CustomAvatar';
+import CoinBalance from '@/components/store/CoinBalance';
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -73,19 +74,28 @@ const Header = () => {
                         <Trophy className="h-4 w-4" />
                         <span>Rangliste</span>
                       </Link>
+                      <Link 
+                        to="/avatar-store" 
+                        className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                      >
+                        <ShoppingBag className="h-4 w-4" />
+                        <span>Avatar Shop</span>
+                      </Link>
                     </>
                   )}
                 </nav>
 
+                {/* Coin Balance for students */}
+                {isStudent && <CoinBalance className="hidden md:flex" />}
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={profile?.avatar_url || undefined} />
-                        <AvatarFallback>
-                          {user.email?.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                      <CustomAvatar 
+                        src={profile?.avatar_url}
+                        fallback={user?.email?.charAt(0).toUpperCase() || 'U'}
+                        className="h-8 w-8"
+                      />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
