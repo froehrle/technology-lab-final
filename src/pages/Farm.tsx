@@ -1,21 +1,22 @@
 import React from 'react';
 import { useFarmItems } from '@/hooks/useFarmItems';
 import FarmGrid from '@/components/farm/FarmGrid';
-
 import CoinBalance from '@/components/store/CoinBalance';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Home, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-
 const Farm = () => {
-  const { ownedItems, farmItems, loading, getPurchaseProgress, getNextPurchasableItem } = useFarmItems();
-  
+  const {
+    ownedItems,
+    farmItems,
+    loading,
+    getPurchaseProgress,
+    getNextPurchasableItem
+  } = useFarmItems();
   const progress = getPurchaseProgress();
   const nextItem = getNextPurchasableItem();
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-yellow-50">
+  return <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-yellow-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -60,15 +61,13 @@ const Farm = () => {
             <div className="text-2xl font-bold text-yellow-600">{progress.total - progress.owned}</div>
             <div className="text-sm text-foreground/70">Noch verfügbar</div>
           </div>
-          {nextItem && (
-            <div className="bg-gradient-to-r from-yellow-100 to-orange-100 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-yellow-300 text-center">
+          {nextItem && <div className="bg-gradient-to-r from-yellow-100 to-orange-100 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-yellow-300 text-center">
               <div className="text-lg font-bold text-orange-600 flex items-center justify-center space-x-1">
                 <span>{nextItem.icon}</span>
                 <span>#{nextItem.purchase_order}</span>
               </div>
               <div className="text-sm text-foreground/70">Als Nächstes</div>
-            </div>
-          )}
+            </div>}
         </div>
 
         {/* Farm Grid */}
@@ -77,8 +76,7 @@ const Farm = () => {
         </div>
 
         {/* Empty State */}
-        {!loading && progress.owned === 0 && (
-          <div className="text-center py-12">
+        {!loading && progress.owned === 0 && <div className="text-center py-12">
             <div className="text-6xl mb-4">🏚️</div>
             <h3 className="text-xl font-semibold mb-2">Deine Farm ist noch leer!</h3>
             <p className="text-foreground/70 mb-6">
@@ -90,42 +88,11 @@ const Farm = () => {
                 Zum Shop
               </Button>
             </Link>
-          </div>
-        )}
+          </div>}
 
         {/* Farm Tips */}
-        <div className="mt-8 bg-gradient-to-r from-green-100 to-blue-100 rounded-2xl p-6 border border-green-200">
-          <h3 className="text-lg font-semibold mb-3 text-green-800">🌱 Farm-Tipps</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div className="flex items-start space-x-2">
-              <span className="text-lg">🏠</span>
-              <div>
-                <strong>Gebäude:</strong> Stellen die Basis deiner Farm dar und sind oft Voraussetzung für andere Gegenstände.
-              </div>
-            </div>
-            <div className="flex items-start space-x-2">
-              <span className="text-lg">🐄</span>
-              <div>
-                <strong>Tiere:</strong> Bringen Leben auf deine Farm und können Ressourcen produzieren.
-              </div>
-            </div>
-            <div className="flex items-start space-x-2">
-              <span className="text-lg">🚜</span>
-              <div>
-                <strong>Ausrüstung:</strong> Hilft bei der Farmarbeit und erhöht die Effizienz.
-              </div>
-            </div>
-            <div className="flex items-start space-x-2">
-              <span className="text-lg">🌾</span>
-              <div>
-                <strong>Pflanzen:</strong> Produzieren Nahrung und verschönern deine Farm.
-              </div>
-            </div>
-          </div>
-        </div>
+        
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Farm;
