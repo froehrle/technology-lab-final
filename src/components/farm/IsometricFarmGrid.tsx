@@ -48,8 +48,7 @@ const IsometricFarmGrid = () => {
       >
         {/* Grid Overlay - Only visible when toggled */}
         {showGrid && (
-          <div className="absolute inset-2 pointer-events-none" style={{
-            padding: '16px',
+          <div className="absolute inset-0 pointer-events-none" style={{
             backgroundImage: `
               linear-gradient(to right, rgba(255,255,255,0.3) 1px, transparent 1px),
               linear-gradient(to bottom, rgba(255,255,255,0.3) 1px, transparent 1px)
@@ -70,13 +69,12 @@ const IsometricFarmGrid = () => {
           </div>
         )}
         
-        {/* Farm Grid - Extended to corners with reduced padding */}
-        <div className="absolute inset-2" style={{ 
+        {/* Farm Grid - Starts exactly at corners */}
+        <div className="absolute inset-0" style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(20, 1fr)', 
           gridTemplateRows: 'repeat(12, 1fr)', 
-          gap: '0px',
-          padding: '16px'
+          gap: '0px'
         }}>
           {gridLayout.map((row, rowIndex) =>
             row.map((slot, colIndex) => (
