@@ -32,7 +32,7 @@ export const uploadPdfFiles = async (
       console.log('Sending file to upload API:', file.name);
 
       const response = await fetch(
-        'https://z9thk5d426.execute-api.eu-central-1.amazonaws.com/upload',
+        'https://z9thk5d426.execute-api.eu-central-1.amazonaws.com/dev/upload',
         {
           method: 'POST',
           body: formData,
