@@ -1,110 +1,22 @@
-/* Custom Avatar Effects */
+/* Simple Avatar Effects - Using Tailwind classes only */
 
-/* Rainbow gradient ring effect - Applied as border/ring */
-.ring-gradient-rainbow {
-  position: relative;
-  border-radius: 50%;
-}
-
-.ring-gradient-rainbow::before {
-  content: '';
-  position: absolute;
-  inset: -6px;
-  padding: 4px;
-  background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-  background-size: 400%;
-  border-radius: 50%;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: subtract;
-  animation: rainbow-gradient 3s ease infinite;
-  z-index: -1;
-}
-
-@keyframes rainbow-gradient {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-/* Floating animation for avatars */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-.avatar-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Sparkle effect */
-@keyframes sparkle {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.1);
-  }
-}
-
-.avatar-sparkle::after {
-  content: '✨';
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  animation: sparkle 2s ease-in-out infinite;
-}
-
-/* Crown effect for borders */
-.crown-border::before {
-  content: '👑';
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1.2rem;
-  z-index: 10;
-}
-
-/* Fire glow effect */
-.fire-glow {
-  box-shadow: 0 0 20px rgba(255, 69, 0, 0.8), 0 0 40px rgba(255, 69, 0, 0.6), 0 0 60px rgba(255, 69, 0, 0.4);
-  animation: fire-flicker 1.5s ease-in-out infinite alternate;
-}
-
-@keyframes fire-flicker {
-  0% {
-    box-shadow: 0 0 20px rgba(255, 69, 0, 0.8), 0 0 40px rgba(255, 69, 0, 0.6), 0 0 60px rgba(255, 69, 0, 0.4);
-  }
-  100% {
-    box-shadow: 0 0 25px rgba(255, 140, 0, 0.9), 0 0 50px rgba(255, 140, 0, 0.7), 0 0 75px rgba(255, 140, 0, 0.5);
-  }
-}
-
-/* Ice crystal effect */
-.ice-crystal {
-  box-shadow: 0 0 15px rgba(0, 191, 255, 0.8), inset 0 0 15px rgba(0, 191, 255, 0.3);
-  border: 2px solid rgba(0, 191, 255, 0.5);
-}
-
-/* Lightning effect */
-.lightning-effect {
-  animation: lightning-flash 0.5s ease-in-out infinite alternate;
-}
-
-@keyframes lightning-flash {
-  0% {
-    box-shadow: 0 0 10px rgba(255, 255, 0, 0.8);
-  }
-  100% {
-    box-shadow: 0 0 30px rgba(255, 255, 0, 1), 0 0 40px rgba(255, 255, 255, 0.8);
-  }
-}
+/* All avatar effects now use standard Tailwind classes:
+ * 
+ * Backgrounds:
+ * - bg-blue-100, bg-gray-100, bg-yellow-100
+ * - bg-gradient-to-br from-purple-200 to-pink-200
+ * - bg-gradient-to-br from-indigo-200 to-purple-200
+ * 
+ * Borders:
+ * - ring-2 ring-cyan-400
+ * - ring-2 ring-red-400  
+ * - ring-4 ring-yellow-400
+ * - ring-4 ring-blue-400
+ * - ring-4 ring-purple-500
+ * 
+ * Effects:
+ * - shadow-lg shadow-yellow-200/50
+ * - animate-pulse
+ * - shadow-xl shadow-purple-300/30
+ * - transition-transform hover:scale-105
+ */

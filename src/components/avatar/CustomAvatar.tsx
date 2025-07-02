@@ -30,18 +30,26 @@ const CustomAvatar = ({ src, fallback, className }: CustomAvatarProps) => {
   const avatarClasses = cn(
     "relative overflow-hidden",
     equippedItems.background || "bg-muted",
-    equippedItems.border,
-    equippedItems.effect,
     className
   );
 
+  const containerClasses = cn(
+    "relative",
+    equippedItems.border, // ring classes need container padding
+    equippedItems.effect,
+    // Add padding for rings to be visible
+    (equippedItems.border && equippedItems.border.includes('ring')) ? "p-1" : ""
+  );
+
   return (
-    <Avatar className={avatarClasses}>
-      <AvatarImage src={src || undefined} />
-      <AvatarFallback className="font-medium">
-        {fallback}
-      </AvatarFallback>
-    </Avatar>
+    <div className={containerClasses}>
+      <Avatar className={avatarClasses}>
+        <AvatarImage src={src || undefined} />
+        <AvatarFallback className="font-medium">
+          {fallback}
+        </AvatarFallback>
+      </Avatar>
+    </div>
   );
 };
 
