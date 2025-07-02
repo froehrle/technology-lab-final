@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, Target, CheckCircle, AlertTriangle, Filter } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useCourseAnalytics } from '@/hooks/useCourseAnalytics';
+import AnalyticsHeader from '@/components/analytics/AnalyticsHeader';
+import OverviewStats from '@/components/analytics/OverviewStats';
+import AdvancedAnalytics from '@/components/analytics/AdvancedAnalytics';
+import CourseDifficultyRanking from '@/components/analytics/CourseDifficultyRanking';
+import DropoutPoints from '@/components/analytics/DropoutPoints';
+import DifficultQuestions from '@/components/analytics/DifficultQuestions';
 
 const CourseAnalytics = () => {
   const { user } = useAuth();
@@ -31,316 +35,17 @@ const CourseAnalytics = () => {
     ? courses.map(course => course.id)
     : [selectedCourseId];
 
-  // Total enrolled students across all courses
-  const { data: totalEnrollments = 0 } = useQuery({
-    queryKey: ['analytics-enrollments', user?.id, filteredCourseIds, selectedCourseId],
-    queryFn: async () => {
-      if (filteredCourseIds.length === 0) return 0;
-      
-      const { data, error } = await supabase
-        .from('course_enrollments')
-        .select('id')
-        .in('course_id', filteredCourseIds);
-
-      if (error) throw error;
-      return data?.length || 0;
-    },
-    enabled: !!user?.id && filteredCourseIds.length > 0,
-  });
-
-  // Total quiz attempts
-  const { data: totalQuizAttempts = 0 } = useQuery({
-    queryKey: ['analytics-attempts', user?.id, filteredCourseIds, selectedCourseId],
-    queryFn: async () => {
-      if (filteredCourseIds.length === 0) return 0;
-      
-      const { data, error } = await supabase
-        .from('quiz_attempts')
-        .select('id')
-        .in('course_id', filteredCourseIds);
-
-      if (error) throw error;
-      return data?.length || 0;
-    },
-    enabled: !!user?.id && filteredCourseIds.length > 0,
-  });
-
-  // Perfect completions (100% correct answers)
-  const { data: perfectCompletions = 0 } = useQuery({
-    queryKey: ['analytics-perfect', user?.id, filteredCourseIds, selectedCourseId],
-    queryFn: async () => {
-      if (filteredCourseIds.length === 0) return 0;
-      
-      // Get completed quiz attempts
-      const { data: completedAttempts, error: attemptsError } = await supabase
-        .from('quiz_attempts')
-        .select('id, student_id, course_id')
-        .in('course_id', filteredCourseIds)
-        .eq('is_completed', true);
-
-      if (attemptsError) throw attemptsError;
-      if (!completedAttempts?.length) return 0;
-
-      // For each completed attempt, check if all answers were correct
-      let perfectCount = 0;
-      
-      for (const attempt of completedAttempts) {
-        // Get all questions for this course
-        const { data: questions, error: questionsError } = await supabase
-          .from('questions')
-          .select('id')
-          .eq('course_id', attempt.course_id);
-
-        if (questionsError) continue;
-        if (!questions?.length) continue;
-
-        // Get all answers for this student and course
-        const { data: answers, error: answersError } = await supabase
-          .from('student_answers')
-          .select('is_correct, question_id')
-          .eq('student_id', attempt.student_id)
-          .in('question_id', questions.map(q => q.id));
-
-        if (answersError) continue;
-        if (!answers?.length) continue;
-
-        // Check if all answers are correct and student answered all questions
-        const allCorrect = answers.length === questions.length && 
-                          answers.every(answer => answer.is_correct);
-        
-        if (allCorrect) {
-          perfectCount++;
-        }
-      }
-
-      return perfectCount;
-    },
-    enabled: !!user?.id && filteredCourseIds.length > 0,
-  });
-
-  // Average Session Duration
-  const { data: avgSessionDuration = 0 } = useQuery({
-    queryKey: ['analytics-session-duration', user?.id, filteredCourseIds, selectedCourseId],
-    queryFn: async () => {
-      if (filteredCourseIds.length === 0) return 0;
-      
-      const { data, error } = await supabase
-        .from('quiz_attempts')
-        .select('created_at, completed_at')
-        .in('course_id', filteredCourseIds)
-        .not('completed_at', 'is', null);
-
-      if (error) throw error;
-      if (!data?.length) return 0;
-
-      const durations = data.map(attempt => {
-        const start = new Date(attempt.created_at);
-        const end = new Date(attempt.completed_at!);
-        return (end.getTime() - start.getTime()) / (1000 * 60); // minutes
-      });
-
-      return durations.reduce((sum, duration) => sum + duration, 0) / durations.length;
-    },
-    enabled: !!user?.id && filteredCourseIds.length > 0,
-  });
-
-  // Completion Rate
-  const { data: completionRate = 0 } = useQuery({
-    queryKey: ['analytics-completion-rate', user?.id, filteredCourseIds, selectedCourseId],
-    queryFn: async () => {
-      if (filteredCourseIds.length === 0) return 0;
-      
-      const { data: enrollments, error: enrollError } = await supabase
-        .from('course_enrollments')
-        .select('id, completed_at')
-        .in('course_id', filteredCourseIds);
-
-      if (enrollError) throw enrollError;
-      if (!enrollments?.length) return 0;
-
-      const completedCount = enrollments.filter(e => e.completed_at).length;
-      return Math.round((completedCount / enrollments.length) * 100);
-    },
-    enabled: !!user?.id && filteredCourseIds.length > 0,
-  });
-
-  // Average Attempts per Question
-  const { data: avgAttemptsPerQuestion = 0 } = useQuery({
-    queryKey: ['analytics-avg-attempts', user?.id, filteredCourseIds, selectedCourseId],
-    queryFn: async () => {
-      if (filteredCourseIds.length === 0) return 0;
-      
-      const { data, error } = await supabase
-        .from('student_answers')
-        .select(`
-          attempt_count,
-          questions!inner(course_id)
-        `)
-        .in('questions.course_id', filteredCourseIds);
-
-      if (error) throw error;
-      if (!data?.length) return 0;
-
-      const totalAttempts = data.reduce((sum, answer) => sum + (answer.attempt_count || 1), 0);
-      return (totalAttempts / data.length).toFixed(1);
-    },
-    enabled: !!user?.id && filteredCourseIds.length > 0,
-  });
-
-  // Course Difficulty Ranking
-  const { data: courseDifficultyRanking = [] } = useQuery({
-    queryKey: ['analytics-course-difficulty', user?.id],
-    queryFn: async () => {
-      const { data: courseStats, error } = await supabase
-        .from('course_enrollments')
-        .select(`
-          course_id,
-          completed_at,
-          courses!inner(title)
-        `)
-        .in('course_id', courses.map(c => c.id));
-
-      if (error) throw error;
-      if (!courseStats?.length) return [];
-
-      const statsMap = courseStats.reduce((acc: any, enrollment: any) => {
-        const courseId = enrollment.course_id;
-        if (!acc[courseId]) {
-          acc[courseId] = {
-            courseId,
-            title: enrollment.courses.title,
-            totalEnrollments: 0,
-            completions: 0
-          };
-        }
-        acc[courseId].totalEnrollments++;
-        if (enrollment.completed_at) {
-          acc[courseId].completions++;
-        }
-        return acc;
-      }, {});
-
-      return Object.values(statsMap)
-        .map((stat: any) => ({
-          ...stat,
-          completionRate: stat.totalEnrollments > 0 ? (stat.completions / stat.totalEnrollments) * 100 : 0
-        }))
-        .sort((a: any, b: any) => a.completionRate - b.completionRate);
-    },
-    enabled: !!user?.id && courses.length > 0,
-  });
-
-  // Dropout Points
-  const { data: dropoutPoints = [] } = useQuery({
-    queryKey: ['analytics-dropout-points', user?.id, filteredCourseIds, selectedCourseId],
-    queryFn: async () => {
-      if (filteredCourseIds.length === 0) return [];
-      
-      const { data: attempts, error } = await supabase
-        .from('quiz_attempts')
-        .select('current_question_index, is_completed, course_id, courses!inner(title)')
-        .in('course_id', filteredCourseIds)
-        .eq('is_completed', false);
-
-      if (error) throw error;
-      if (!attempts?.length) return [];
-
-      const dropoutMap = attempts.reduce((acc: any, attempt: any) => {
-        const key = `${attempt.course_id}-${attempt.current_question_index}`;
-        if (!acc[key]) {
-          acc[key] = {
-            courseTitle: attempt.courses.title,
-            questionIndex: attempt.current_question_index || 0,
-            dropoutCount: 0
-          };
-        }
-        acc[key].dropoutCount++;
-        return acc;
-      }, {});
-
-      return Object.values(dropoutMap)
-        .sort((a: any, b: any) => b.dropoutCount - a.dropoutCount)
-        .slice(0, 5);
-    },
-    enabled: !!user?.id && filteredCourseIds.length > 0,
-  });
-
-  // Most difficult questions (highest attempt count or most wrong answers)
-  const { data: difficultQuestions = [] } = useQuery({
-    queryKey: ['analytics-difficult', user?.id, filteredCourseIds, selectedCourseId],
-    queryFn: async () => {
-      if (filteredCourseIds.length === 0) return [];
-      
-      const { data, error } = await supabase
-        .from('student_answers')
-        .select(`
-          question_id,
-          is_correct,
-          attempt_count,
-          questions!inner(
-            question_text,
-            course_id,
-            courses!inner(
-              title
-            )
-          )
-        `)
-        .in('questions.course_id', filteredCourseIds);
-
-      if (error) throw error;
-      if (!data?.length) return [];
-
-      // Group by question and calculate difficulty metrics
-      const questionStats = data.reduce((acc: any, answer: any) => {
-        const questionId = answer.question_id;
-        
-        if (!acc[questionId]) {
-          acc[questionId] = {
-            questionId,
-            questionText: answer.questions.question_text,
-            courseTitle: answer.questions.courses.title,
-            totalAttempts: 0,
-            wrongAnswers: 0,
-            totalAnswers: 0,
-            avgAttempts: 0
-          };
-        }
-        
-        acc[questionId].totalAttempts += answer.attempt_count || 1;
-        acc[questionId].totalAnswers += 1;
-        if (!answer.is_correct) {
-          acc[questionId].wrongAnswers += 1;
-        }
-        
-        return acc;
-      }, {});
-
-      // Calculate average attempts and sort by difficulty
-      const questionArray = Object.values(questionStats).map((stat: any) => ({
-        ...stat,
-        avgAttempts: stat.totalAttempts / stat.totalAnswers,
-        wrongPercentage: (stat.wrongAnswers / stat.totalAnswers) * 100
-      }));
-
-      // Sort by combination of wrong percentage and average attempts
-      questionArray.sort((a: any, b: any) => {
-        const scoreA = a.wrongPercentage + (a.avgAttempts - 1) * 10;
-        const scoreB = b.wrongPercentage + (b.avgAttempts - 1) * 10;
-        return scoreB - scoreA;
-      });
-
-      return questionArray.slice(0, 5);
-    },
-    enabled: !!user?.id && filteredCourseIds.length > 0,
-  });
+  // Get all analytics data using the custom hook
+  const analytics = useCourseAnalytics(user?.id, filteredCourseIds, courses);
 
   if (!user?.id || courses.length === 0) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle>Kurs Analytics</CardTitle>
-          <CardDescription>Umfassende Statistiken zu Ihren Kursen</CardDescription>
-        </CardHeader>
+        <AnalyticsHeader 
+          selectedCourseId={selectedCourseId}
+          onCourseChange={setSelectedCourseId}
+          courses={courses}
+        />
         <CardContent>
           <p className="text-muted-foreground">Erstellen Sie zunächst einen Kurs, um Analytics zu sehen.</p>
         </CardContent>
@@ -350,175 +55,37 @@ const CourseAnalytics = () => {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Kurs Analytics</CardTitle>
-            <CardDescription>Umfassende Statistiken zu Ihren Kursen</CardDescription>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
-              <SelectTrigger className="w-48 bg-background border-border">
-                <SelectValue placeholder="Kurs auswählen" />
-              </SelectTrigger>
-              <SelectContent className="bg-background border-border shadow-lg z-50">
-                <SelectItem value="all">Alle Kurse</SelectItem>
-                {courses.map((course) => (
-                  <SelectItem key={course.id} value={course.id}>
-                    {course.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </CardHeader>
+      <AnalyticsHeader 
+        selectedCourseId={selectedCourseId}
+        onCourseChange={setSelectedCourseId}
+        courses={courses}
+      />
       <CardContent className="space-y-6">
         {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full">
-              <Users className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Eingeschriebene Studenten</p>
-              <p className="text-2xl font-bold">{totalEnrollments}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-purple-100 rounded-full">
-              <Target className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Quiz-Versuche</p>
-              <p className="text-2xl font-bold">{totalQuizAttempts}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-green-100 rounded-full">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Perfekte Abschlüsse</p>
-              <p className="text-2xl font-bold">{perfectCompletions}</p>
-            </div>
-          </div>
-        </div>
+        <OverviewStats 
+          totalEnrollments={analytics.totalEnrollments}
+          totalQuizAttempts={analytics.totalQuizAttempts}
+          perfectCompletions={analytics.perfectCompletions}
+        />
 
         {/* Advanced Analytics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 border rounded-lg">
-            <p className="text-sm text-muted-foreground mb-1">Abschlussrate</p>
-            <p className="text-2xl font-bold text-green-600">{completionRate}%</p>
-          </div>
-          
-          <div className="p-4 border rounded-lg">
-            <p className="text-sm text-muted-foreground mb-1">Ø Session-Dauer</p>
-            <p className="text-2xl font-bold text-blue-600">{avgSessionDuration.toFixed(1)} min</p>
-          </div>
-          
-          <div className="p-4 border rounded-lg">
-            <p className="text-sm text-muted-foreground mb-1">Ø Versuche pro Frage</p>
-            <p className="text-2xl font-bold text-orange-600">{avgAttemptsPerQuestion}</p>
-          </div>
-          
-          <div className="p-4 border rounded-lg">
-            <p className="text-sm text-muted-foreground mb-1">Schwierigste Fragen</p>
-            <p className="text-2xl font-bold text-red-600">{difficultQuestions.length}</p>
-          </div>
-        </div>
+        <AdvancedAnalytics 
+          completionRate={analytics.completionRate}
+          avgSessionDuration={analytics.avgSessionDuration}
+          avgAttemptsPerQuestion={analytics.avgAttemptsPerQuestion}
+          difficultQuestionsCount={analytics.difficultQuestions.length}
+        />
 
         {/* Course Difficulty Ranking */}
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Kurs-Schwierigkeitsranking</h3>
-          {courseDifficultyRanking.length > 0 ? (
-            <div className="space-y-2">
-              {courseDifficultyRanking.map((course: any, index: number) => (
-                <div key={course.courseId} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <Badge variant={index === 0 ? "destructive" : index === courseDifficultyRanking.length - 1 ? "default" : "secondary"}>
-                      #{index + 1}
-                    </Badge>
-                    <span className="font-medium">{course.title}</span>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold">{course.completionRate.toFixed(1)}%</p>
-                    <p className="text-xs text-muted-foreground">
-                      {course.completions}/{course.totalEnrollments} abgeschlossen
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground">Noch keine Daten verfügbar.</p>
-          )}
-        </div>
+        <CourseDifficultyRanking 
+          courseDifficultyRanking={analytics.courseDifficultyRanking}
+        />
 
         {/* Dropout Points */}
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Abbruchpunkte</h3>
-          {dropoutPoints.length > 0 ? (
-            <div className="space-y-2">
-              {dropoutPoints.map((point: any, index: number) => (
-                <div key={`${point.courseTitle}-${point.questionIndex}`} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">{point.courseTitle}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Frage {point.questionIndex + 1}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-red-600">{point.dropoutCount}</p>
-                    <p className="text-xs text-muted-foreground">Abbrüche</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground">Keine Abbruchpunkte gefunden.</p>
-          )}
-        </div>
+        <DropoutPoints dropoutPoints={analytics.dropoutPoints} />
 
         {/* Difficult Questions */}
-        <div>
-          <div className="flex items-center space-x-2 mb-4">
-            <AlertTriangle className="h-5 w-5 text-orange-600" />
-            <h3 className="text-lg font-semibold">Schwierigste Fragen</h3>
-          </div>
-          
-          {difficultQuestions.length > 0 ? (
-            <div className="space-y-3">
-              {difficultQuestions.map((question: any, index: number) => (
-                <div key={question.questionId} className="p-4 border rounded-lg">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Badge variant="outline">#{index + 1}</Badge>
-                        <Badge variant="secondary">{question.courseTitle}</Badge>
-                      </div>
-                      <p className="text-sm font-medium mb-2">
-                        {question.questionText.length > 100 
-                          ? `${question.questionText.substring(0, 100)}...` 
-                          : question.questionText}
-                      </p>
-                      <div className="flex space-x-4 text-xs text-muted-foreground">
-                        <span>Falsche Antworten: {question.wrongPercentage.toFixed(1)}%</span>
-                        <span>Ø Versuche: {question.avgAttempts.toFixed(1)}</span>
-                        <span>Gesamt Antworten: {question.totalAnswers}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground">Noch keine Daten zu schwierigen Fragen verfügbar.</p>
-          )}
-        </div>
+        <DifficultQuestions difficultQuestions={analytics.difficultQuestions} />
       </CardContent>
     </Card>
   );
