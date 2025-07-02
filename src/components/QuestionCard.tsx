@@ -31,7 +31,7 @@ const QuestionCard = ({ question, index, onEdit, onDelete }: QuestionCardProps) 
               {question.question_text}
             </CardTitle>
             <CardDescription className="mt-2 text-base">
-              Frage {index + 1} • {question.question_type}
+              Richtige Antwort: {question.correct_answer || 'Nicht festgelegt'}
             </CardDescription>
           </div>
           <div className="flex space-x-2">
