@@ -41,14 +41,13 @@ const IsometricFarmSlot: React.FC<IsometricFarmSlotProps> = ({
         <span 
           className="transition-all duration-300 drop-shadow-lg block"
           style={{
-            fontSize: `${Math.max(slot.width || 1, slot.height || 1) * 4}rem`,
+            fontSize: '8rem',
             lineHeight: '1',
             width: '100%',
             height: '100%',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            transform: `scale(${Math.max(slot.width || 1, slot.height || 1) * 0.8})`
+            justifyContent: 'center'
           }}
         >
           {slot.icon}
