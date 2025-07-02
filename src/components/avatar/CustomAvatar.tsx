@@ -35,8 +35,8 @@ const CustomAvatar = ({ src, fallback, className }: CustomAvatarProps) => {
   const containerClasses = cn(
     "relative",
     equippedItems.frame, // ring classes for frames
-    // Add padding for rings to be visible
-    (equippedItems.frame && equippedItems.frame.includes('ring')) ? "p-1" : ""
+    // Add padding for rings to be visible - ring-8 needs more space
+    (equippedItems.frame && equippedItems.frame.includes('ring')) ? "p-3" : ""
   );
 
   return (

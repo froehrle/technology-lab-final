@@ -54,8 +54,8 @@ const StoreItem = ({
           <div className={cn(
             "relative",
             item.css_class,
-            // Add padding for rings to be visible in preview
-            item.css_class.includes('ring') ? "p-2" : ""
+            // Add padding for rings to be visible in preview - ring-8 needs more space
+            item.css_class.includes('ring') ? "p-4" : ""
           )}>
             <Avatar className="h-20 w-20 relative overflow-hidden bg-muted">
               <AvatarFallback className="font-medium text-lg">A</AvatarFallback>
