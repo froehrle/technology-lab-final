@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFarmItems } from '@/hooks/useFarmItems';
-import Farm3DGrid from './Farm3DGrid';
+import IsometricFarmGrid from './IsometricFarmGrid';
 
 const FarmGrid = () => {
   const { getGridLayout, loading } = useFarmItems();
@@ -20,8 +20,8 @@ const FarmGrid = () => {
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      {/* 3D Farm Visualization */}
-      <Farm3DGrid />
+      {/* Isometric Farm Visualization */}
+      <IsometricFarmGrid />
 
       {/* Farm Stats */}
       <div className="mt-6 bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20">
