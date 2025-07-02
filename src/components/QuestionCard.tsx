@@ -28,10 +28,10 @@ const QuestionCard = ({ question, index, onEdit, onDelete }: QuestionCardProps) 
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <CardTitle className="text-lg">
-              Frage {index + 1}
+              {question.question_text}
             </CardTitle>
             <CardDescription className="mt-2 text-base">
-              {question.question_text}
+              Frage {index + 1} • {question.question_type}
             </CardDescription>
           </div>
           <div className="flex space-x-2">
