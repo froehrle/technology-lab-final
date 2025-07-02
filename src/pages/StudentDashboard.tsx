@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,6 +60,16 @@ const StudentDashboard = () => {
       
       console.log('Fetching student XP for user:', user.id);
       
+      // First, let's check if there are any student_answers records
+      const { data: answersData, error: answersError } = await supabase
+        .from('student_answers')
+        .select('*')
+        .eq('student_id', user.id);
+      
+      console.log('Student answers data:', answersData);
+      if (answersError) console.error('Error fetching answers:', answersError);
+      
+      // Now check the XP data
       const { data, error } = await supabase
         .from('student_xp')
         .select('total_xp')
@@ -71,6 +82,17 @@ const StudentDashboard = () => {
       }
       
       console.log('Student XP data:', data);
+      
+      // If no XP record exists but we have answers with XP, something's wrong with the trigger
+      if (!data && answersData && answersData.length > 0) {
+        const totalXpFromAnswers = answersData.reduce((sum, answer) => sum + (answer.xp_earned || 0), 0);
+        console.log('Total XP from answers (should match XP table):', totalXpFromAnswers);
+        
+        if (totalXpFromAnswers > 0) {
+          console.error('XP record missing despite having answers with XP - trigger may not be working');
+        }
+      }
+      
       return data as StudentXP | null;
     },
     enabled: !!user?.id,
@@ -85,6 +107,50 @@ const StudentDashboard = () => {
   React.useEffect(() => {
     console.log('Current XP data:', studentXP);
   }, [studentXP]);
+
+  // Debug function to manually check database state
+  const debugDatabaseState = async () => {
+    if (!user?.id) return;
+    
+    console.log('=== DATABASE DEBUG ===');
+    
+    // Check student_answers
+    const { data: answers, error: answersError } = await supabase
+      .from('student_answers')
+      .select('*')
+      .eq('student_id', user.id);
+    
+    console.log('All student answers:', answers);
+    if (answersError) console.error('Answers error:', answersError);
+    
+    // Check student_xp
+    const { data: xp, error: xpError } = await supabase
+      .from('student_xp')
+      .select('*')
+      .eq('student_id', user.id);
+    
+    console.log('All student XP records:', xp);
+    if (xpError) console.error('XP error:', xpError);
+    
+    // Try to manually create an XP record if it doesn't exist and we have answers
+    if (answers && answers.length > 0 && (!xp || xp.length === 0)) {
+      const totalXp = answers.reduce((sum, answer) => sum + (answer.xp_earned || 0), 0);
+      console.log('Attempting to manually create XP record with total:', totalXp);
+      
+      const { data: insertData, error: insertError } = await supabase
+        .from('student_xp')
+        .insert([{ student_id: user.id, total_xp: totalXp }])
+        .select()
+        .single();
+      
+      if (insertError) {
+        console.error('Error manually creating XP record:', insertError);
+      } else {
+        console.log('Successfully created XP record:', insertData);
+        refetchXP();
+      }
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -121,14 +187,24 @@ const StudentDashboard = () => {
             <p className="text-xs text-muted-foreground">
               {studentXP?.total_xp ? 'Gesammeltes XP' : 'Beginnen Sie zu lernen!'}
             </p>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => refetchXP()}
-              className="mt-2 text-xs"
-            >
-              Aktualisieren
-            </Button>
+            <div className="flex gap-2 mt-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => refetchXP()}
+                className="text-xs"
+              >
+                Aktualisieren
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={debugDatabaseState}
+                className="text-xs"
+              >
+                Debug DB
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
