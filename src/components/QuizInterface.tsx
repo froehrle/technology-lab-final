@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, XCircle, Heart } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -29,6 +30,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
+  const [textAnswer, setTextAnswer] = useState<string>('');
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [lives, setLives] = useState(5);
@@ -96,9 +98,10 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
   };
 
   const handleSubmitAnswer = () => {
-    if (!selectedAnswer || !currentQuestion) return;
+    const answerToSubmit = currentQuestion?.question_type === 'text' ? textAnswer : selectedAnswer;
+    if (!answerToSubmit || !currentQuestion) return;
 
-    const correct = selectedAnswer === currentQuestion.correct_answer;
+    const correct = answerToSubmit === currentQuestion.correct_answer;
     setIsCorrect(correct);
     setShowResult(true);
 
@@ -110,7 +113,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
 
     submitAnswerMutation.mutate({
       questionId: currentQuestion.id,
-      answer: selectedAnswer,
+      answer: answerToSubmit,
       correct
     });
   };
@@ -119,6 +122,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer('');
+      setTextAnswer('');
       setShowResult(false);
       
       // Update progress
@@ -209,36 +213,73 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {currentQuestion?.options?.map((option, index) => (
-              <Button
-                key={index}
-                variant={selectedAnswer === option ? "default" : "outline"}
-                className={`w-full text-left justify-start h-auto p-4 ${
-                  showResult
-                    ? option === currentQuestion.correct_answer
-                      ? 'bg-green-100 border-green-500 text-green-800'
-                      : selectedAnswer === option && !isCorrect
-                      ? 'bg-red-100 border-red-500 text-red-800'
+            {currentQuestion?.question_type === 'multiple_choice' ? (
+              currentQuestion?.options?.map((option, index) => (
+                <Button
+                  key={index}
+                  variant={selectedAnswer === option ? "default" : "outline"}
+                  className={`w-full text-left justify-start h-auto p-4 ${
+                    showResult
+                      ? option === currentQuestion.correct_answer
+                        ? 'bg-green-100 border-green-500 text-green-800'
+                        : selectedAnswer === option && !isCorrect
+                        ? 'bg-red-100 border-red-500 text-red-800'
+                        : ''
                       : ''
-                    : ''
-                }`}
-                onClick={() => handleAnswerSelect(option)}
-                disabled={showResult}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm font-medium">
-                    {String.fromCharCode(65 + index)}
+                  }`}
+                  onClick={() => handleAnswerSelect(option)}
+                  disabled={showResult}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm font-medium">
+                      {String.fromCharCode(65 + index)}
+                    </div>
+                    <span>{option}</span>
+                    {showResult && option === currentQuestion.correct_answer && (
+                      <CheckCircle className="h-5 w-5 text-green-600 ml-auto" />
+                    )}
+                    {showResult && selectedAnswer === option && !isCorrect && (
+                      <XCircle className="h-5 w-5 text-red-600 ml-auto" />
+                    )}
                   </div>
-                  <span>{option}</span>
-                  {showResult && option === currentQuestion.correct_answer && (
-                    <CheckCircle className="h-5 w-5 text-green-600 ml-auto" />
-                  )}
-                  {showResult && selectedAnswer === option && !isCorrect && (
-                    <XCircle className="h-5 w-5 text-red-600 ml-auto" />
-                  )}
-                </div>
-              </Button>
-            ))}
+                </Button>
+              ))
+            ) : (
+              <div className="space-y-4">
+                <Input
+                  type="text"
+                  placeholder="Geben Sie Ihre Antwort ein..."
+                  value={textAnswer}
+                  onChange={(e) => setTextAnswer(e.target.value)}
+                  disabled={showResult}
+                  className={`text-lg p-4 ${
+                    showResult
+                      ? isCorrect
+                        ? 'bg-green-100 border-green-500'
+                        : 'bg-red-100 border-red-500'
+                      : ''
+                  }`}
+                />
+                {showResult && (
+                  <div className="text-sm text-gray-600">
+                    {isCorrect ? (
+                      <div className="flex items-center gap-2 text-green-600">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Richtig!</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-red-600">
+                          <XCircle className="h-4 w-4" />
+                          <span>Falsch!</span>
+                        </div>
+                        <p>Die richtige Antwort ist: <strong>{currentQuestion.correct_answer}</strong></p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -248,7 +289,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
         {!showResult ? (
           <Button 
             onClick={handleSubmitAnswer} 
-            disabled={!selectedAnswer}
+            disabled={currentQuestion?.question_type === 'multiple_choice' ? !selectedAnswer : !textAnswer}
             className="flex-1"
             size="lg"
           >
@@ -264,31 +305,6 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
           </Button>
         )}
       </div>
-
-      {/* Result Feedback */}
-      {showResult && (
-        <Card className={`mt-4 ${isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              {isCorrect ? (
-                <CheckCircle className="h-8 w-8 text-green-600" />
-              ) : (
-                <XCircle className="h-8 w-8 text-red-600" />
-              )}
-              <div>
-                <p className={`font-semibold ${isCorrect ? 'text-green-800' : 'text-red-800'}`}>
-                  {isCorrect ? 'Richtig!' : 'Falsch!'}
-                </p>
-                {!isCorrect && (
-                  <p className="text-sm text-gray-600">
-                    Die richtige Antwort ist: {currentQuestion.correct_answer}
-                  </p>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };
