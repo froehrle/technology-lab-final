@@ -10,7 +10,6 @@ interface Question {
   question_type: string;
   options: any;
   correct_answer: string | null;
-  points: number | null;
   created_at: string;
   updated_at: string;
 }
