@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFarmItems } from '@/hooks/useFarmItems';
-import FarmGrid from '@/components/farm/FarmGrid';
+
 import CoinBalance from '@/components/store/CoinBalance';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Home, Info } from 'lucide-react';
@@ -70,9 +70,13 @@ const Farm = () => {
           )}
         </div>
 
-        {/* Farm Grid */}
-        <div className="mb-8">
-          <FarmGrid />
+        {/* Farm Display - Grid Removed */}
+        <div className="mb-8 bg-white/80 backdrop-blur-sm rounded-xl p-8 shadow-lg border border-white/20 text-center">
+          <div className="text-6xl mb-4">🏗️</div>
+          <h3 className="text-xl font-semibold mb-2">Farm wird neu gestaltet</h3>
+          <p className="text-foreground/70">
+            Die Farm-Anzeige wurde entfernt und wird in Zukunft neu implementiert.
+          </p>
         </div>
 
         {/* Empty State */}
