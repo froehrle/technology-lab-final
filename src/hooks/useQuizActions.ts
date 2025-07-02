@@ -24,6 +24,7 @@ export const useQuizActions = (courseId: string) => {
     submitAnswerMutation,
     updateProgressMutation,
     toast,
+    queryClient,
     ...rest
   } = useQuizState(courseId);
 
@@ -107,8 +108,14 @@ export const useQuizActions = (courseId: string) => {
     showAnswerFeedback(correct, newAttempts, xpEarned, currentQuestion, toast);
   };
 
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
+  const handleNextQuestion = async () => {
+    // Refetch questions to get the latest list in case new questions were added
+    await queryClient.invalidateQueries({ queryKey: ['course-questions', courseId] });
+    
+    // Get the updated questions list
+    const updatedQuestions = queryClient.getQueryData(['course-questions', courseId]) as any[] || questions;
+    
+    if (currentQuestionIndex < updatedQuestions.length - 1) {
       const nextIndex = currentQuestionIndex + 1;
       setCurrentQuestionIndex(nextIndex);
       setSelectedAnswer('');
@@ -120,7 +127,8 @@ export const useQuizActions = (courseId: string) => {
         current_question_index: nextIndex
       });
       
-      const newProgress = Math.round(((nextIndex + 1) / questions.length) * 100);
+      // Use updated questions length for progress calculation
+      const newProgress = Math.round(((nextIndex + 1) / updatedQuestions.length) * 100);
       updateProgressMutation.mutate(newProgress);
     } else {
       updateQuizAttemptMutation.mutate({

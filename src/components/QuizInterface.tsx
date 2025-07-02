@@ -58,8 +58,13 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     });
   }
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const progress = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
+  // Handle case where current question index might be beyond the current questions length
+  // This can happen if questions were removed, so we adjust to the last available question
+  const adjustedQuestionIndex = Math.min(currentQuestionIndex, questions.length - 1);
+  const currentQuestion = questions[adjustedQuestionIndex];
+  
+  // Use the actual questions length for progress calculation (handles dynamically added questions)
+  const progress = questions.length > 0 ? ((adjustedQuestionIndex + 1) / questions.length) * 100 : 0;
   const hasAnswer = currentQuestion?.question_type === 'multiple_choice' ? !!selectedAnswer : !!textAnswer;
   const currentAttempts = questionAttempts[currentQuestion?.id] || 0;
 
@@ -68,7 +73,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
       <QuizProgressHeader
         focusPoints={focusPoints}
         progress={progress}
-        currentQuestionIndex={currentQuestionIndex}
+        currentQuestionIndex={adjustedQuestionIndex}
         totalQuestions={questions.length}
       />
 
@@ -86,7 +91,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
       <QuizActions
         showResult={showResult}
         hasAnswer={hasAnswer}
-        currentQuestionIndex={currentQuestionIndex}
+        currentQuestionIndex={adjustedQuestionIndex}
         totalQuestions={questions.length}
         canProceed={canProceed}
         onSubmitAnswer={handleSubmitAnswer}

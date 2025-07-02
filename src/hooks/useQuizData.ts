@@ -24,7 +24,7 @@ interface QuizAttempt {
 export const useQuizData = (courseId: string) => {
   const { user } = useAuth();
 
-  // Fetch questions
+  // Fetch questions with shorter refetch interval to catch new questions
   const { data: questions = [], isLoading: questionsLoading } = useQuery({
     queryKey: ['course-questions', courseId],
     queryFn: async () => {
@@ -38,6 +38,8 @@ export const useQuizData = (courseId: string) => {
       return data as Question[];
     },
     enabled: !!courseId,
+    refetchInterval: 10000, // Refetch every 10 seconds to catch new questions
+    refetchIntervalInBackground: true,
   });
 
   // Fetch or create quiz attempt
