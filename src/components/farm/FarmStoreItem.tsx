@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Lock, ShoppingCart, CheckCircle, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { FarmItem } from '@/hooks/useFarmItems';
+import { FarmItem } from '@/types/farmTypes';
 
 interface FarmStoreItemProps {
   item: FarmItem;
