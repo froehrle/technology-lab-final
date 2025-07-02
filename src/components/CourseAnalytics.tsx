@@ -10,6 +10,7 @@ import AdvancedAnalytics from '@/components/analytics/AdvancedAnalytics';
 
 import CourseDifficultyRanking from '@/components/analytics/CourseDifficultyRanking';
 import DropoutPoints from '@/components/analytics/DropoutPoints';
+import DifficultQuestions from '@/components/analytics/DifficultQuestions';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -85,6 +86,7 @@ const CourseAnalytics = () => {
             </div>
             <Skeleton className="h-40" />
             <Skeleton className="h-32" />
+            <Skeleton className="h-32" />
           </div>
         ) : (
           <>
@@ -108,6 +110,9 @@ const CourseAnalytics = () => {
 
             {/* Dropout Points */}
             <DropoutPoints dropoutPoints={analytics.dropoutPoints} />
+
+            {/* Difficult Questions */}
+            <DifficultQuestions difficultQuestions={analytics.difficultQuestions} />
           </>
         )}
       </CardContent>

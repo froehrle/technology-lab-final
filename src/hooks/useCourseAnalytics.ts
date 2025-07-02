@@ -176,6 +176,26 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
     enabled: !!userId && filteredCourseIds.length > 0,
   });
 
+  // Most difficult questions using optimized view
+  const difficultQuestions = useQuery({
+    queryKey: ['analytics-difficult', userId, filteredCourseIds],
+    queryFn: async () => {
+      if (filteredCourseIds.length === 0) return [];
+      
+      const { data, error } = await supabase
+        .from('difficult_questions_stats')
+        .select('*')
+        .in('course_id', filteredCourseIds)
+        .order('wrong_percentage', { ascending: false })
+        .order('avg_attempts', { ascending: false })
+        .limit(5);
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!userId && filteredCourseIds.length > 0,
+  });
+
   return {
     totalEnrollments: totalEnrollments.data || 0,
     totalQuizAttempts: totalQuizAttempts.data || 0,
@@ -184,13 +204,14 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
     completionRate: completionRate.data || 0,
     courseDifficultyRanking: courseDifficultyRanking.data || [],
     dropoutPoints: dropoutPoints.data || [],
+    difficultQuestions: difficultQuestions.data || [],
     isLoading: totalEnrollments.isLoading || totalQuizAttempts.isLoading || 
                perfectCompletions.isLoading || avgSessionDuration.isLoading ||
                completionRate.isLoading || courseDifficultyRanking.isLoading || 
-               dropoutPoints.isLoading,
+               dropoutPoints.isLoading || difficultQuestions.isLoading,
     error: totalEnrollments.error || totalQuizAttempts.error || 
            perfectCompletions.error || avgSessionDuration.error ||
            completionRate.error || courseDifficultyRanking.error ||
-           dropoutPoints.error
+           dropoutPoints.error || difficultQuestions.error
   };
 };
