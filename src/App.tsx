@@ -13,6 +13,7 @@ import StudentDashboard from "./pages/StudentDashboard";
 import StudentCourses from "./pages/StudentCourses";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import CourseDetail from "./pages/CourseDetail";
+import CourseQuiz from "./pages/CourseQuiz";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,14 @@ const App = () => (
                 element={
                   <AuthGuard requireAuth={true}>
                     <CourseDetail />
+                  </AuthGuard>
+                } 
+              />
+              <Route 
+                path="/course/:courseId/quiz" 
+                element={
+                  <AuthGuard requireAuth={true} allowedRoles={['student']}>
+                    <CourseQuiz />
                   </AuthGuard>
                 } 
               />

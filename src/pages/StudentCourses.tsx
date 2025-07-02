@@ -1,10 +1,13 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { BookOpen, Play } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface Course {
   id: string;
@@ -14,8 +17,18 @@ interface Course {
   updated_at: string;
 }
 
+interface CourseEnrollment {
+  id: string;
+  course_id: string;
+  progress: number;
+  enrolled_at: string;
+}
+
 const StudentCourses = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: courses, isLoading, error } = useQuery({
     queryKey: ['courses'],
@@ -30,8 +43,71 @@ const StudentCourses = () => {
     },
   });
 
-  const handleCourseClick = (courseId: string) => {
-    navigate(`/course/${courseId}`);
+  const { data: enrollments = [] } = useQuery({
+    queryKey: ['course-enrollments', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      
+      const { data, error } = await supabase
+        .from('course_enrollments')
+        .select('*')
+        .eq('student_id', user.id);
+
+      if (error) throw error;
+      return data as CourseEnrollment[];
+    },
+    enabled: !!user?.id,
+  });
+
+  const enrollMutation = useMutation({
+    mutationFn: async (courseId: string) => {
+      const { data, error } = await supabase
+        .from('course_enrollments')
+        .insert([
+          {
+            student_id: user!.id,
+            course_id: courseId,
+            progress: 0
+          }
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['course-enrollments'] });
+      toast({
+        title: "Erfolgreich eingeschrieben",
+        description: "Sie wurden erfolgreich für den Kurs eingeschrieben!",
+      });
+    },
+    onError: (error) => {
+      console.error('Enrollment error:', error);
+      toast({
+        title: "Fehler",
+        description: "Die Einschreibung konnte nicht abgeschlossen werden.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleEnrollCourse = (courseId: string) => {
+    enrollMutation.mutate(courseId);
+  };
+
+  const handleStartCourse = (courseId: string) => {
+    navigate(`/course/${courseId}/quiz`);
+  };
+
+  const isEnrolled = (courseId: string) => {
+    return enrollments.some(enrollment => enrollment.course_id === courseId);
+  };
+
+  const getEnrollmentProgress = (courseId: string) => {
+    const enrollment = enrollments.find(e => e.course_id === courseId);
+    return enrollment?.progress || 0;
   };
 
   if (isLoading) {
@@ -85,28 +161,61 @@ const StudentCourses = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {courses.map((course) => (
-            <Card 
-              key={course.id}
-              className="cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => handleCourseClick(course.id)}
-            >
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-blue-600" />
-                  {course.title}
-                </CardTitle>
-                {course.description && (
-                  <CardDescription>{course.description}</CardDescription>
-                )}
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-gray-500">
-                  Erstellt: {new Date(course.created_at).toLocaleDateString('de-DE')}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
+          {courses.map((course) => {
+            const enrolled = isEnrolled(course.id);
+            const progress = getEnrollmentProgress(course.id);
+            
+            return (
+              <Card key={course.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-blue-600" />
+                    {course.title}
+                  </CardTitle>
+                  {course.description && (
+                    <CardDescription>{course.description}</CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-500">
+                      Erstellt: {new Date(course.created_at).toLocaleDateString('de-DE')}
+                    </p>
+                    
+                    {enrolled && progress > 0 && (
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-green-600 h-2 rounded-full transition-all duration-300" 
+                          style={{ width: `${progress}%` }}
+                        ></div>
+                      </div>
+                    )}
+                    
+                    <div className="flex gap-2">
+                      {enrolled ? (
+                        <Button 
+                          onClick={() => handleStartCourse(course.id)}
+                          className="flex-1"
+                        >
+                          <Play className="h-4 w-4 mr-2" />
+                          {progress > 0 ? 'Fortsetzen' : 'Starten'}
+                        </Button>
+                      ) : (
+                        <Button 
+                          onClick={() => handleEnrollCourse(course.id)}
+                          variant="outline"
+                          className="flex-1"
+                          disabled={enrollMutation.isPending}
+                        >
+                          {enrollMutation.isPending ? 'Wird eingeschrieben...' : 'Kurs beitreten'}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>
