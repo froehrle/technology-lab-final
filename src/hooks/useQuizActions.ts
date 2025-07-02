@@ -1,5 +1,8 @@
 
 import { useQuizState } from './useQuizState';
+import { useAchievements } from './useAchievements';
+import { calculateXP, calculateNewFocusPoints, shouldAllowProceed } from '@/utils/quizScoring';
+import { showAnswerFeedback, showQuizCompletionToast } from '@/utils/quizFeedback';
 
 export const useQuizActions = (courseId: string) => {
   const {
@@ -23,9 +26,10 @@ export const useQuizActions = (courseId: string) => {
     submitAnswerMutation,
     updateProgressMutation,
     toast,
-    queryClient,
     ...rest
   } = useQuizState(courseId);
+
+  const { checkForNewAchievements } = useAchievements();
 
   const handleAnswerSelect = (answer: string) => {
     if (rest.showResult && rest.canProceed) return;
@@ -34,24 +38,6 @@ export const useQuizActions = (courseId: string) => {
 
   const handleTextAnswerChange = (answer: string) => {
     setTextAnswer(answer);
-  };
-
-  const calculateXP = (attemptCount: number, correct: boolean): number => {
-    if (!correct) return 0;
-    
-    switch (attemptCount) {
-      case 1: return 20;
-      case 2: return 10;
-      default: return 0;
-    }
-  };
-
-  const checkForNewAchievements = async (xpEarned: number) => {
-    if (xpEarned <= 0) return;
-
-    // Invalidate achievements queries to refetch them
-    queryClient.invalidateQueries({ queryKey: ['student-achievements'] });
-    queryClient.invalidateQueries({ queryKey: ['student-xp'] });
   };
 
   const handleSubmitAnswer = () => {
@@ -71,21 +57,11 @@ export const useQuizActions = (courseId: string) => {
     }));
 
     const xpEarned = calculateXP(newAttempts, correct);
-    let newFocusPoints = focusPoints;
-    let newScore = score;
+    const newFocusPoints = calculateNewFocusPoints(focusPoints, correct);
+    const newScore = correct ? score + (currentQuestion.points || 1) + xpEarned : score;
+    const canProceed = shouldAllowProceed(correct, newAttempts);
 
-    if (correct) {
-      newFocusPoints = Math.min(100, focusPoints + 5);
-      newScore = score + (currentQuestion.points || 1) + xpEarned;
-      setCanProceed(true);
-    } else {
-      newFocusPoints = Math.max(0, focusPoints - 10);
-      if (newAttempts < 3) {
-        setCanProceed(false);
-      } else {
-        setCanProceed(true);
-      }
-    }
+    setCanProceed(canProceed);
 
     if (correct || newAttempts >= 3) {
       setShowResult(true);
@@ -111,39 +87,11 @@ export const useQuizActions = (courseId: string) => {
       xpEarned
     }, {
       onSuccess: () => {
-        // Check for new achievements after successful answer submission
         checkForNewAchievements(xpEarned);
       }
     });
 
-    // Show feedback
-    if (correct) {
-      if (xpEarned > 0) {
-        toast({
-          title: `+${xpEarned} XP!`,
-          description: `${newAttempts === 1 ? 'Perfekt beim ersten Versuch!' : 'Richtig beim zweiten Versuch!'}`,
-        });
-      } else if (newAttempts >= 3) {
-        toast({
-          title: "Richtig!",
-          description: "Kein XP nach dem 3. Versuch, aber weiter so!",
-        });
-      }
-    } else {
-      if (newAttempts < 3) {
-        toast({
-          title: "Noch nicht richtig",
-          description: `Versuch ${newAttempts} von 3. Versuchen Sie es erneut!`,
-          variant: "default"
-        });
-      } else {
-        toast({
-          title: "Falsch",
-          description: `Die richtige Antwort ist: ${currentQuestion.correct_answer}`,
-          variant: "destructive"
-        });
-      }
-    }
+    showAnswerFeedback(correct, newAttempts, xpEarned, currentQuestion, toast);
   };
 
   const handleNextQuestion = () => {
@@ -169,10 +117,7 @@ export const useQuizActions = (courseId: string) => {
       
       updateProgressMutation.mutate(100);
       
-      toast({
-        title: "Quiz abgeschlossen!",
-        description: `Glückwunsch! Sie haben ${score} Punkte erreicht.`,
-      });
+      showQuizCompletionToast(score, toast);
     }
   };
 
