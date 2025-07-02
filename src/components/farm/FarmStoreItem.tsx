@@ -99,9 +99,15 @@ const FarmStoreItem: React.FC<FarmStoreItemProps> = ({
 
       <CardContent className="pt-0">
         <div className="flex items-center justify-between text-sm text-foreground/70">
-          <div className="flex items-center space-x-1">
-            <MapPin className="h-4 w-4" />
-            <span>Position: ({item.grid_x + 1}, {item.grid_y + 1})</span>
+          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1">
+              <span className="font-bold text-primary">#{item.purchase_order}</span>
+              <span>in Reihenfolge</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <MapPin className="h-4 w-4" />
+              <span>({item.grid_x + 1}, {item.grid_y + 1})</span>
+            </div>
           </div>
           <div className="text-lg font-bold text-primary">
             {item.price} 🪙

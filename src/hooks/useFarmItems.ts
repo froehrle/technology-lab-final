@@ -16,6 +16,7 @@ export interface FarmItem {
   prerequisite_item_id: string | null;
   width: number;
   height: number;
+  purchase_order: number;
   created_at: string;
 }
 
@@ -25,8 +26,6 @@ export interface FarmPurchase {
   farm_item_id: string;
   purchased_at: string;
   is_placed: boolean;
-  custom_grid_x?: number | null;
-  custom_grid_y?: number | null;
 }
 
 export const useFarmItems = () => {
@@ -48,8 +47,7 @@ export const useFarmItems = () => {
       const { data, error } = await supabase
         .from('farm_items')
         .select('*')
-        .order('grid_y')
-        .order('grid_x');
+        .order('purchase_order');
 
       if (error) throw error;
       setFarmItems(data || []);
@@ -128,12 +126,15 @@ export const useFarmItems = () => {
     // Check if already owned
     if (isOwned(item.id)) return false;
 
-    // Check prerequisite
-    if (item.prerequisite_item_id) {
-      return isOwned(item.prerequisite_item_id);
-    }
+    // Must follow sequential purchase order - can only buy the next item in sequence
+    const ownedItemIds = ownedItems.map(p => p.farm_item_id);
+    const ownedFarmItems = farmItems.filter(fi => ownedItemIds.includes(fi.id));
+    const highestOwnedOrder = ownedFarmItems.length > 0 
+      ? Math.max(...ownedFarmItems.map(fi => fi.purchase_order)) 
+      : 0;
 
-    return true;
+    // Can purchase if this is the next item in sequence
+    return item.purchase_order === highestOwnedOrder + 1;
   };
 
   const getFarmItemsByType = (type: string) => {
@@ -141,51 +142,31 @@ export const useFarmItems = () => {
   };
 
   const getGridLayout = () => {
-    const grid = Array(4).fill(null).map(() => Array(6).fill(null));
+    const grid = Array(3).fill(null).map(() => Array(5).fill(null));
     
     farmItems.forEach(item => {
       const purchase = ownedItems.find(p => p.farm_item_id === item.id);
-      if (purchase) {
-        // Use custom position if available, otherwise use default position
-        const gridX = purchase.custom_grid_x !== null ? purchase.custom_grid_x : item.grid_x;
-        const gridY = purchase.custom_grid_y !== null ? purchase.custom_grid_y : item.grid_y;
+      const isItemOwned = !!purchase;
+      const isNextAvailable = canPurchase(item);
+      
+      // Always place items in their fixed positions for the puzzle layout
+      if (item.grid_y < 3 && item.grid_x < 5) {
+        const itemWithStatus = {
+          ...item,
+          isOwned: isItemOwned,
+          isNextAvailable: isNextAvailable,
+          isLocked: !isItemOwned && !isNextAvailable,
+          purchaseId: purchase?.id
+        };
         
-        // Check if the item fits in the grid with its width and height
-        const canPlace = gridY + item.height <= 4 && gridX + item.width <= 6;
-        
-        if (canPlace) {
-          // Check if all cells are available
-          let allCellsAvailable = true;
-          for (let y = gridY; y < gridY + item.height; y++) {
-            for (let x = gridX; x < gridX + item.width; x++) {
-              if (grid[y][x] !== null) {
-                allCellsAvailable = false;
-                break;
-              }
-            }
-            if (!allCellsAvailable) break;
-          }
-          
-          if (allCellsAvailable) {
-            const itemWithStatus = {
-              ...item,
-              isOwned: true,
-              canPurchase: canPurchase(item),
-              currentGridX: gridX,
-              currentGridY: gridY,
-              purchaseId: purchase.id
-            };
-            
-            // Place the item in all its required cells
-            for (let y = gridY; y < gridY + item.height; y++) {
-              for (let x = gridX; x < gridX + item.width; x++) {
-                // Only the top-left cell gets the full item, others get a reference
-                if (y === gridY && x === gridX) {
-                  grid[y][x] = itemWithStatus;
-                } else {
-                  grid[y][x] = { ...itemWithStatus, isSpan: true, mainX: gridX, mainY: gridY };
-                }
-              }
+        // Place the item in all its required cells
+        for (let y = item.grid_y; y < item.grid_y + item.height && y < 3; y++) {
+          for (let x = item.grid_x; x < item.grid_x + item.width && x < 5; x++) {
+            // Only the top-left cell gets the full item, others get a reference
+            if (y === item.grid_y && x === item.grid_x) {
+              grid[y][x] = itemWithStatus;
+            } else {
+              grid[y][x] = { ...itemWithStatus, isSpan: true, mainX: item.grid_x, mainY: item.grid_y };
             }
           }
         }
@@ -195,58 +176,20 @@ export const useFarmItems = () => {
     return grid;
   };
 
-  const moveItem = async (itemId: string, newRow: number, newCol: number) => {
-    if (!user) return { success: false, error: 'No user' };
-
-    try {
-      // Find the purchase record and item details
-      const purchase = ownedItems.find(p => p.farm_item_id === itemId);
-      const item = farmItems.find(item => item.id === itemId);
-      
-      if (!purchase) return { success: false, error: 'Item not purchased' };
-      if (!item) return { success: false, error: 'Item not found' };
-
-      // Check if the new position is valid for this item's size
-      if (newRow + item.height > 4 || newCol + item.width > 6) {
-        toast({
-          title: "Ungültige Position",
-          description: "Der Gegenstand passt nicht an diese Position.",
-          variant: "destructive",
-        });
-        return { success: false, error: 'Invalid position for item size' };
-      }
-
-      // Update the user's custom position for this item
-      const { error } = await supabase
-        .from('student_farm_purchases')
-        .update({ 
-          custom_grid_x: newCol, 
-          custom_grid_y: newRow 
-        })
-        .eq('id', purchase.id)
-        .eq('student_id', user.id);
-
-      if (error) throw error;
-
-      // Refresh the data
-      await fetchOwnedItems();
-      
-      toast({
-        title: "Verschoben!",
-        description: `${item.name} wurde erfolgreich verschoben.`,
-      });
-
-      return { success: true };
-    } catch (error: any) {
-      console.error('Error moving farm item:', error);
-      toast({
-        title: "Verschieben fehlgeschlagen",
-        description: "Der Gegenstand konnte nicht verschoben werden.",
-        variant: "destructive",
-      });
-      return { success: false, error: error.message };
-    }
+  const getNextPurchasableItem = () => {
+    return farmItems.find(item => canPurchase(item));
   };
+
+  const getPurchaseProgress = () => {
+    const totalItems = farmItems.length;
+    const ownedCount = ownedItems.length;
+    return {
+      owned: ownedCount,
+      total: totalItems,
+      percentage: totalItems > 0 ? Math.round((ownedCount / totalItems) * 100) : 0
+    };
+  };
+
 
   return {
     farmItems,
@@ -257,7 +200,8 @@ export const useFarmItems = () => {
     canPurchase,
     getFarmItemsByType,
     getGridLayout,
-    moveItem,
+    getNextPurchasableItem,
+    getPurchaseProgress,
     refetch: () => {
       fetchFarmItems();
       fetchOwnedItems();

@@ -8,11 +8,10 @@ import { Link } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Farm = () => {
-  const { ownedItems, farmItems, loading } = useFarmItems();
-
-  const totalItems = farmItems.length;
-  const ownedCount = ownedItems.length;
-  const completionPercentage = totalItems > 0 ? Math.round((ownedCount / totalItems) * 100) : 0;
+  const { ownedItems, farmItems, loading, getPurchaseProgress, getNextPurchasableItem } = useFarmItems();
+  
+  const progress = getPurchaseProgress();
+  const nextItem = getNextPurchasableItem();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-yellow-50">
@@ -47,19 +46,28 @@ const Farm = () => {
         </div>
 
         {/* Farm Progress Stats */}
-        <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20 text-center">
-            <div className="text-2xl font-bold text-green-600">{ownedCount}</div>
+            <div className="text-2xl font-bold text-green-600">{progress.owned}</div>
             <div className="text-sm text-foreground/70">Gekaufte Gegenstände</div>
           </div>
           <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20 text-center">
-            <div className="text-2xl font-bold text-blue-600">{completionPercentage}%</div>
+            <div className="text-2xl font-bold text-blue-600">{progress.percentage}%</div>
             <div className="text-sm text-foreground/70">Farm vollständig</div>
           </div>
           <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-white/20 text-center">
-            <div className="text-2xl font-bold text-yellow-600">{totalItems - ownedCount}</div>
-            <div className="text-sm text-foreground/70">Verfügbare Gegenstände</div>
+            <div className="text-2xl font-bold text-yellow-600">{progress.total - progress.owned}</div>
+            <div className="text-sm text-foreground/70">Noch verfügbar</div>
           </div>
+          {nextItem && (
+            <div className="bg-gradient-to-r from-yellow-100 to-orange-100 backdrop-blur-sm rounded-xl p-4 shadow-lg border border-yellow-300 text-center">
+              <div className="text-lg font-bold text-orange-600 flex items-center justify-center space-x-1">
+                <span>{nextItem.icon}</span>
+                <span>#{nextItem.purchase_order}</span>
+              </div>
+              <div className="text-sm text-foreground/70">Als Nächstes</div>
+            </div>
+          )}
         </div>
 
         {/* Farm Grid */}
@@ -68,7 +76,7 @@ const Farm = () => {
         </div>
 
         {/* Empty State */}
-        {!loading && ownedCount === 0 && (
+        {!loading && progress.owned === 0 && (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🏚️</div>
             <h3 className="text-xl font-semibold mb-2">Deine Farm ist noch leer!</h3>

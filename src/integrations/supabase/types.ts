@@ -180,6 +180,7 @@ export type Database = {
           name: string
           prerequisite_item_id: string | null
           price: number
+          purchase_order: number | null
           rarity: string | null
           type: string
           width: number | null
@@ -195,6 +196,7 @@ export type Database = {
           name: string
           prerequisite_item_id?: string | null
           price: number
+          purchase_order?: number | null
           rarity?: string | null
           type: string
           width?: number | null
@@ -210,6 +212,7 @@ export type Database = {
           name?: string
           prerequisite_item_id?: string | null
           price?: number
+          purchase_order?: number | null
           rarity?: string | null
           type?: string
           width?: number | null
@@ -522,8 +525,6 @@ export type Database = {
       }
       student_farm_purchases: {
         Row: {
-          custom_grid_x: number | null
-          custom_grid_y: number | null
           farm_item_id: string
           id: string
           is_placed: boolean | null
@@ -531,8 +532,6 @@ export type Database = {
           student_id: string
         }
         Insert: {
-          custom_grid_x?: number | null
-          custom_grid_y?: number | null
           farm_item_id: string
           id?: string
           is_placed?: boolean | null
@@ -540,8 +539,6 @@ export type Database = {
           student_id: string
         }
         Update: {
-          custom_grid_x?: number | null
-          custom_grid_y?: number | null
           farm_item_id?: string
           id?: string
           is_placed?: boolean | null
