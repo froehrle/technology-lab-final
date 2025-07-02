@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Trophy, Calendar, TrendingUp, Play, Zap, Star } from 'lucide-react';
+import { BookOpen, Trophy, Calendar, TrendingUp, Play, Zap, Star, CheckCircle, XCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +22,13 @@ interface CourseEnrollment {
 
 interface StudentXP {
   total_xp: number;
+}
+
+interface CourseStats {
+  course_id: string;
+  correct_answers: number;
+  wrong_answers: number;
+  total_questions: number;
 }
 
 const StudentDashboard = () => {
@@ -51,6 +57,50 @@ const StudentDashboard = () => {
       return data as CourseEnrollment[];
     },
     enabled: !!user?.id,
+  });
+
+  // Fetch course statistics for each enrolled course
+  const { data: courseStats = [] } = useQuery({
+    queryKey: ['course-stats', user?.id, enrollments.map(e => e.course_id)],
+    queryFn: async () => {
+      if (!user?.id || enrollments.length === 0) return [];
+      
+      const courseIds = enrollments.map(e => e.course_id);
+      
+      const stats = await Promise.all(
+        courseIds.map(async (courseId) => {
+          // Get total questions for this course
+          const { data: questions, error: questionsError } = await supabase
+            .from('questions')
+            .select('id')
+            .eq('course_id', courseId);
+
+          if (questionsError) throw questionsError;
+
+          // Get student's answers for this course
+          const { data: answers, error: answersError } = await supabase
+            .from('student_answers')
+            .select('is_correct, question_id')
+            .eq('student_id', user.id)
+            .in('question_id', questions?.map(q => q.id) || []);
+
+          if (answersError) throw answersError;
+
+          const correctAnswers = answers?.filter(a => a.is_correct).length || 0;
+          const wrongAnswers = answers?.filter(a => !a.is_correct).length || 0;
+
+          return {
+            course_id: courseId,
+            correct_answers: correctAnswers,
+            wrong_answers: wrongAnswers,
+            total_questions: questions?.length || 0
+          } as CourseStats;
+        })
+      );
+
+      return stats;
+    },
+    enabled: !!user?.id && enrollments.length > 0,
   });
 
   const { data: studentXP, refetch: refetchXP } = useQuery({
@@ -150,6 +200,15 @@ const StudentDashboard = () => {
         refetchXP();
       }
     }
+  };
+
+  const getCourseStats = (courseId: string) => {
+    return courseStats.find(stat => stat.course_id === courseId) || {
+      course_id: courseId,
+      correct_answers: 0,
+      wrong_answers: 0,
+      total_questions: 0
+    };
   };
 
   return (
@@ -255,36 +314,57 @@ const StudentDashboard = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {enrollments.map((enrollment) => (
-                  <div 
-                    key={enrollment.id} 
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
-                  >
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">{enrollment.courses.title}</h3>
-                      {enrollment.courses.description && (
-                        <p className="text-sm text-gray-600 mt-1">{enrollment.courses.description}</p>
-                      )}
-                      <div className="mt-2">
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                            style={{ width: `${enrollment.progress}%` }}
-                          ></div>
-                        </div>
-                        <p className="text-xs text-gray-500 mt-1">{enrollment.progress}% abgeschlossen</p>
-                      </div>
-                    </div>
-                    <Button 
-                      onClick={() => handleContinueCourse(enrollment.course_id)}
-                      size="sm"
-                      className="ml-4"
+                {enrollments.map((enrollment) => {
+                  const stats = getCourseStats(enrollment.course_id);
+                  return (
+                    <div 
+                      key={enrollment.id} 
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
                     >
-                      <Play className="h-4 w-4 mr-1" />
-                      {enrollment.progress > 0 ? 'Fortsetzen' : 'Starten'}
-                    </Button>
-                  </div>
-                ))}
+                      <div className="flex-1">
+                        <h3 className="font-medium text-gray-900">{enrollment.courses.title}</h3>
+                        {enrollment.courses.description && (
+                          <p className="text-sm text-gray-600 mt-1">{enrollment.courses.description}</p>
+                        )}
+                        
+                        {/* Question Statistics */}
+                        <div className="flex items-center gap-4 mt-2">
+                          <div className="flex items-center gap-1 text-sm">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <span className="text-green-700 font-medium">{stats.correct_answers}</span>
+                            <span className="text-gray-500">richtig</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-sm">
+                            <XCircle className="h-4 w-4 text-red-600" />
+                            <span className="text-red-700 font-medium">{stats.wrong_answers}</span>
+                            <span className="text-gray-500">falsch</span>
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            von {stats.total_questions} Fragen
+                          </div>
+                        </div>
+
+                        <div className="mt-2">
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                              style={{ width: `${enrollment.progress}%` }}
+                            ></div>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-1">{enrollment.progress}% abgeschlossen</p>
+                        </div>
+                      </div>
+                      <Button 
+                        onClick={() => handleContinueCourse(enrollment.course_id)}
+                        size="sm"
+                        className="ml-4"
+                      >
+                        <Play className="h-4 w-4 mr-1" />
+                        {enrollment.progress > 0 ? 'Fortsetzen' : 'Starten'}
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </CardContent>
