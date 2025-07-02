@@ -33,16 +33,22 @@ const IsometricFarmSlot: React.FC<IsometricFarmSlotProps> = ({
         aspectRatio: (slot.width || 1) / (slot.height || 1),
       }}
     >
-      {/* Item Icon - seamlessly integrated into background */}
+      {/* Item Icon - fills entire grid cell */}
       <div
         className="transition-all duration-300 group-hover:scale-110 flex items-center justify-center w-full h-full"
         title={slot.name}
       >
         <span 
-          className={cn(
-            "transition-all duration-300 drop-shadow-lg",
-            slot.width > 1 || slot.height > 1 ? "text-5xl md:text-7xl" : "text-4xl md:text-5xl"
-          )}
+          className="transition-all duration-300 drop-shadow-lg block"
+          style={{
+            fontSize: `${Math.min(slot.width || 1, slot.height || 1) * 0.8}rem`,
+            lineHeight: '1',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
         >
           {slot.icon}
         </span>

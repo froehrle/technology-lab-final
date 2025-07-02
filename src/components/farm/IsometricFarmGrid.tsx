@@ -54,7 +54,7 @@ const IsometricFarmGrid = () => {
               linear-gradient(to right, rgba(255,255,255,0.3) 1px, transparent 1px),
               linear-gradient(to bottom, rgba(255,255,255,0.3) 1px, transparent 1px)
             `,
-            backgroundSize: 'calc(100% / 5) calc(100% / 3)'
+            backgroundSize: 'calc(100% / 20) calc(100% / 12)'
           }} />
         )}
         
@@ -73,9 +73,9 @@ const IsometricFarmGrid = () => {
         {/* Farm Grid - Extended to corners with reduced padding */}
         <div className="absolute inset-2" style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(5, 1fr)', 
-          gridTemplateRows: 'repeat(3, 1fr)', 
-          gap: '8px',
+          gridTemplateColumns: 'repeat(20, 1fr)', 
+          gridTemplateRows: 'repeat(12, 1fr)', 
+          gap: '0px',
           padding: '16px'
         }}>
           {gridLayout.map((row, rowIndex) =>

@@ -142,7 +142,7 @@ export const useFarmItems = () => {
   };
 
   const getGridLayout = () => {
-    const grid = Array(3).fill(null).map(() => Array(5).fill(null));
+    const grid = Array(12).fill(null).map(() => Array(20).fill(null));
     
     farmItems.forEach(item => {
       const purchase = ownedItems.find(p => p.farm_item_id === item.id);
@@ -150,7 +150,7 @@ export const useFarmItems = () => {
       const isNextAvailable = canPurchase(item);
       
       // Always place items in their fixed positions for the puzzle layout
-      if (item.grid_y < 3 && item.grid_x < 5) {
+      if (item.grid_y < 12 && item.grid_x < 20) {
         const itemWithStatus = {
           ...item,
           isOwned: isItemOwned,
@@ -160,8 +160,8 @@ export const useFarmItems = () => {
         };
         
         // Place the item in all its required cells
-        for (let y = item.grid_y; y < item.grid_y + item.height && y < 3; y++) {
-          for (let x = item.grid_x; x < item.grid_x + item.width && x < 5; x++) {
+        for (let y = item.grid_y; y < item.grid_y + item.height && y < 12; y++) {
+          for (let x = item.grid_x; x < item.grid_x + item.width && x < 20; x++) {
             // Only the top-left cell gets the full item, others get a reference
             if (y === item.grid_y && x === item.grid_x) {
               grid[y][x] = itemWithStatus;
