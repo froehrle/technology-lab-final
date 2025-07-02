@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useQuizActions } from '@/hooks/useQuizActions';
 import QuizProgressHeader from './quiz/QuizProgressHeader';
 import QuestionDisplay from './quiz/QuestionDisplay';
@@ -34,6 +34,17 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     toast
   } = useQuizActions(courseId);
 
+  // Handle focus points warning with useEffect to avoid render issues
+  useEffect(() => {
+    if (focusPoints <= 10 && focusPoints > 0) {
+      toast({
+        title: "Fokus niedrig",
+        description: "Ihre Fokuspunkte sind niedrig. Eine Pause wird empfohlen.",
+        variant: "destructive"
+      });
+    }
+  }, [focusPoints, toast]);
+
   if (questionsLoading || attemptLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -50,12 +61,9 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     return <QuizCompletedCard onRestart={handleRestart} />;
   }
 
+  // Show game over when focus points reach 0
   if (focusPoints <= 0) {
-    toast({
-      title: "Fokus erschöpft",
-      description: "Eine Pause wird empfohlen, aber Sie können fortfahren.",
-      variant: "destructive"
-    });
+    return <GameOverCard onRestart={handleRestart} />;
   }
 
   // Handle case where current question index might be beyond the current questions length
