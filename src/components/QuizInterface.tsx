@@ -53,17 +53,17 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     );
   }
 
+  // Show game over when focus points reach 0 - this should be checked first
+  if (focusPoints <= 0) {
+    return <GameOverCard onRestart={handleRestart} />;
+  }
+
   if (!questions.length) {
     return <NoQuestionsCard />;
   }
 
   if (quizAttempt?.is_completed) {
     return <QuizCompletedCard onRestart={handleRestart} />;
-  }
-
-  // Show game over when focus points reach 0
-  if (focusPoints <= 0) {
-    return <GameOverCard onRestart={handleRestart} />;
   }
 
   // Handle case where current question index might be beyond the current questions length
