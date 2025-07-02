@@ -98,7 +98,6 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
     enabled: !!userId && filteredCourseIds.length > 0,
   });
 
-  // Average Attempts per Question
   const avgAttemptsPerQuestion = useQuery({
     queryKey: ['analytics-avg-attempts', userId, filteredCourseIds],
     queryFn: async () => {
@@ -111,6 +110,8 @@ export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds
         .from('questions')
         .select('id')
         .in('course_id', filteredCourseIds);
+        
+      console.log('Questions query result:', questions, 'error:', questionsError);
         
       if (questionsError) throw questionsError;
       if (!questions?.length) {
