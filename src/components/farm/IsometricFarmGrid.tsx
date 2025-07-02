@@ -22,17 +22,41 @@ const IsometricFarmGrid = () => {
 
   return (
     <div className="relative w-full max-w-5xl mx-auto">
-      {/* Farm Puzzle Container with farmish green background */}
+      {/* Farm Field Background - Rolling Green Hills */}
       <div 
-        className="relative w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-green-500/80 bg-gradient-to-br from-green-400 via-green-500 to-green-600"
+        className="relative w-full rounded-3xl overflow-hidden shadow-2xl border-4 border-green-500/60"
         style={{
           aspectRatio: '5/3',
+          background: `
+            linear-gradient(180deg, 
+              #a8e6a3 0%, 
+              #8fbc8f 25%, 
+              #90ee90 50%, 
+              #98fb98 75%, 
+              #7cb342 100%
+            )
+          `
         }}
       >
-        {/* Farm field pattern overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-green-300/40 via-transparent to-green-700/20"></div>
+        {/* Rolling Hills Effect */}
         <div className="absolute inset-0" style={{
-          backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.05) 20px, rgba(255,255,255,0.05) 40px)`
+          background: `
+            radial-gradient(ellipse 120% 50% at 20% 70%, rgba(139, 195, 74, 0.3) 0%, transparent 50%),
+            radial-gradient(ellipse 100% 60% at 80% 60%, rgba(76, 175, 80, 0.2) 0%, transparent 50%),
+            radial-gradient(ellipse 150% 40% at 50% 80%, rgba(104, 159, 56, 0.4) 0%, transparent 60%)
+          `
+        }}></div>
+        
+        {/* Grass at the Bottom */}
+        <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-green-700 to-transparent opacity-80"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-4" style={{
+          background: `repeating-linear-gradient(90deg, 
+            transparent 0px, 
+            rgba(56, 142, 60, 0.6) 1px, 
+            rgba(56, 142, 60, 0.6) 2px, 
+            transparent 3px, 
+            transparent 8px
+          )`
         }}></div>
         
         {/* Next Item Indicator */}
