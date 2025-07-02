@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LogOut, User, BookOpen, LayoutDashboard } from 'lucide-react';
+import { LogOut, User, BookOpen, LayoutDashboard, GraduationCap } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Header = () => {
@@ -20,11 +20,14 @@ const Header = () => {
     return null;
   }
 
+  const isTeacher = user?.user_metadata?.role === 'teacher';
+  const isStudent = user?.user_metadata?.role === 'student';
+
   return (
     <header className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link to={user ? "/dashboard" : "/"} className="flex items-center space-x-2">
+          <Link to={user ? (isTeacher ? "/teacher-dashboard" : "/dashboard") : "/"} className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">CL</span>
             </div>
@@ -36,20 +39,33 @@ const Header = () => {
               <>
                 {/* Navigation for authenticated users */}
                 <nav className="hidden md:flex items-center space-x-4">
-                  <Link 
-                    to="/dashboard" 
-                    className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span>Dashboard</span>
-                  </Link>
-                  <Link 
-                    to="/courses" 
-                    className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                  >
-                    <BookOpen className="h-4 w-4" />
-                    <span>Kurse</span>
-                  </Link>
+                  {isTeacher && (
+                    <Link 
+                      to="/teacher-dashboard" 
+                      className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                    >
+                      <GraduationCap className="h-4 w-4" />
+                      <span>Dashboard</span>
+                    </Link>
+                  )}
+                  {isStudent && (
+                    <>
+                      <Link 
+                        to="/dashboard" 
+                        className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        <span>Dashboard</span>
+                      </Link>
+                      <Link 
+                        to="/courses" 
+                        className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                      >
+                        <BookOpen className="h-4 w-4" />
+                        <span>Kurse</span>
+                      </Link>
+                    </>
+                  )}
                 </nav>
 
                 <DropdownMenu>

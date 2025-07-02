@@ -14,9 +14,10 @@ const Index = () => {
     );
   }
 
-  // If user is authenticated, redirect to their dashboard
+  // If user is authenticated, redirect based on their role
   if (user) {
-    return <Navigate to="/dashboard" replace />;
+    const isTeacher = user.user_metadata?.role === 'teacher';
+    return <Navigate to={isTeacher ? "/teacher-dashboard" : "/dashboard"} replace />;
   }
 
   // If not authenticated, redirect to auth page
