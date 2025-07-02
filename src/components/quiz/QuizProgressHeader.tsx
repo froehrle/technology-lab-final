@@ -64,11 +64,6 @@ const QuizProgressHeader = ({
           </div>
         </div>
         
-        {/* Finish flag without text - positioned inside container */}
-        <div className="absolute right-1 top-1 bg-red-700 text-white text-xs font-bold px-2 py-1 rounded shadow-lg border border-white z-30">
-          🏁
-        </div>
-        
         {/* Running Stickman */}
         <div 
           className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-700 ease-out z-10"
