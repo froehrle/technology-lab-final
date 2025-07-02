@@ -29,14 +29,13 @@ const CustomAvatar = ({ src, fallback, className }: CustomAvatarProps) => {
 
   const avatarClasses = cn(
     "relative overflow-hidden bg-muted",
+    equippedItems.frame, // Apply ring classes directly to avatar
     className
   );
 
   const containerClasses = cn(
-    "relative",
-    equippedItems.frame, // ring classes for frames
-    // Add padding for rings to be visible - ring-8 needs more space
-    (equippedItems.frame && equippedItems.frame.includes('ring')) ? "p-3" : ""
+    "relative"
+    // No padding - ring should be directly on the avatar
   );
 
   return (

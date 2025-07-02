@@ -51,16 +51,12 @@ const StoreItem = ({
       <CardContent className="space-y-4">
         {/* Preview Avatar */}
         <div className="flex justify-center p-8">
-          <div className={cn(
-            "relative",
-            item.css_class,
-            // Add padding for rings to be visible in preview - ring-8 needs more space
-            item.css_class.includes('ring') ? "p-4" : ""
+          <Avatar className={cn(
+            "h-20 w-20 relative overflow-hidden bg-muted",
+            item.css_class // Apply ring classes directly to avatar
           )}>
-            <Avatar className="h-20 w-20 relative overflow-hidden bg-muted">
-              <AvatarFallback className="font-medium text-lg">A</AvatarFallback>
-            </Avatar>
-          </div>
+            <AvatarFallback className="font-medium text-lg">A</AvatarFallback>
+          </Avatar>
         </div>
         
         {/* Price */}
