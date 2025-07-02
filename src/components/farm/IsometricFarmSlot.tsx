@@ -83,11 +83,11 @@ const IsometricFarmSlot: React.FC<IsometricFarmSlotProps> = ({
         aspectRatio: (slot.width || 1) / (slot.height || 1),
       }}
     >
-      {/* Blended Icon with dynamic sizing based on item size */}
+      {/* Clean Icon without blur effects */}
       <div
         className={cn(
           "transition-all duration-300 group-hover:scale-110 group-active:scale-95",
-          "backdrop-blur-sm rounded-lg p-2",
+          "rounded-lg p-2",
           "hover:bg-white/10 active:bg-white/20",
           "flex items-center justify-center w-full h-full"
         )}
@@ -95,12 +95,9 @@ const IsometricFarmSlot: React.FC<IsometricFarmSlotProps> = ({
       >
         <span 
           className={cn(
-            "transition-all duration-300 drop-shadow-lg",
+            "transition-all duration-300",
             slot.width > 1 || slot.height > 1 ? "text-6xl md:text-8xl" : "text-4xl md:text-5xl"
           )}
-          style={{
-            filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3)) drop-shadow(0 0 8px rgba(255,255,255,0.4))',
-          }}
         >
           {slot.icon}
         </span>
