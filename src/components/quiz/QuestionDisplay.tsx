@@ -42,8 +42,11 @@ const QuestionDisplay = ({
   const isTrueFalse = question.question_type === 'true_false' || question.question_type === 'boolean';
   const isTextQuestion = question.question_type === 'text';
 
-  // For true/false questions, use predefined options
-  const displayOptions = isTrueFalse ? ['True', 'False'] : question.options;
+  // For true/false questions, use German labels but map to English values
+  const displayOptions = isTrueFalse ? [
+    { label: 'Wahr', value: 'True' },
+    { label: 'Falsch', value: 'False' }
+  ] : question.options?.map(option => ({ label: option, value: option })) || [];
 
   return (
     <Card className="mb-6">
@@ -60,31 +63,31 @@ const QuestionDisplay = ({
       <CardContent>
         <div className="space-y-3">
           {(isMultipleChoice || isTrueFalse) ? (
-            displayOptions?.map((option, index) => (
+            displayOptions.map((option, index) => (
               <Button
                 key={index}
-                variant={selectedAnswer === option ? "default" : "outline"}
+                variant={selectedAnswer === option.value ? "default" : "outline"}
                 className={`w-full text-left justify-start h-auto p-4 ${
                   shouldShowFeedback
-                    ? option === question.correct_answer
+                    ? option.value === question.correct_answer
                       ? 'bg-green-100 border-green-500 text-green-800'
-                      : selectedAnswer === option && !isCorrect
+                      : selectedAnswer === option.value && !isCorrect
                       ? 'bg-red-100 border-red-500 text-red-800'
                       : ''
                     : ''
                 }`}
-                onClick={() => onAnswerSelect(option)}
+                onClick={() => onAnswerSelect(option.value)}
                 disabled={shouldShowFeedback}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm font-medium">
-                    {isTrueFalse ? (option === 'True' ? 'T' : 'F') : String.fromCharCode(65 + index)}
+                    {isTrueFalse ? (option.value === 'True' ? 'W' : 'F') : String.fromCharCode(65 + index)}
                   </div>
-                  <span>{option}</span>
-                  {shouldShowFeedback && option === question.correct_answer && (
+                  <span>{option.label}</span>
+                  {shouldShowFeedback && option.value === question.correct_answer && (
                     <CheckCircle className="h-5 w-5 text-green-600 ml-auto" />
                   )}
-                  {shouldShowFeedback && selectedAnswer === option && !isCorrect && (
+                  {shouldShowFeedback && selectedAnswer === option.value && !isCorrect && (
                     <XCircle className="h-5 w-5 text-red-600 ml-auto" />
                   )}
                 </div>
