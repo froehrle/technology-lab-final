@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          xp_required: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          name: string
+          xp_required: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          xp_required?: number
+        }
+        Relationships: []
+      }
       course_enrollments: {
         Row: {
           completed_at: string | null
@@ -195,6 +222,35 @@ export type Database = {
           },
         ]
       }
+      student_achievements: {
+        Row: {
+          achievement_id: string
+          earned_at: string
+          id: string
+          student_id: string
+        }
+        Insert: {
+          achievement_id: string
+          earned_at?: string
+          id?: string
+          student_id: string
+        }
+        Update: {
+          achievement_id?: string
+          earned_at?: string
+          id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_answers: {
         Row: {
           answered_at: string
@@ -235,6 +291,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      student_xp: {
+        Row: {
+          created_at: string
+          id: string
+          student_id: string
+          total_xp: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          student_id: string
+          total_xp?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          student_id?: string
+          total_xp?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {

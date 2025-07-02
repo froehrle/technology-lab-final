@@ -23,6 +23,7 @@ export const useQuizActions = (courseId: string) => {
     submitAnswerMutation,
     updateProgressMutation,
     toast,
+    queryClient,
     ...rest
   } = useQuizState(courseId);
 
@@ -43,6 +44,14 @@ export const useQuizActions = (courseId: string) => {
       case 2: return 10;
       default: return 0;
     }
+  };
+
+  const checkForNewAchievements = async (xpEarned: number) => {
+    if (xpEarned <= 0) return;
+
+    // Invalidate achievements queries to refetch them
+    queryClient.invalidateQueries({ queryKey: ['student-achievements'] });
+    queryClient.invalidateQueries({ queryKey: ['student-xp'] });
   };
 
   const handleSubmitAnswer = () => {
@@ -100,6 +109,11 @@ export const useQuizActions = (courseId: string) => {
       correct,
       attemptCount: newAttempts,
       xpEarned
+    }, {
+      onSuccess: () => {
+        // Check for new achievements after successful answer submission
+        checkForNewAchievements(xpEarned);
+      }
     });
 
     // Show feedback

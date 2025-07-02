@@ -3,10 +3,11 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Trophy, Calendar, TrendingUp, Play } from 'lucide-react';
+import { BookOpen, Trophy, Calendar, TrendingUp, Play, Zap, Star } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import AchievementsDisplay from '@/components/AchievementsDisplay';
 
 interface CourseEnrollment {
   id: string;
@@ -18,6 +19,10 @@ interface CourseEnrollment {
     title: string;
     description: string | null;
   };
+}
+
+interface StudentXP {
+  total_xp: number;
 }
 
 const StudentDashboard = () => {
@@ -44,6 +49,25 @@ const StudentDashboard = () => {
 
       if (error) throw error;
       return data as CourseEnrollment[];
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: studentXP } = useQuery({
+    queryKey: ['student-xp', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from('student_xp')
+        .select('total_xp')
+        .eq('student_id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+      return data as StudentXP | null;
     },
     enabled: !!user?.id,
   });
@@ -78,11 +102,13 @@ const StudentDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">XP Punkte</CardTitle>
-            <Trophy className="h-4 w-4 text-muted-foreground" />
+            <Zap className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">Beginnen Sie zu lernen!</p>
+            <div className="text-2xl font-bold text-yellow-600">{studentXP?.total_xp || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              {studentXP?.total_xp ? 'Gesammeltes XP' : 'Beginnen Sie zu lernen!'}
+            </p>
           </CardContent>
         </Card>
 
@@ -168,19 +194,7 @@ const StudentDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Erfolge</CardTitle>
-            <CardDescription>Ihre neuesten Errungenschaften</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">Noch keine Erfolge</p>
-              <p className="text-sm text-gray-400 mt-2">Beginnen Sie zu lernen, um Erfolge zu erzielen!</p>
-            </div>
-          </CardContent>
-        </Card>
+        <AchievementsDisplay />
       </div>
     </div>
   );
