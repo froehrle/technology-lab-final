@@ -110,9 +110,18 @@ export const useQuizMutations = (quizAttemptId: string | null, courseId?: string
     mutationFn: async (progress: number) => {
       if (!courseId) throw new Error('Course ID is required');
 
+      const updateData: any = { progress };
+      
+      // Set completed_at when progress reaches 100%, clear it otherwise
+      if (progress >= 100) {
+        updateData.completed_at = new Date().toISOString();
+      } else {
+        updateData.completed_at = null;
+      }
+
       const { data, error } = await supabase
         .from('course_enrollments')
-        .update({ progress })
+        .update(updateData)
         .eq('course_id', courseId)
         .eq('student_id', user!.id)
         .select()
