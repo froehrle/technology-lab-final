@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Edit, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import EditCourseDialog from './EditCourseDialog';
 
 interface Course {
   id: string;
@@ -21,6 +22,13 @@ interface CoursesListProps {
 
 const CoursesList: React.FC<CoursesListProps> = ({ courses, onCourseUpdated }) => {
   const { toast } = useToast();
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+
+  const handleEditCourse = (course: Course) => {
+    setEditingCourse(course);
+    setShowEditDialog(true);
+  };
 
   const handleDeleteCourse = async (courseId: string) => {
     if (!confirm('Sind Sie sicher, dass Sie diesen Kurs löschen möchten?')) {
@@ -62,40 +70,53 @@ const CoursesList: React.FC<CoursesListProps> = ({ courses, onCourseUpdated }) =
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {courses.map((course) => (
-        <Card key={course.id}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5 text-blue-600" />
-              {course.title}
-            </CardTitle>
-            {course.description && (
-              <CardDescription>{course.description}</CardDescription>
-            )}
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-center">
-              <p className="text-sm text-gray-500">
-                Erstellt: {new Date(course.created_at).toLocaleDateString('de-DE')}
-              </p>
-              <div className="flex space-x-2">
-                <Button size="sm" variant="outline">
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={() => handleDeleteCourse(course.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {courses.map((course) => (
+          <Card key={course.id}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-blue-600" />
+                {course.title}
+              </CardTitle>
+              {course.description && (
+                <CardDescription>{course.description}</CardDescription>
+              )}
+            </CardHeader>
+            <CardContent>
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-gray-500">
+                  Erstellt: {new Date(course.created_at).toLocaleDateString('de-DE')}
+                </p>
+                <div className="flex space-x-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleEditCourse(course)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    onClick={() => handleDeleteCourse(course.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <EditCourseDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        course={editingCourse}
+        onCourseUpdated={onCourseUpdated}
+      />
+    </>
   );
 };
 
