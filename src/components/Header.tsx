@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LogOut, User, BookOpen, LayoutDashboard, GraduationCap } from 'lucide-react';
+import { LogOut, User, BookOpen, LayoutDashboard, GraduationCap, Trophy } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 const Header = () => {
@@ -63,6 +63,13 @@ const Header = () => {
                       >
                         <BookOpen className="h-4 w-4" />
                         <span>Kurse</span>
+                      </Link>
+                      <Link 
+                        to="/leaderboard" 
+                        className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                      >
+                        <Trophy className="h-4 w-4" />
+                        <span>Rangliste</span>
                       </Link>
                     </>
                   )}
