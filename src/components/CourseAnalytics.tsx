@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, Target, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Users, Target, CheckCircle, AlertTriangle, Filter } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 const CourseAnalytics = () => {
   const { user } = useAuth();
+  const [selectedCourseId, setSelectedCourseId] = useState<string>('all');
 
   // Get all courses for the teacher to use in other queries
   const { data: courses = [] } = useQuery({
@@ -24,53 +26,56 @@ const CourseAnalytics = () => {
     enabled: !!user?.id,
   });
 
-  const courseIds = courses.map(course => course.id);
+  // Filter course IDs based on selection
+  const filteredCourseIds = selectedCourseId === 'all' 
+    ? courses.map(course => course.id)
+    : [selectedCourseId];
 
   // Total enrolled students across all courses
   const { data: totalEnrollments = 0 } = useQuery({
-    queryKey: ['analytics-enrollments', user?.id, courseIds],
+    queryKey: ['analytics-enrollments', user?.id, filteredCourseIds, selectedCourseId],
     queryFn: async () => {
-      if (courseIds.length === 0) return 0;
+      if (filteredCourseIds.length === 0) return 0;
       
       const { data, error } = await supabase
         .from('course_enrollments')
         .select('id')
-        .in('course_id', courseIds);
+        .in('course_id', filteredCourseIds);
 
       if (error) throw error;
       return data?.length || 0;
     },
-    enabled: !!user?.id && courseIds.length > 0,
+    enabled: !!user?.id && filteredCourseIds.length > 0,
   });
 
   // Total quiz attempts
   const { data: totalQuizAttempts = 0 } = useQuery({
-    queryKey: ['analytics-attempts', user?.id, courseIds],
+    queryKey: ['analytics-attempts', user?.id, filteredCourseIds, selectedCourseId],
     queryFn: async () => {
-      if (courseIds.length === 0) return 0;
+      if (filteredCourseIds.length === 0) return 0;
       
       const { data, error } = await supabase
         .from('quiz_attempts')
         .select('id')
-        .in('course_id', courseIds);
+        .in('course_id', filteredCourseIds);
 
       if (error) throw error;
       return data?.length || 0;
     },
-    enabled: !!user?.id && courseIds.length > 0,
+    enabled: !!user?.id && filteredCourseIds.length > 0,
   });
 
   // Perfect completions (100% correct answers)
   const { data: perfectCompletions = 0 } = useQuery({
-    queryKey: ['analytics-perfect', user?.id, courseIds],
+    queryKey: ['analytics-perfect', user?.id, filteredCourseIds, selectedCourseId],
     queryFn: async () => {
-      if (courseIds.length === 0) return 0;
+      if (filteredCourseIds.length === 0) return 0;
       
       // Get completed quiz attempts
       const { data: completedAttempts, error: attemptsError } = await supabase
         .from('quiz_attempts')
         .select('id, student_id, course_id')
-        .in('course_id', courseIds)
+        .in('course_id', filteredCourseIds)
         .eq('is_completed', true);
 
       if (attemptsError) throw attemptsError;
@@ -110,14 +115,14 @@ const CourseAnalytics = () => {
 
       return perfectCount;
     },
-    enabled: !!user?.id && courseIds.length > 0,
+    enabled: !!user?.id && filteredCourseIds.length > 0,
   });
 
   // Most difficult questions (highest attempt count or most wrong answers)
   const { data: difficultQuestions = [] } = useQuery({
-    queryKey: ['analytics-difficult', user?.id, courseIds],
+    queryKey: ['analytics-difficult', user?.id, filteredCourseIds, selectedCourseId],
     queryFn: async () => {
-      if (courseIds.length === 0) return [];
+      if (filteredCourseIds.length === 0) return [];
       
       const { data, error } = await supabase
         .from('student_answers')
@@ -133,7 +138,7 @@ const CourseAnalytics = () => {
             )
           )
         `)
-        .in('questions.course_id', courseIds);
+        .in('questions.course_id', filteredCourseIds);
 
       if (error) throw error;
       if (!data?.length) return [];
@@ -179,10 +184,10 @@ const CourseAnalytics = () => {
 
       return questionArray.slice(0, 5);
     },
-    enabled: !!user?.id && courseIds.length > 0,
+    enabled: !!user?.id && filteredCourseIds.length > 0,
   });
 
-  if (!user?.id || courseIds.length === 0) {
+  if (!user?.id || courses.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -199,8 +204,28 @@ const CourseAnalytics = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Kurs Analytics</CardTitle>
-        <CardDescription>Umfassende Statistiken zu Ihren Kursen</CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Kurs Analytics</CardTitle>
+            <CardDescription>Umfassende Statistiken zu Ihren Kursen</CardDescription>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={selectedCourseId} onValueChange={setSelectedCourseId}>
+              <SelectTrigger className="w-48 bg-background border-border">
+                <SelectValue placeholder="Kurs auswählen" />
+              </SelectTrigger>
+              <SelectContent className="bg-background border-border shadow-lg z-50">
+                <SelectItem value="all">Alle Kurse</SelectItem>
+                {courses.map((course) => (
+                  <SelectItem key={course.id} value={course.id}>
+                    {course.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Overview Stats */}
