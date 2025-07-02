@@ -142,15 +142,16 @@ export const useFarmItems = () => {
   };
 
   const getGridLayout = () => {
-    const grid = Array(5).fill(null).map(() => Array(8).fill(null));
+    // Create 8x6 grid (8 columns, 6 rows)
+    const grid = Array(6).fill(null).map(() => Array(8).fill(null));
     
     farmItems.forEach(item => {
       const purchase = ownedItems.find(p => p.farm_item_id === item.id);
       const isItemOwned = !!purchase;
       const isNextAvailable = canPurchase(item);
       
-      // Place items in their fixed positions in the 8x5 grid
-      if (item.grid_y < 5 && item.grid_x < 8) {
+      // Place items in their fixed positions (all items are 1x1)
+      if (item.grid_y < 6 && item.grid_x < 8) {
         const itemWithStatus = {
           ...item,
           isOwned: isItemOwned,
@@ -159,7 +160,6 @@ export const useFarmItems = () => {
           purchaseId: purchase?.id
         };
         
-        // For now, all items are 1x1, so just place them directly
         grid[item.grid_y][item.grid_x] = itemWithStatus;
       }
     });
