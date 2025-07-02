@@ -1,14 +1,13 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
 import { CheckCircle, XCircle, Heart } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface Question {
   id: string;
@@ -26,6 +25,7 @@ interface QuizInterfaceProps {
 const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -135,6 +135,8 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
         title: "Quiz abgeschlossen!",
         description: `Glückwunsch! Sie haben ${score} Punkte erreicht.`,
       });
+      // Navigate back to dashboard
+      navigate('/dashboard');
     }
   };
 
@@ -185,7 +187,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
-      {/* Header with progress and lives */}
+      {/* Header with progress stickman and lives */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
@@ -200,7 +202,51 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
             Score: {score}
           </div>
         </div>
-        <Progress value={progress} className="h-3" />
+        
+        {/* Running Stickman Progress */}
+        <div className="relative bg-gray-200 rounded-full h-16 overflow-hidden">
+          {/* Track */}
+          <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-blue-500 opacity-20"></div>
+          
+          {/* Finish Line */}
+          <div className="absolute right-2 top-0 h-full w-1 bg-red-500 flex items-center">
+            <div className="text-xs font-bold text-red-600 -rotate-90 whitespace-nowrap origin-center">
+              ZIEL
+            </div>
+          </div>
+          
+          {/* Running Stickman */}
+          <div 
+            className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-500 ease-out"
+            style={{ left: `${Math.min(progress, 90)}%` }}
+          >
+            <div className="relative">
+              {/* Stickman Body */}
+              <svg width="32" height="32" viewBox="0 0 32 32" className="animate-bounce">
+                {/* Head */}
+                <circle cx="16" cy="6" r="4" fill="#333" />
+                {/* Body */}
+                <line x1="16" y1="10" x2="16" y2="20" stroke="#333" strokeWidth="2" />
+                {/* Arms - animated running */}
+                <line x1="16" y1="14" x2="12" y2="18" stroke="#333" strokeWidth="2" className="animate-pulse" />
+                <line x1="16" y1="14" x2="20" y2="12" stroke="#333" strokeWidth="2" className="animate-pulse" />
+                {/* Legs - animated running */}
+                <line x1="16" y1="20" x2="12" y2="26" stroke="#333" strokeWidth="2" className="animate-pulse" />
+                <line x1="16" y1="20" x2="20" y2="24" stroke="#333" strokeWidth="2" className="animate-pulse" />
+              </svg>
+              
+              {/* Speed lines */}
+              <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-8">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-0.5 bg-blue-400 animate-pulse"></div>
+                  <div className="w-1 h-0.5 bg-blue-300 animate-pulse" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-1 h-0.5 bg-blue-200 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <p className="text-sm text-gray-500 mt-2">
           Frage {currentQuestionIndex + 1} von {questions.length}
         </p>
