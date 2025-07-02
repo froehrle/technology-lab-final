@@ -19,7 +19,7 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 210 100% 56%;
+    --primary: 210 70% 45%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -31,33 +31,33 @@ All colors MUST be HSL.
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
-    --destructive: 0 85% 60%;
+    --destructive: 0 65% 50%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
-    /* Duolingo-inspired colors */
-    --success: 120 100% 35%;
+    /* More subtle Duolingo-inspired colors */
+    --success: 120 60% 40%;
     --success-foreground: 0 0% 100%;
-    --warning: 25 95% 53%;
+    --warning: 25 70% 50%;
     --warning-foreground: 0 0% 100%;
-    --error: 0 85% 60%;
+    --error: 0 65% 50%;
     --error-foreground: 0 0% 100%;
-    --streak: 48 100% 67%;
+    --streak: 25 70% 50%;
     --streak-foreground: 222.2 84% 4.9%;
-    --achievement: 280 100% 70%;
+    --achievement: 280 60% 55%;
     --achievement-foreground: 0 0% 100%;
-    --xp: 48 100% 67%;
+    --xp: 200 70% 45%;
     --xp-foreground: 222.2 84% 4.9%;
     
-    /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(210 100% 56%), hsl(220 100% 65%));
-    --gradient-success: linear-gradient(135deg, hsl(120 100% 35%), hsl(135 100% 45%));
-    --gradient-warning: linear-gradient(135deg, hsl(25 95% 53%), hsl(35 100% 60%));
-    --gradient-streak: linear-gradient(135deg, hsl(48 100% 67%), hsl(58 100% 75%));
-    --gradient-achievement: linear-gradient(135deg, hsl(280 100% 70%), hsl(290 100% 80%));
+    /* More subtle gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(210 70% 45%), hsl(220 70% 50%));
+    --gradient-success: linear-gradient(135deg, hsl(120 60% 40%), hsl(135 60% 45%));
+    --gradient-warning: linear-gradient(135deg, hsl(25 70% 50%), hsl(35 70% 55%));
+    --gradient-streak: linear-gradient(135deg, hsl(25 70% 50%), hsl(35 70% 55%));
+    --gradient-achievement: linear-gradient(135deg, hsl(280 60% 55%), hsl(290 60% 60%));
 
     --radius: 0.5rem;
 
