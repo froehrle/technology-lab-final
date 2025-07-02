@@ -1,15 +1,14 @@
 
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus, Edit, Trash2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import CreateQuestionDialog from '@/components/CreateQuestionDialog';
 import EditQuestionDialog from '@/components/EditQuestionDialog';
+import CourseHeader from '@/components/CourseHeader';
+import QuestionsList from '@/components/QuestionsList';
 
 interface Question {
   id: string;
@@ -127,12 +126,10 @@ const CourseDetail = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Kurs nicht gefunden</h1>
-          <Link to="/teacher-dashboard">
-            <Button>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Zurück zum Dashboard
-            </Button>
-          </Link>
+          <CourseHeader 
+            course={{ id: '', title: 'Kurs nicht gefunden', description: null, created_at: '', updated_at: '' }} 
+            onCreateQuestion={() => {}} 
+          />
         </div>
       </div>
     );
@@ -140,111 +137,16 @@ const CourseDetail = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <Link to="/teacher-dashboard">
-          <Button variant="outline" className="mb-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Zurück zum Dashboard
-          </Button>
-        </Link>
-        
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
-            {course.description && (
-              <p className="text-gray-600 mt-2">{course.description}</p>
-            )}
-          </div>
-          <Button onClick={() => setShowCreateDialog(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Neue Frage hinzufügen
-          </Button>
-        </div>
-      </div>
+      <CourseHeader 
+        course={course} 
+        onCreateQuestion={() => setShowCreateDialog(true)} 
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Fragen ({questions.length})</CardTitle>
-          <CardDescription>
-            Verwalten Sie die Fragen für diesen Kurs
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {questions.length === 0 ? (
-            <div className="text-center py-8">
-              <p className="text-gray-500">Noch keine Fragen erstellt</p>
-              <p className="text-sm text-gray-400 mt-2">
-                Fügen Sie Ihre erste Frage hinzu, um zu beginnen!
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {questions.map((question, index) => (
-                <Card key={question.id}>
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg">
-                          Frage {index + 1}
-                        </CardTitle>
-                        <CardDescription className="mt-2 text-base">
-                          {question.question_text}
-                        </CardDescription>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleEditQuestion(question)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleDeleteQuestion(question.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
-                      <div>
-                        <span className="font-medium">Typ:</span> {question.question_type}
-                      </div>
-                      <div>
-                        <span className="font-medium">Erstellt:</span>{' '}
-                        {new Date(question.created_at).toLocaleDateString('de-DE')}
-                      </div>
-                    </div>
-                    {question.options && (
-                      <div className="mt-4">
-                        <span className="font-medium text-sm">Antwortmöglichkeiten:</span>
-                        <ul className="list-disc list-inside mt-2 text-sm space-y-1">
-                          {Array.isArray(question.options) 
-                            ? question.options.map((option: string, idx: number) => (
-                                <li key={idx} className={option === question.correct_answer ? 'text-green-600 font-medium bg-green-50 p-2 rounded' : 'p-2'}>
-                                  {option} {option === question.correct_answer && '✓ (Richtige Antwort)'}
-                                </li>
-                              ))
-                            : Object.entries(question.options).map(([key, value]) => (
-                                <li key={key} className={value === question.correct_answer ? 'text-green-600 font-medium bg-green-50 p-2 rounded' : 'p-2'}>
-                                  {value as string} {value === question.correct_answer && '✓ (Richtige Antwort)'}
-                                </li>
-                              ))
-                          }
-                        </ul>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <QuestionsList
+        questions={questions}
+        onEditQuestion={handleEditQuestion}
+        onDeleteQuestion={handleDeleteQuestion}
+      />
 
       <CreateQuestionDialog
         open={showCreateDialog}
