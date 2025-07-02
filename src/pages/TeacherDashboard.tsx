@@ -28,6 +28,68 @@ const TeacherDashboard = () => {
     enabled: !!user?.id,
   });
 
+  // Fetch total students enrolled in teacher's courses
+  const { data: totalStudents = 0 } = useQuery({
+    queryKey: ['teacher-students', user?.id],
+    queryFn: async () => {
+      if (!user?.id || courses.length === 0) return 0;
+      
+      const courseIds = courses.map(course => course.id);
+      const { data, error } = await supabase
+        .from('course_enrollments')
+        .select('student_id')
+        .in('course_id', courseIds);
+
+      if (error) throw error;
+      
+      // Count unique students
+      const uniqueStudents = new Set(data?.map(enrollment => enrollment.student_id) || []);
+      return uniqueStudents.size;
+    },
+    enabled: !!user?.id && courses.length > 0,
+  });
+
+  // Fetch completed courses (Abschlüsse)
+  const { data: completedCourses = 0 } = useQuery({
+    queryKey: ['teacher-completions', user?.id],
+    queryFn: async () => {
+      if (!user?.id || courses.length === 0) return 0;
+      
+      const courseIds = courses.map(course => course.id);
+      const { data, error } = await supabase
+        .from('course_enrollments')
+        .select('id')
+        .in('course_id', courseIds)
+        .not('completed_at', 'is', null);
+
+      if (error) throw error;
+      return data?.length || 0;
+    },
+    enabled: !!user?.id && courses.length > 0,
+  });
+
+  // Fetch recent activity (recent quiz attempts in last 7 days)
+  const { data: recentActivity = 0 } = useQuery({
+    queryKey: ['teacher-activity', user?.id],
+    queryFn: async () => {
+      if (!user?.id || courses.length === 0) return 0;
+      
+      const courseIds = courses.map(course => course.id);
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      const { data, error } = await supabase
+        .from('quiz_attempts')
+        .select('id')
+        .in('course_id', courseIds)
+        .gte('created_at', sevenDaysAgo.toISOString());
+
+      if (error) throw error;
+      return data?.length || 0;
+    },
+    enabled: !!user?.id && courses.length > 0,
+  });
+
   const handleCourseCreated = () => {
     refetchCourses();
     setShowCreateDialog(false);
@@ -62,8 +124,10 @@ const TeacherDashboard = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">Bald verfügbar</p>
+            <div className="text-2xl font-bold">{totalStudents}</div>
+            <p className="text-xs text-muted-foreground">
+              {totalStudents === 1 ? 'Eingeschriebener Schüler' : 'Eingeschriebene Schüler'}
+            </p>
           </CardContent>
         </Card>
 
@@ -73,8 +137,10 @@ const TeacherDashboard = () => {
             <GraduationCap className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">Bald verfügbar</p>
+            <div className="text-2xl font-bold">{completedCourses}</div>
+            <p className="text-xs text-muted-foreground">
+              {completedCourses === 1 ? 'Abgeschlossener Kurs' : 'Abgeschlossene Kurse'}
+            </p>
           </CardContent>
         </Card>
 
@@ -84,8 +150,10 @@ const TeacherDashboard = () => {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">Bald verfügbar</p>
+            <div className="text-2xl font-bold">{recentActivity}</div>
+            <p className="text-xs text-muted-foreground">
+              Quiz-Versuche (7 Tage)
+            </p>
           </CardContent>
         </Card>
       </div>
