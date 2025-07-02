@@ -45,12 +45,13 @@ const IsometricFarmGrid = () => {
           </div>
         )}
         
-        {/* Farm Grid - 5x3 layout with proper spacing */}
-        <div className="absolute inset-0 p-8" style={{ 
+        {/* Farm Grid - Extended to corners with reduced padding */}
+        <div className="absolute inset-2" style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(5, 1fr)', 
           gridTemplateRows: 'repeat(3, 1fr)', 
-          gap: '12px' 
+          gap: '8px',
+          padding: '16px'
         }}>
           {gridLayout.map((row, rowIndex) =>
             row.map((slot, colIndex) => (
