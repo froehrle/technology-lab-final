@@ -40,7 +40,7 @@ export const useQuizActions = (courseId: string) => {
     setTextAnswer(answer);
   };
 
-  const handleSubmitAnswer = () => {
+  const handleSubmitAnswer = async () => {
     const currentQuestion = questions[currentQuestionIndex];
     const answerToSubmit = currentQuestion?.question_type === 'text' ? textAnswer : selectedAnswer;
     if (!answerToSubmit || !currentQuestion) return;
@@ -61,6 +61,8 @@ export const useQuizActions = (courseId: string) => {
     const newScore = correct ? score + (currentQuestion.points || 1) + xpEarned : score;
     const canProceed = shouldAllowProceed(correct, newAttempts);
 
+    console.log('XP calculation:', { newAttempts, correct, xpEarned });
+
     setCanProceed(canProceed);
 
     if (correct || newAttempts >= 3) {
@@ -74,22 +76,30 @@ export const useQuizActions = (courseId: string) => {
     setFocusPoints(newFocusPoints);
     setScore(newScore);
 
+    // Update quiz attempt
     updateQuizAttemptMutation.mutate({
       current_score: newScore,
       focus_points: newFocusPoints
     });
     
-    submitAnswerMutation.mutate({
-      questionId: currentQuestion.id,
-      answer: answerToSubmit,
-      correct,
-      attemptCount: newAttempts,
-      xpEarned
-    }, {
-      onSuccess: () => {
-        checkForNewAchievements(xpEarned);
+    // Submit answer with XP
+    try {
+      await submitAnswerMutation.mutateAsync({
+        questionId: currentQuestion.id,
+        answer: answerToSubmit,
+        correct,
+        attemptCount: newAttempts,
+        xpEarned
+      });
+
+      // Check for achievements after successful submission
+      if (xpEarned > 0) {
+        console.log('Checking for new achievements with XP:', xpEarned);
+        await checkForNewAchievements(xpEarned);
       }
-    });
+    } catch (error) {
+      console.error('Error submitting answer:', error);
+    }
 
     showAnswerFeedback(correct, newAttempts, xpEarned, currentQuestion, toast);
   };

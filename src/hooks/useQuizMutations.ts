@@ -39,7 +39,7 @@ export const useQuizMutations = (quizAttemptId: string | null, courseId?: string
     }
   });
 
-  // Submit answer mutation
+  // Submit answer mutation - now uses upsert to handle retries
   const submitAnswerMutation = useMutation({
     mutationFn: async ({ questionId, answer, correct, attemptCount, xpEarned }: { 
       questionId: string; 
@@ -48,26 +48,33 @@ export const useQuizMutations = (quizAttemptId: string | null, courseId?: string
       attemptCount: number;
       xpEarned: number;
     }) => {
+      console.log('Submitting answer with XP:', xpEarned);
+      
       const { data, error } = await supabase
         .from('student_answers')
-        .upsert([
-          {
-            student_id: user!.id,
-            question_id: questionId,
-            selected_answer: answer,
-            is_correct: correct,
-            attempt_count: attemptCount,
-            xp_earned: xpEarned
-          }
-        ])
+        .upsert({
+          student_id: user!.id,
+          question_id: questionId,
+          selected_answer: answer,
+          is_correct: correct,
+          attempt_count: attemptCount,
+          xp_earned: xpEarned,
+          answered_at: new Date().toISOString()
+        }, {
+          onConflict: 'student_id,question_id'
+        })
         .select()
         .single();
 
       if (error) throw error;
+      console.log('Answer submitted successfully:', data);
       return data;
     },
     onSuccess: () => {
+      console.log('Invalidating queries after answer submission');
       queryClient.invalidateQueries({ queryKey: ['student-progress'] });
+      queryClient.invalidateQueries({ queryKey: ['student-xp'] });
+      queryClient.invalidateQueries({ queryKey: ['student-achievements'] });
     }
   });
 

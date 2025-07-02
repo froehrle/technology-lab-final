@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,10 +52,12 @@ const StudentDashboard = () => {
     enabled: !!user?.id,
   });
 
-  const { data: studentXP } = useQuery({
+  const { data: studentXP, refetch: refetchXP } = useQuery({
     queryKey: ['student-xp', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
+      
+      console.log('Fetching student XP for user:', user.id);
       
       const { data, error } = await supabase
         .from('student_xp')
@@ -65,16 +66,25 @@ const StudentDashboard = () => {
         .single();
 
       if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching student XP:', error);
         throw error;
       }
+      
+      console.log('Student XP data:', data);
       return data as StudentXP | null;
     },
     enabled: !!user?.id,
+    refetchInterval: 5000, // Refetch every 5 seconds to ensure fresh data
   });
 
   const handleContinueCourse = (courseId: string) => {
     navigate(`/course/${courseId}/quiz`);
   };
+
+  // Debug: Log XP data
+  React.useEffect(() => {
+    console.log('Current XP data:', studentXP);
+  }, [studentXP]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -105,10 +115,20 @@ const StudentDashboard = () => {
             <Zap className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{studentXP?.total_xp || 0}</div>
+            <div className="text-2xl font-bold text-yellow-600">
+              {studentXP?.total_xp || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
               {studentXP?.total_xp ? 'Gesammeltes XP' : 'Beginnen Sie zu lernen!'}
             </p>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => refetchXP()}
+              className="mt-2 text-xs"
+            >
+              Aktualisieren
+            </Button>
           </CardContent>
         </Card>
 
