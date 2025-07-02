@@ -157,6 +157,45 @@ export const useFarmItems = () => {
     return grid;
   };
 
+  const moveItem = async (itemId: string, newRow: number, newCol: number) => {
+    if (!user) return { success: false, error: 'No user' };
+
+    try {
+      // Find the item in the farmItems array
+      const item = farmItems.find(item => item.id === itemId);
+      if (!item) return { success: false, error: 'Item not found' };
+
+      // Update the item's grid position
+      const { error } = await supabase
+        .from('farm_items')
+        .update({ 
+          grid_x: newCol, 
+          grid_y: newRow 
+        })
+        .eq('id', itemId);
+
+      if (error) throw error;
+
+      // Refresh the data
+      await fetchFarmItems();
+      
+      toast({
+        title: "Verschoben!",
+        description: `${item.name} wurde erfolgreich verschoben.`,
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error moving farm item:', error);
+      toast({
+        title: "Verschieben fehlgeschlagen",
+        description: "Der Gegenstand konnte nicht verschoben werden.",
+        variant: "destructive",
+      });
+      return { success: false, error: error.message };
+    }
+  };
+
   return {
     farmItems,
     ownedItems,
@@ -166,6 +205,7 @@ export const useFarmItems = () => {
     canPurchase,
     getFarmItemsByType,
     getGridLayout,
+    moveItem,
     refetch: () => {
       fetchFarmItems();
       fetchOwnedItems();

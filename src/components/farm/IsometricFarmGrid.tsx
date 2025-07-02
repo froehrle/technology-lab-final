@@ -4,7 +4,7 @@ import IsometricFarmSlot from './IsometricFarmSlot';
 import farmBackground from '@/assets/farmville-background.jpg';
 
 const IsometricFarmGrid = () => {
-  const { getGridLayout, loading } = useFarmItems();
+  const { getGridLayout, loading, moveItem } = useFarmItems();
 
   if (loading) {
     return (
@@ -18,6 +18,12 @@ const IsometricFarmGrid = () => {
   }
 
   const gridLayout = getGridLayout();
+
+  const handleDrop = (slot: any, targetRow: number, targetCol: number) => {
+    if (moveItem) {
+      moveItem(slot.id, targetRow, targetCol);
+    }
+  };
 
   return (
     <div className="relative w-full max-w-6xl mx-auto">
@@ -33,8 +39,8 @@ const IsometricFarmGrid = () => {
         {/* Bright sunny overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-yellow-100/20 via-transparent to-green-100/20"></div>
         
-        {/* Simple Flat Grid */}
-        <div className="absolute inset-0 grid grid-cols-6 grid-rows-4 gap-4 p-6">
+        {/* Invisible Grid Overlay */}
+        <div className="absolute inset-0 grid grid-cols-6 grid-rows-4 gap-0 p-6">
           {gridLayout.map((row, rowIndex) =>
             row.map((slot, colIndex) => (
               <IsometricFarmSlot
@@ -43,6 +49,7 @@ const IsometricFarmGrid = () => {
                 rowIndex={rowIndex}
                 colIndex={colIndex}
                 isEmpty={!slot || !slot.isOwned}
+                onDrop={handleDrop}
               />
             ))
           )}
