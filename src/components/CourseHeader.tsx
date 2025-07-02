@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus, Upload } from 'lucide-react';
+import { ArrowLeft, Plus, Upload, Bot } from 'lucide-react';
 import PdfUploadDialog from './PdfUploadDialog';
 
 interface Course {
@@ -16,9 +16,10 @@ interface Course {
 interface CourseHeaderProps {
   course: Course;
   onCreateQuestion: () => void;
+  onGenerateQuestions: () => void;
 }
 
-const CourseHeader = ({ course, onCreateQuestion }: CourseHeaderProps) => {
+const CourseHeader = ({ course, onCreateQuestion, onGenerateQuestions }: CourseHeaderProps) => {
   const [showUploadDialog, setShowUploadDialog] = useState(false);
 
   return (
@@ -42,6 +43,10 @@ const CourseHeader = ({ course, onCreateQuestion }: CourseHeaderProps) => {
             <Button variant="outline" onClick={() => setShowUploadDialog(true)}>
               <Upload className="h-4 w-4 mr-2" />
               PDF-Dateien hochladen
+            </Button>
+            <Button variant="outline" onClick={onGenerateQuestions}>
+              <Bot className="h-4 w-4 mr-2" />
+              Fragen generieren
             </Button>
             <Button onClick={onCreateQuestion}>
               <Plus className="h-4 w-4 mr-2" />

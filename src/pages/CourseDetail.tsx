@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import CreateQuestionDialog from '@/components/CreateQuestionDialog';
 import EditQuestionDialog from '@/components/EditQuestionDialog';
+import GenerateQuestionsDialog from '@/components/GenerateQuestionsDialog';
 import CourseHeader from '@/components/CourseHeader';
 import QuestionsList from '@/components/QuestionsList';
 
@@ -33,6 +34,7 @@ const CourseDetail = () => {
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
 
   const { data: course, isLoading: courseLoading } = useQuery({
@@ -127,6 +129,7 @@ const CourseDetail = () => {
           <CourseHeader 
             course={{ id: '', title: 'Kurs nicht gefunden', description: null, created_at: '', updated_at: '' }} 
             onCreateQuestion={() => {}} 
+            onGenerateQuestions={() => {}}
           />
         </div>
       </div>
@@ -138,6 +141,7 @@ const CourseDetail = () => {
       <CourseHeader 
         course={course} 
         onCreateQuestion={() => setShowCreateDialog(true)} 
+        onGenerateQuestions={() => setShowGenerateDialog(true)}
       />
 
       <QuestionsList
@@ -151,6 +155,13 @@ const CourseDetail = () => {
         onOpenChange={setShowCreateDialog}
         courseId={courseId!}
         onQuestionCreated={handleQuestionCreated}
+      />
+
+      <GenerateQuestionsDialog
+        open={showGenerateDialog}
+        onOpenChange={setShowGenerateDialog}
+        courseId={courseId!}
+        onQuestionsGenerated={refetchQuestions}
       />
 
       {selectedQuestion && (
