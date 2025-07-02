@@ -53,7 +53,7 @@ const IsometricFarmGrid = () => {
               linear-gradient(to right, rgba(255,255,255,0.3) 1px, transparent 1px),
               linear-gradient(to bottom, rgba(255,255,255,0.3) 1px, transparent 1px)
             `,
-            backgroundSize: 'calc(100% / 20) calc(100% / 12)'
+            backgroundSize: 'calc(100% / 10) calc(100% / 6)'
           }} />
         )}
         
