@@ -33,14 +33,14 @@ const QuizProgressHeader = ({
         </div>
       </div>
       
-      {/* Enhanced Progress Bar with Complete White Background */}
+      {/* Clean White Progress Bar Container */}
       <div className="relative bg-white rounded-xl h-24 overflow-hidden border-2 border-gray-200 shadow-sm mb-4">
-        {/* Background Track - completely white */}
+        {/* Completely white background - no colored overlay */}
         <div className="absolute inset-0 bg-white"></div>
         
-        {/* Progress Fill */}
+        {/* Subtle progress indication with light blue tint */}
         <div 
-          className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 opacity-30 transition-all duration-700 ease-out"
+          className="absolute top-0 left-0 h-full bg-blue-100 opacity-40 transition-all duration-700 ease-out"
           style={{ width: `${Math.min(progress, 82)}%` }}
         ></div>
         
