@@ -44,11 +44,17 @@ const QuestionDisplay = ({
 }: QuestionDisplayProps) => {
   const shouldShowFeedback = showResult && !!feedbackText;
 
+  // Debug logging
+  console.log('QuestionDisplay - question data:', question);
+  console.log('QuestionDisplay - question.options:', question.options);
+  console.log('QuestionDisplay - question.question_type:', question.question_type);
+
   const isMultipleChoice = question.question_type === 'multiple_choice';
   const isTextQuestion = question.question_type === 'text';
 
   // Parse options from raw data using utility function
   const options = parseQuestionOptions(question.options);
+  console.log('QuestionDisplay - parsed options:', options);
 
   const displayOptions = options.map(option => ({ 
     label: option, 
