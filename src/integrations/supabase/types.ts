@@ -316,6 +316,7 @@ export type Database = {
           created_at: string
           id: string
           options: Json | null
+          question_style: string
           question_text: string
           question_type: string
           updated_at: string
@@ -326,6 +327,7 @@ export type Database = {
           created_at?: string
           id?: string
           options?: Json | null
+          question_style: string
           question_text: string
           question_type?: string
           updated_at?: string
@@ -336,6 +338,7 @@ export type Database = {
           created_at?: string
           id?: string
           options?: Json | null
+          question_style?: string
           question_text?: string
           question_type?: string
           updated_at?: string

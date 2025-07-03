@@ -15,6 +15,7 @@ interface Question {
   id: string;
   question_text: string;
   question_type: string;
+  question_style: string;
   options: any;
   correct_answer: string | null;
   created_at: string;

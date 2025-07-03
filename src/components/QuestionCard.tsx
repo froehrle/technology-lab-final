@@ -9,6 +9,7 @@ interface Question {
   id: string;
   question_text: string;
   question_type: string;
+  question_style: string;
   options: any;
   correct_answer: string | null;
   created_at: string;
@@ -59,6 +60,9 @@ const QuestionCard = ({ question, index, onEdit, onDelete }: QuestionCardProps) 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
           <div>
             <span className="font-medium">Typ:</span> {question.question_type}
+          </div>
+          <div>
+            <span className="font-medium">Stil:</span> {question.question_style}
           </div>
           <div>
             <span className="font-medium">Erstellt:</span>{' '}

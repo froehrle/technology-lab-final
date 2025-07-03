@@ -13,6 +13,7 @@ interface Question {
   id: string;
   question_text: string;
   question_type: string;
+  question_style: string;
   options: any;
   correct_answer: string | null;
   created_at: string;
@@ -30,6 +31,7 @@ const EditQuestionDialog = ({ open, onOpenChange, question, onQuestionUpdated }:
   const { toast } = useToast();
   const [questionText, setQuestionText] = useState('');
   const [questionType, setQuestionType] = useState('multiple_choice');
+  const [questionStyle, setQuestionStyle] = useState('Verständnisfragen');
   const [options, setOptions] = useState<string[]>(['']);
   const [correctAnswer, setCorrectAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,6 +40,7 @@ const EditQuestionDialog = ({ open, onOpenChange, question, onQuestionUpdated }:
     if (question) {
       setQuestionText(question.question_text);
       setQuestionType(question.question_type);
+      setQuestionStyle(question.question_style || 'Verständnisfragen');
       setCorrectAnswer(question.correct_answer || '');
       
       if (question.options) {
@@ -100,6 +103,7 @@ const EditQuestionDialog = ({ open, onOpenChange, question, onQuestionUpdated }:
       const updateData: any = {
         question_text: questionText,
         question_type: questionType,
+        question_style: questionStyle,
         correct_answer: correctAnswer || null,
       };
 
@@ -163,6 +167,19 @@ const EditQuestionDialog = ({ open, onOpenChange, question, onQuestionUpdated }:
               <SelectContent>
                 <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
                 <SelectItem value="text">Textantwort</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="question-style">Fragenstil</Label>
+            <Select value={questionStyle} onValueChange={setQuestionStyle}>
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Verständnisfragen">Verständnisfragen</SelectItem>
+                <SelectItem value="Rechenfragen">Rechenfragen</SelectItem>
               </SelectContent>
             </Select>
           </div>
