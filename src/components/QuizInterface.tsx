@@ -28,6 +28,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     canProceed,
     isValidating,
     apiError,
+    feedbackText,
     handleAnswerSelect,
     handleTextAnswerChange,
     handleSubmitAnswer,
@@ -91,6 +92,7 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
         attemptCount={currentAttempts}
         isValidating={isValidating}
         apiError={apiError}
+        feedbackText={feedbackText}
         onAnswerSelect={handleAnswerSelect}
         onTextAnswerChange={handleTextAnswerChange}
       />

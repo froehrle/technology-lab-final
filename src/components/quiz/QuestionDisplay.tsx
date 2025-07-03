@@ -24,6 +24,7 @@ interface QuestionDisplayProps {
   attemptCount: number;
   isValidating?: boolean;
   apiError?: string | null;
+  feedbackText?: string;
   onAnswerSelect: (answer: string) => void;
   onTextAnswerChange: (answer: string) => void;
 }
@@ -37,6 +38,7 @@ const QuestionDisplay = ({
   attemptCount,
   isValidating = false,
   apiError = null,
+  feedbackText = '',
   onAnswerSelect,
   onTextAnswerChange
 }: QuestionDisplayProps) => {
@@ -136,17 +138,29 @@ const QuestionDisplay = ({
               {shouldShowFeedback && (
                 <div className="text-sm text-gray-600">
                   {isCorrect ? (
-                    <div className="flex items-center gap-2 text-green-600">
-                      <CheckCircle className="h-4 w-4" />
-                      <span>Richtig!</span>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-green-600">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Richtig!</span>
+                      </div>
+                      {feedbackText && (
+                        <div className="bg-green-50 p-3 rounded border-l-4 border-green-400">
+                          <p className="text-green-800">{feedbackText}</p>
+                        </div>
+                      )}
                     </div>
                   ) : (
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       <div className="flex items-center gap-2 text-red-600">
                         <XCircle className="h-4 w-4" />
                         <span>Falsch!</span>
                       </div>
                       <p>Die richtige Antwort ist: <strong>{processedQuestion.displayCorrectAnswer}</strong></p>
+                      {feedbackText && (
+                        <div className="bg-red-50 p-3 rounded border-l-4 border-red-400">
+                          <p className="text-red-800">{feedbackText}</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

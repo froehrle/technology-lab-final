@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { useQuizState } from './useQuizState';
 import { useAchievements } from './useAchievements';
 import { useAnswerValidation } from './useAnswerValidation';
@@ -33,6 +34,8 @@ export const useQuizActions = (courseId: string) => {
     queryClient,
     ...rest
   } = useQuizState(courseId);
+
+  const [feedbackText, setFeedbackText] = useState('');
 
   const { checkForNewAchievements } = useAchievements();
 
@@ -73,15 +76,17 @@ export const useQuizActions = (courseId: string) => {
     const newAttempts = currentAttempts + 1;
 
     let correct = false;
-    let feedbackText = '';
+    let currentFeedbackText = '';
 
     try {
       const validationResult = await validateAnswer(currentQuestion, answerToSubmit);
       correct = validationResult.correct;
-      feedbackText = validationResult.feedbackText;
+      currentFeedbackText = validationResult.feedbackText;
     } catch (error) {
       return;
     }
+
+    setFeedbackText(currentFeedbackText);
 
     setIsCorrect(correct);
     
@@ -154,11 +159,12 @@ export const useQuizActions = (courseId: string) => {
       console.error('Error submitting answer:', error);
     }
 
-    showAnswerFeedback(correct, newAttempts, xpEarned, currentQuestion, toast, feedbackText);
+    showAnswerFeedback(correct, newAttempts, xpEarned, currentQuestion, toast, currentFeedbackText);
   };
 
   const handleNextQuestion = async () => {
     clearAutoProgressTimer();
+    setFeedbackText(''); // Clear feedback when moving to next question
     await navigateToNext();
   };
 
@@ -166,6 +172,7 @@ export const useQuizActions = (courseId: string) => {
     clearAutoProgressTimer();
     setFocusPoints(100);
     setQuestionAttempts({});
+    setFeedbackText(''); // Clear feedback on restart
     restartQuiz();
   };
 
@@ -177,6 +184,7 @@ export const useQuizActions = (courseId: string) => {
     textAnswer,
     focusPoints,
     questionAttempts,
+    feedbackText,
     isValidating,
     apiError,
     toast,
