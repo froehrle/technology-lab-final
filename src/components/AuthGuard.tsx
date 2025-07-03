@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserRole, hasAllowedRole, getRedirectPath, logUnauthorizedAccess, UserRole } from '@/utils/roleValidation';
+import NoPermission from '@/components/NoPermission';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -63,9 +64,14 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
       // Log unauthorized access attempt
       logUnauthorizedAccess(user.id, userRole, allowedRoles, location.pathname);
       
-      // Redirect to appropriate page based on user's actual role
-      const redirectPath = getRedirectPath(userRole);
-      return <Navigate to={redirectPath} replace />;
+      // Show no permission screen instead of redirecting
+      return (
+        <NoPermission 
+          userRole={userRole}
+          attemptedPath={location.pathname}
+          allowedRoles={allowedRoles}
+        />
+      );
     }
   }
 
