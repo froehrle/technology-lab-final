@@ -19,6 +19,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
 import AvatarStore from "./pages/AvatarStore";
 import Farm from "./pages/Farm";
+import Analytics from "./pages/Analytics";
 
 const queryClient = new QueryClient();
 
@@ -110,6 +111,14 @@ const App = () => (
                 element={
                   <AuthGuard requireAuth={true} allowedRoles={['student']}>
                     <Farm />
+                  </AuthGuard>
+                } 
+              />
+              <Route 
+                path="/analytics" 
+                element={
+                  <AuthGuard requireAuth={true} allowedRoles={['teacher']}>
+                    <Analytics />
                   </AuthGuard>
                 } 
               />

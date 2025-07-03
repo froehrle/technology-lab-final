@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { LogOut, GraduationCap } from 'lucide-react';
+import { LogOut, GraduationCap, BarChart3 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import CustomAvatar from '@/components/avatar/CustomAvatar';
 import CoinBalance from '@/components/store/CoinBalance';
@@ -50,10 +50,16 @@ const Header = () => {
             {user ? <>
                 {/* Navigation for authenticated users */}
                 <nav className="hidden md:flex items-center space-x-4">
-                  {isTeacher && <Link to="/teacher-dashboard" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                  {isTeacher && <>
+                    <Link to="/teacher-dashboard" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                       <GraduationCap className="h-4 w-4" />
                       <span>Dashboard</span>
-                    </Link>}
+                    </Link>
+                    <Link to="/analytics" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                      <BarChart3 className="h-4 w-4" />
+                      <span>Analytics</span>
+                    </Link>
+                  </>}
                   {isStudent && <>
                       <Link to="/dashboard" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
                         <DuolingoHomeIcon size={20} />
