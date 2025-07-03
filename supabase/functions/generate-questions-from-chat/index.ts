@@ -70,6 +70,7 @@ Antworte mit einem JSON-Objekt im folgenden Format:
 
 Antworte nur mit dem JSON-Objekt, ohne zusätzlichen Text.`;
 
+    console.log('Sending extraction request to OpenAI...');
     const extractionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -84,21 +85,48 @@ Antworte nur mit dem JSON-Objekt, ohne zusätzlichen Text.`;
       }),
     });
 
+    if (!extractionResponse.ok) {
+      console.error('OpenAI extraction failed:', extractionResponse.status, await extractionResponse.text());
+      throw new Error(`OpenAI extraction failed: ${extractionResponse.status}`);
+    }
+
     const extractionData = await extractionResponse.json();
     let extractedParams: QuestionGenerationParams;
     
     try {
-      extractedParams = JSON.parse(extractionData.choices[0].message.content);
+      const extractedContent = extractionData.choices[0].message.content;
+      console.log('OpenAI extraction response:', extractedContent);
+      
+      extractedParams = JSON.parse(extractedContent);
       // Merge with defaults to ensure all required fields are present
       extractedParams = { ...defaults, ...extractedParams };
+      
+      // Validate extracted parameters
+      if (!['leicht', 'mittel', 'schwer'].includes(extractedParams.schwierigkeitsgrad)) {
+        console.warn('Invalid schwierigkeitsgrad, using default:', extractedParams.schwierigkeitsgrad);
+        extractedParams.schwierigkeitsgrad = defaults.schwierigkeitsgrad;
+      }
+      
+      if (!['Verständnisfragen', 'Rechenfragen'].includes(extractedParams.fragetyp)) {
+        console.warn('Invalid fragetyp, using default:', extractedParams.fragetyp);
+        extractedParams.fragetyp = defaults.fragetyp;
+      }
+      
+      if (extractedParams.anzahl_fragen < 1 || extractedParams.anzahl_fragen > 20) {
+        console.warn('Invalid anzahl_fragen, using default:', extractedParams.anzahl_fragen);
+        extractedParams.anzahl_fragen = defaults.anzahl_fragen;
+      }
+      
     } catch (parseError) {
       console.error('Failed to parse extracted parameters, using defaults:', parseError);
+      console.error('Raw OpenAI response:', extractionData);
       extractedParams = defaults;
     }
     
-    console.log('Extracted parameters:', extractedParams);
+    console.log('Final parameters for Lambda:', extractedParams);
 
-    // Call the existing lambda function
+    // Call the existing lambda function with enhanced error handling
+    console.log('Calling Lambda function...');
     const lambdaResponse = await fetch(
       'https://aj48g50oqa.execute-api.eu-central-1.amazonaws.com/dev/qa-pairs',
       {
@@ -110,8 +138,18 @@ Antworte nur mit dem JSON-Objekt, ohne zusätzlichen Text.`;
       }
     );
 
+    console.log('Lambda response status:', lambdaResponse.status);
+    console.log('Lambda response headers:', Object.fromEntries(lambdaResponse.headers.entries()));
+
     if (!lambdaResponse.ok) {
-      throw new Error(`Lambda function error: ${lambdaResponse.status}`);
+      const errorBody = await lambdaResponse.text();
+      console.error('Lambda function error details:');
+      console.error('Status:', lambdaResponse.status);
+      console.error('Status Text:', lambdaResponse.statusText);
+      console.error('Response Body:', errorBody);
+      console.error('Request Parameters:', JSON.stringify(extractedParams, null, 2));
+      
+      throw new Error(`Lambda function error: ${lambdaResponse.status} - ${errorBody}`);
     }
 
     const lambdaResult = await lambdaResponse.json();
