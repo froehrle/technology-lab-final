@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-export const useStudentPerformanceAnalytics = (userId: string | undefined, filteredCourseIds: string[]) => {
+export const useStudentPerformanceAnalytics = (userId: string | undefined, filteredCourseIds: string[], attemptFilter: string = 'latest') => {
   // Student performance analytics
   const studentAnalytics = useQuery({
-    queryKey: ['analytics-students', userId, filteredCourseIds],
+    queryKey: ['analytics-students', userId, filteredCourseIds, attemptFilter],
     queryFn: async () => {
       if (filteredCourseIds.length === 0) return { topStudents: [], bottomStudents: [], averages: {} };
       
@@ -36,9 +36,12 @@ export const useStudentPerformanceAnalytics = (userId: string | undefined, filte
         .select('student_id, total_xp')
         .in('student_id', studentIds);
 
-      // Get student answers for performance analysis
+      // Get student answers for performance analysis based on filter
+      const tableName = attemptFilter === 'first' ? 'student_first_attempts' : 
+                       attemptFilter === 'all' ? 'student_all_attempts' : 'student_latest_answers';
+      
       const { data: studentAnswers } = await supabase
-        .from('student_answers')
+        .from(tableName)
         .select(`
           student_id,
           is_correct,

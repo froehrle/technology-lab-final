@@ -21,9 +21,9 @@ interface CourseAnalyticsData {
   };
 }
 
-export const useOptimizedAnalytics = (userId: string | undefined, courses: any[]) => {
+export const useOptimizedAnalytics = (userId: string | undefined, courses: any[], attemptFilter: string = 'latest') => {
   const courseAnalytics = useQuery({
-    queryKey: ['optimized-course-analytics', userId, courses.map(c => c.id)],
+    queryKey: ['optimized-course-analytics', userId, courses.map(c => c.id), attemptFilter],
     queryFn: async () => {
       if (!courses.length) return [];
 
@@ -49,11 +49,15 @@ export const useOptimizedAnalytics = (userId: string | undefined, courses: any[]
           .in('course_id', courseIds),
 
         // Perfect completions using optimized function
-        supabase.rpc('get_course_perfect_completions', { course_ids: courseIds }),
+        supabase.rpc('get_course_perfect_completions', { 
+          course_ids: courseIds, 
+          attempt_type: attemptFilter 
+        }),
 
-        // Latest answers for attempts and accuracy analysis
+        // Student answers for attempts and accuracy analysis based on filter
         supabase
-          .from('student_latest_answers')
+          .from(attemptFilter === 'first' ? 'student_first_attempts' : 
+                attemptFilter === 'all' ? 'student_all_attempts' : 'student_latest_answers')
           .select(`
             is_correct,
             attempt_count,

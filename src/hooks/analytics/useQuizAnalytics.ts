@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-export const useQuizAnalytics = (userId: string | undefined, filteredCourseIds: string[]) => {
+export const useQuizAnalytics = (userId: string | undefined, filteredCourseIds: string[], attemptFilter: string = 'latest') => {
   // Total quiz attempts
   const totalQuizAttempts = useQuery({
     queryKey: ['analytics-attempts', userId, filteredCourseIds],
@@ -21,12 +21,13 @@ export const useQuizAnalytics = (userId: string | undefined, filteredCourseIds: 
 
   // Perfect completions using optimized database function
   const perfectCompletions = useQuery({
-    queryKey: ['analytics-perfect', userId, filteredCourseIds],
+    queryKey: ['analytics-perfect', userId, filteredCourseIds, attemptFilter],
     queryFn: async () => {
       if (filteredCourseIds.length === 0) return 0;
       
       const { data, error } = await supabase.rpc('get_perfect_completions', {
-        course_ids: filteredCourseIds
+        course_ids: filteredCourseIds,
+        attempt_type: attemptFilter
       });
 
       if (error) throw error;

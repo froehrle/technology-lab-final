@@ -18,6 +18,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 const CourseAnalytics = () => {
   const { user } = useAuth();
   const [selectedCourseId, setSelectedCourseId] = useState<string>('all');
+  const [attemptFilter, setAttemptFilter] = useState<string>('latest');
 
   // Get all courses for the teacher to use in other queries
   const { data: courses = [] } = useQuery({
@@ -40,7 +41,7 @@ const CourseAnalytics = () => {
     : [selectedCourseId];
 
   // Get all analytics data using the custom hook
-  const analytics = useCourseAnalytics(user?.id, filteredCourseIds, courses);
+  const analytics = useCourseAnalytics(user?.id, filteredCourseIds, courses, attemptFilter);
 
   if (!user?.id || courses.length === 0) {
     return (
@@ -49,6 +50,8 @@ const CourseAnalytics = () => {
           selectedCourseId={selectedCourseId}
           onCourseChange={setSelectedCourseId}
           courses={courses}
+          attemptFilter={attemptFilter}
+          onAttemptFilterChange={setAttemptFilter}
         />
         <CardContent>
           <p className="text-muted-foreground">Erstellen Sie zunächst einen Kurs, um Analytics zu sehen.</p>
@@ -63,6 +66,8 @@ const CourseAnalytics = () => {
         selectedCourseId={selectedCourseId}
         onCourseChange={setSelectedCourseId}
         courses={courses}
+        attemptFilter={attemptFilter}
+        onAttemptFilterChange={setAttemptFilter}
       />
       <CardContent className="space-y-6">
         {analytics.error && (

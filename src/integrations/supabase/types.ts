@@ -673,6 +673,100 @@ export type Database = {
         }
         Relationships: []
       }
+      student_all_attempts: {
+        Row: {
+          answered_at: string | null
+          attempt_count: number | null
+          id: string | null
+          is_correct: boolean | null
+          question_id: string | null
+          quiz_attempt_id: string | null
+          selected_answer: string | null
+          student_id: string | null
+          xp_earned: number | null
+        }
+        Insert: {
+          answered_at?: string | null
+          attempt_count?: number | null
+          id?: string | null
+          is_correct?: boolean | null
+          question_id?: string | null
+          quiz_attempt_id?: string | null
+          selected_answer?: string | null
+          student_id?: string | null
+          xp_earned?: number | null
+        }
+        Update: {
+          answered_at?: string | null
+          attempt_count?: number | null
+          id?: string | null
+          is_correct?: boolean | null
+          question_id?: string | null
+          quiz_attempt_id?: string | null
+          selected_answer?: string | null
+          student_id?: string | null
+          xp_earned?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "difficult_questions_stats"
+            referencedColumns: ["question_id"]
+          },
+          {
+            foreignKeyName: "student_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_answers_quiz_attempt_id_fkey"
+            columns: ["quiz_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_attempts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_first_attempts: {
+        Row: {
+          answered_at: string | null
+          attempt_count: number | null
+          id: string | null
+          is_correct: boolean | null
+          question_id: string | null
+          quiz_attempt_id: string | null
+          selected_answer: string | null
+          student_id: string | null
+          xp_earned: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "difficult_questions_stats"
+            referencedColumns: ["question_id"]
+          },
+          {
+            foreignKeyName: "student_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_answers_quiz_attempt_id_fkey"
+            columns: ["quiz_attempt_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_attempts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_latest_answers: {
         Row: {
           answered_at: string | null
@@ -712,7 +806,9 @@ export type Database = {
     }
     Functions: {
       get_course_perfect_completions: {
-        Args: { course_ids: string[] }
+        Args:
+          | { course_ids: string[] }
+          | { course_ids: string[]; attempt_type?: string }
         Returns: {
           course_id: string
           total_students: number
@@ -721,7 +817,9 @@ export type Database = {
         }[]
       }
       get_perfect_completions: {
-        Args: { course_ids: string[] }
+        Args:
+          | { course_ids: string[] }
+          | { course_ids: string[]; attempt_type?: string }
         Returns: number
       }
       get_user_role: {

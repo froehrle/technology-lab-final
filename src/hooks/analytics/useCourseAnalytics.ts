@@ -4,12 +4,12 @@ import { useOptimizedAnalytics } from './useOptimizedAnalytics';
 import { useDropoutAnalytics } from './useDropoutAnalytics';
 import { useStudentPerformanceAnalytics } from './useStudentPerformanceAnalytics';
 
-export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds: string[], courses: any[]) => {
+export const useCourseAnalytics = (userId: string | undefined, filteredCourseIds: string[], courses: any[], attemptFilter: string = 'latest') => {
   const enrollmentData = useEnrollmentAnalytics(userId, filteredCourseIds);
-  const quizData = useQuizAnalytics(userId, filteredCourseIds);
-  const optimizedData = useOptimizedAnalytics(userId, courses);
-  const dropoutData = useDropoutAnalytics(userId, filteredCourseIds);
-  const studentData = useStudentPerformanceAnalytics(userId, filteredCourseIds);
+  const quizData = useQuizAnalytics(userId, filteredCourseIds, attemptFilter);
+  const optimizedData = useOptimizedAnalytics(userId, courses, attemptFilter);
+  const dropoutData = useDropoutAnalytics(userId, filteredCourseIds, attemptFilter);
+  const studentData = useStudentPerformanceAnalytics(userId, filteredCourseIds, attemptFilter);
 
   return {
     // Enrollment metrics
