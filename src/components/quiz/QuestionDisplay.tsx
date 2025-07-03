@@ -42,7 +42,7 @@ const QuestionDisplay = ({
   onAnswerSelect,
   onTextAnswerChange
 }: QuestionDisplayProps) => {
-  const shouldShowFeedback = showResult && (isCorrect || attemptCount >= 3);
+  const shouldShowFeedback = showResult && !!feedbackText;
 
   const isMultipleChoice = question.question_type === 'multiple_choice';
   const isTextQuestion = question.question_type === 'text';
