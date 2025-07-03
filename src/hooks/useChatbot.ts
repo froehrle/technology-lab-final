@@ -16,6 +16,7 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isFirstInteraction, setIsFirstInteraction] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -55,7 +56,9 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
         setMessages(prev => [...prev, assistantMessage]);
         
         // Auto-generate questions after first AI response
-        if (messages.length === 1) { // Only initial greeting message exists
+        if (isFirstInteraction) {
+          setIsFirstInteraction(false);
+          console.log('Triggering auto-generation after first AI response');
           setTimeout(() => {
             handleGenerateQuestions();
           }, 1000); // Small delay to let user see the response
