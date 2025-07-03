@@ -85,7 +85,9 @@ export const useStudentData = (userId: string | undefined) => {
           if (answersError) throw answersError;
 
           const correctAnswers = answers?.filter(a => a.is_correct).length || 0;
-          const wrongAnswers = answers?.filter(a => !a.is_correct).length || 0;
+          // Count unique questions that were answered wrong (not total wrong attempts)
+          const wrongQuestionIds = new Set(answers?.filter(a => !a.is_correct).map(a => a.question_id) || []);
+          const wrongAnswers = wrongQuestionIds.size;
 
           return {
             course_id: courseId,
