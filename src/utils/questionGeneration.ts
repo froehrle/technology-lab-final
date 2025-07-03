@@ -27,7 +27,7 @@ export const generateQuestions = async (
     console.log('Sending question generation request:', params);
     
     const response = await fetch(
-      'https://aj48g50oqa.execute-api.eu-central-1.amazonaws.com/dev/qa-pairs',
+      'https://o662virii4xhey5nodl4n5umi40uuddp.lambda-url.eu-central-1.on.aws/',
       {
         method: 'POST',
         headers: {

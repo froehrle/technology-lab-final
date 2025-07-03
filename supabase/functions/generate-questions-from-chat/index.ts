@@ -140,7 +140,7 @@ Antworte nur mit dem JSON-Objekt, ohne zusätzlichen Text.`;
     // Call the existing lambda function with enhanced error handling
     console.log('Calling Lambda function...');
     const lambdaResponse = await fetch(
-      'https://aj48g50oqa.execute-api.eu-central-1.amazonaws.com/dev/qa-pairs',
+      'https://o662virii4xhey5nodl4n5umi40uuddp.lambda-url.eu-central-1.on.aws/',
       {
         method: 'POST',
         headers: {
