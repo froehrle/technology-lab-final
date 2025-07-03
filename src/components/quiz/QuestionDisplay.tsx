@@ -48,11 +48,7 @@ const QuestionDisplay = ({
   const processedQuestion = processQuestionForDisplay(question);
   const displayOptions = processedQuestion.displayOptions.map(option => ({ 
     label: option, 
-    value: option,
-    originalValue: question.options?.find((orig: string) => 
-      orig.toLowerCase().includes(option.toLowerCase()) || 
-      option.toLowerCase().includes(orig.toLowerCase())
-    ) || option
+    value: option
   }));
 
   return (
