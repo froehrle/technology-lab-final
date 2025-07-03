@@ -14,9 +14,9 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
   requireAuth = true, 
   allowedRoles = ['teacher', 'student'] 
 }) => {
-  const { user, session, loading } = useAuth();
+  const { user, session, loading, loggingOut } = useAuth();
 
-  if (loading) {
+  if (loading || loggingOut) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>

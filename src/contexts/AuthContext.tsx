@@ -2,11 +2,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  loggingOut: boolean;
   signUp: (email: string, password: string, role: 'teacher' | 'student', displayName: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -26,6 +28,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
@@ -75,6 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    setLoggingOut(true);
     try {
       // Clear local storage first
       Object.keys(localStorage).forEach((key) => {
@@ -88,8 +92,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.log('Sign out error (continuing anyway):', error);
     } finally {
-      // Force page reload to clear any remaining state
-      window.location.href = '/auth';
+      setLoggingOut(false);
+      // The onAuthStateChange listener will handle navigation
     }
   };
 
@@ -97,6 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     session,
     loading,
+    loggingOut,
     signUp,
     signIn,
     signOut,

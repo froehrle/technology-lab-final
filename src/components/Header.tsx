@@ -4,7 +4,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { LogOut, GraduationCap } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import CustomAvatar from '@/components/avatar/CustomAvatar';
 import CoinBalance from '@/components/store/CoinBalance';
 import DuolingoHomeIcon from '@/components/icons/DuolingoHomeIcon';
@@ -15,14 +15,19 @@ import DuolingoProfileIcon from '@/components/icons/DuolingoProfileIcon';
 const Header = () => {
   const {
     user,
-    signOut
+    signOut,
+    loggingOut
   } = useAuth();
   const {
     profile
   } = useProfile();
   const location = useLocation();
+  const navigate = useNavigate();
+  
   const handleSignOut = async () => {
     await signOut();
+    // Navigate to auth page after successful logout
+    navigate('/auth');
   };
 
   // Don't show header on auth page
@@ -97,9 +102,9 @@ const Header = () => {
                         Profil
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleSignOut}>
+                    <DropdownMenuItem onClick={handleSignOut} disabled={loggingOut}>
                       <LogOut className="mr-2 h-4 w-4" />
-                      Abmelden
+                      {loggingOut ? 'Abmeldung läuft...' : 'Abmelden'}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
