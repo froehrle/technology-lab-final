@@ -43,6 +43,7 @@ const ChatbotQuestionDialog = ({
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -88,6 +89,13 @@ const ChatbotQuestionDialog = ({
         };
 
         setMessages(prev => [...prev, assistantMessage]);
+        
+        // Auto-generate questions after first AI response
+        if (messages.length === 1) { // Only initial greeting message exists
+          setTimeout(() => {
+            handleGenerateQuestions();
+          }, 1000); // Small delay to let user see the response
+        }
       } else {
         throw new Error(data.error || 'Unbekannter Fehler');
       }
@@ -113,7 +121,7 @@ const ChatbotQuestionDialog = ({
   const handleGenerateQuestions = async () => {
     if (messages.length <= 1) return;
     
-    setIsLoading(true);
+    setIsGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-questions-from-chat', {
         body: {
@@ -143,7 +151,7 @@ const ChatbotQuestionDialog = ({
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsGenerating(false);
     }
   };
 
@@ -230,19 +238,32 @@ const ChatbotQuestionDialog = ({
             </div>
           </div>
 
-          <div className="flex justify-between items-center pt-4 border-t mt-4">
-            <div className="text-sm text-muted-foreground">
-              Sobald Sie zufrieden sind, können Sie Fragen generieren lassen.
+          {isGenerating && (
+            <div className="flex items-center justify-center pt-4 border-t mt-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Fragen werden erstellt...
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Abbrechen
-              </Button>
-              <Button onClick={handleGenerateQuestions} disabled={messages.length <= 1}>
-                Fragen generieren
-              </Button>
+          )}
+          
+          {!isGenerating && (
+            <div className="flex justify-between items-center pt-4 border-t mt-4">
+              <div className="text-sm text-muted-foreground">
+                {messages.length > 1 ? 'Fragen werden automatisch nach Ihrer Anfrage erstellt.' : 'Beschreiben Sie, welche Fragen Sie benötigen.'}
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => onOpenChange(false)}>
+                  Abbrechen
+                </Button>
+                {messages.length > 1 && (
+                  <Button onClick={handleGenerateQuestions} disabled={isGenerating}>
+                    Fragen manuell generieren
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
