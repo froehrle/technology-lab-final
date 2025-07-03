@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Play, CheckCircle, XCircle } from 'lucide-react';
+import { BookOpen, Play, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface CourseEnrollment {
@@ -110,9 +110,14 @@ const CoursesList = ({ enrollments, courseStats, isLoading }: CoursesListProps) 
                   <Button 
                     onClick={() => handleContinueCourse(enrollment.course_id)}
                     size="sm"
+                    variant={isCompleted ? "secondary" : "default"}
                     className="ml-4"
                   >
-                    <Play className="h-4 w-4 mr-1" />
+                    {isCompleted ? (
+                      <RotateCcw className="h-4 w-4 mr-1" />
+                    ) : (
+                      <Play className="h-4 w-4 mr-1" />
+                    )}
                     {isCompleted ? 'Wiederholen' : (enrollment.progress > 0 ? 'Fortsetzen' : 'Starten')}
                   </Button>
                 </div>
