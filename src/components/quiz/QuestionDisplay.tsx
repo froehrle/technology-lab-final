@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { processQuestionForDisplay } from '@/utils/questionCleaning';
 
 interface Question {
   id: string;
@@ -43,31 +44,22 @@ const QuestionDisplay = ({
   const isMultipleChoice = question.question_type === 'multiple_choice';
   const isTextQuestion = question.question_type === 'text';
 
-  const displayOptions = (() => {
-    let options: string[] = [];
-    
-    // Handle options whether they're an array or JSON string
-    if (Array.isArray(question.options)) {
-      options = question.options;
-    } else if (typeof question.options === 'string') {
-      try {
-        const parsed = JSON.parse(question.options);
-        options = Array.isArray(parsed) ? parsed : [];
-      } catch {
-        options = [];
-      }
-    } else if (question.options && typeof question.options === 'object') {
-      options = Object.values(question.options) as string[];
-    }
-    
-    return options.map(option => ({ label: option, value: option }));
-  })();
+  // Process question data for clean display
+  const processedQuestion = processQuestionForDisplay(question);
+  const displayOptions = processedQuestion.displayOptions.map(option => ({ 
+    label: option, 
+    value: option,
+    originalValue: question.options?.find((orig: string) => 
+      orig.toLowerCase().includes(option.toLowerCase()) || 
+      option.toLowerCase().includes(orig.toLowerCase())
+    ) || option
+  }));
 
   return (
     <Card className="mb-6">
       <CardHeader>
         <div className="flex justify-between items-start">
-          <CardTitle className="text-xl">{question.question_text}</CardTitle>
+          <CardTitle className="text-xl">{processedQuestion.displayQuestionText}</CardTitle>
           {attemptCount > 0 && (
             <div className="text-sm text-gray-500">
               Versuch {attemptCount}/3
@@ -84,7 +76,7 @@ const QuestionDisplay = ({
                 variant={selectedAnswer === option.value ? "default" : "outline"}
                 className={`w-full text-left justify-start h-auto p-4 ${
                   shouldShowFeedback
-                    ? option.value === question.correct_answer
+                    ? option.value === processedQuestion.displayCorrectAnswer
                       ? 'bg-green-100 border-green-500 text-green-800'
                       : selectedAnswer === option.value && !isCorrect
                       ? 'bg-red-100 border-red-500 text-red-800'
@@ -98,10 +90,10 @@ const QuestionDisplay = ({
                     <div className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm font-medium">
                       {String.fromCharCode(65 + index)}
                     </div>
-                  <span>{option.label}</span>
-                  {shouldShowFeedback && option.value === question.correct_answer && (
-                    <CheckCircle className="h-5 w-5 text-green-600 ml-auto" />
-                  )}
+                   <span>{option.label}</span>
+                   {shouldShowFeedback && option.value === processedQuestion.displayCorrectAnswer && (
+                     <CheckCircle className="h-5 w-5 text-green-600 ml-auto" />
+                   )}
                   {shouldShowFeedback && selectedAnswer === option.value && !isCorrect && (
                     <XCircle className="h-5 w-5 text-red-600 ml-auto" />
                   )}
@@ -157,7 +149,7 @@ const QuestionDisplay = ({
                         <XCircle className="h-4 w-4" />
                         <span>Falsch!</span>
                       </div>
-                      <p>Die richtige Antwort ist: <strong>{question.correct_answer}</strong></p>
+                      <p>Die richtige Antwort ist: <strong>{processedQuestion.displayCorrectAnswer}</strong></p>
                     </div>
                   )}
                 </div>
