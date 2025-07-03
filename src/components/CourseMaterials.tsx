@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileText, Download, Loader2, AlertCircle } from 'lucide-react';
-import { fetchCourseMaterials, formatFileSize, formatDate, type S3Material } from '@/utils/s3Materials';
+import { fetchCourseMaterials, formatFileSize, formatDate, getDownloadUrl, type CourseMaterial } from '@/utils/courseMaterials';
 
 interface CourseMaterialsProps {
   courseId: string;
@@ -16,8 +16,9 @@ const CourseMaterials = ({ courseId }: CourseMaterialsProps) => {
     enabled: !!courseId,
   });
 
-  const handleDownload = (material: S3Material) => {
-    window.open(material.downloadUrl, '_blank');
+  const handleDownload = (material: CourseMaterial) => {
+    const downloadUrl = getDownloadUrl(material.s3_key);
+    window.open(downloadUrl, '_blank');
   };
 
   if (isLoading) {
@@ -84,19 +85,18 @@ const CourseMaterials = ({ courseId }: CourseMaterialsProps) => {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {materials.map((material) => (
               <div
-                key={material.key}
+                key={material.id}
                 className="border rounded-lg p-4 hover:bg-accent transition-colors"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3 flex-1">
                     <FileText className="h-8 w-8 text-destructive flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium truncate">{material.filename}</h4>
+                      <h4 className="font-medium truncate">{material.pdf_title}</h4>
                       <div className="text-sm text-muted-foreground space-y-1">
-                        <p>{formatFileSize(material.size)}</p>
-                        {material.lastModified && (
-                          <p>{formatDate(material.lastModified)}</p>
-                        )}
+                        <p className="truncate">{material.filename}</p>
+                        <p>{formatFileSize(material.file_size)}</p>
+                        <p>{formatDate(material.upload_date)}</p>
                       </div>
                     </div>
                   </div>

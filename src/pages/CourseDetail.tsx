@@ -69,6 +69,13 @@ const CourseDetail = () => {
     enabled: !!courseId,
   });
 
+  // Materials query for refreshing after upload
+  const { refetch: refetchMaterials } = useQuery({
+    queryKey: ['course-materials', courseId],
+    queryFn: () => Promise.resolve([]), // This will be handled by the CourseMaterials component
+    enabled: false, // We only use this for the refetch function
+  });
+
   const handleDeleteQuestion = async (questionId: string) => {
     if (!confirm('Sind Sie sicher, dass Sie diese Frage löschen möchten?')) {
       return;
@@ -143,6 +150,7 @@ const CourseDetail = () => {
         course={course} 
         onCreateQuestion={() => setShowCreateDialog(true)} 
         onGenerateQuestions={() => setShowGenerateDialog(true)}
+        onMaterialsRefresh={() => refetchMaterials()}
       />
 
       <QuestionsList

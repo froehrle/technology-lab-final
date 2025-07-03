@@ -5,11 +5,13 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, FileText, X, Loader2 } from 'lucide-react';
 import { uploadPdfFiles } from '@/utils/pdfUpload';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface PdfUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   courseId: string;
+  onUploadSuccess?: () => void;
 }
 
 interface UploadFile {
@@ -18,10 +20,11 @@ interface UploadFile {
   error?: string;
 }
 
-const PdfUploadDialog = ({ open, onOpenChange, courseId }: PdfUploadDialogProps) => {
+const PdfUploadDialog = ({ open, onOpenChange, courseId, onUploadSuccess }: PdfUploadDialogProps) => {
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
@@ -61,7 +64,17 @@ const PdfUploadDialog = ({ open, onOpenChange, courseId }: PdfUploadDialogProps)
         uf.status === 'pending' ? { ...uf, status: 'uploading' } : uf
       ));
 
-      const results = await uploadPdfFiles(filesToUpload.map(uf => uf.file), courseId);
+      if (!user?.id) {
+        toast({
+          title: "Fehler",
+          description: "Benutzer nicht authentifiziert.",
+          variant: "destructive",
+        });
+        setIsUploading(false);
+        return;
+      }
+
+      const results = await uploadPdfFiles(filesToUpload.map(uf => uf.file), courseId, user.id);
       
       // Update status based on results
       setUploadFiles(prev => prev.map((uf, index) => {
@@ -96,6 +109,7 @@ const PdfUploadDialog = ({ open, onOpenChange, courseId }: PdfUploadDialogProps)
 
       // Auto-close dialog if all uploads successful
       if (errorCount === 0) {
+        onUploadSuccess?.(); // Refresh materials list
         setTimeout(() => {
           onOpenChange(false);
           setUploadFiles([]);

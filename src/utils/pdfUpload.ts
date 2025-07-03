@@ -1,4 +1,6 @@
 
+import { supabase } from '@/integrations/supabase/client';
+
 export interface UploadResult {
   success: boolean;
   error?: string;
@@ -7,7 +9,8 @@ export interface UploadResult {
 
 export const uploadPdfFiles = async (
   files: File[],
-  courseId: string
+  courseId: string,
+  teacherId: string
 ): Promise<UploadResult[]> => {
   const results: UploadResult[] = [];
 
@@ -54,10 +57,42 @@ export const uploadPdfFiles = async (
       const result = await response.json();
       console.log('Upload API response:', result);
 
-      results.push({
-        success: true,
-        filename: file.name,
-      });
+      // Store metadata in Supabase database
+      try {
+        const pdfTitle = file.name.replace(/\.[^/.]+$/, ''); // Remove file extension
+        const s3Key = `${courseId}/${file.name}`;
+        
+        const { error: dbError } = await supabase
+          .from('course_materials')
+          .insert({
+            course_id: courseId,
+            teacher_id: teacherId,
+            pdf_title: pdfTitle,
+            filename: file.name,
+            file_size: file.size,
+            s3_key: s3Key,
+          });
+
+        if (dbError) {
+          console.error('Database insertion error:', dbError);
+          results.push({
+            success: false,
+            error: 'Upload erfolgreich, aber Metadaten-Speicherung fehlgeschlagen',
+          });
+          continue;
+        }
+
+        results.push({
+          success: true,
+          filename: file.name,
+        });
+      } catch (dbError) {
+        console.error('Database error:', dbError);
+        results.push({
+          success: false,
+          error: 'Upload erfolgreich, aber Metadaten-Speicherung fehlgeschlagen',
+        });
+      }
 
     } catch (error) {
       console.error('Upload error for file:', file.name, error);

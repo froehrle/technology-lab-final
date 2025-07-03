@@ -17,9 +17,10 @@ interface CourseHeaderProps {
   course: Course;
   onCreateQuestion: () => void;
   onGenerateQuestions: () => void;
+  onMaterialsRefresh?: () => void;
 }
 
-const CourseHeader = ({ course, onCreateQuestion, onGenerateQuestions }: CourseHeaderProps) => {
+const CourseHeader = ({ course, onCreateQuestion, onGenerateQuestions, onMaterialsRefresh }: CourseHeaderProps) => {
   const [showUploadDialog, setShowUploadDialog] = useState(false);
 
   return (
@@ -60,6 +61,7 @@ const CourseHeader = ({ course, onCreateQuestion, onGenerateQuestions }: CourseH
         open={showUploadDialog}
         onOpenChange={setShowUploadDialog}
         courseId={course.id}
+        onUploadSuccess={onMaterialsRefresh}
       />
     </>
   );
