@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
+import { parseQuestionOptions } from '@/utils/questionOptions';
 
 interface Question {
   id: string;
@@ -24,19 +25,7 @@ interface QuestionCardProps {
 
 const QuestionCard = ({ question, index, onEdit, onDelete }: QuestionCardProps) => {
   // Parse options from raw data
-  let options: string[] = [];
-  if (Array.isArray(question.options)) {
-    options = question.options;
-  } else if (typeof question.options === 'string') {
-    try {
-      const parsed = JSON.parse(question.options);
-      options = Array.isArray(parsed) ? parsed : [];
-    } catch {
-      options = [];
-    }
-  } else if (question.options && typeof question.options === 'object') {
-    options = Object.values(question.options) as string[];
-  }
+  const options = parseQuestionOptions(question.options);
   
   return (
     <Card>

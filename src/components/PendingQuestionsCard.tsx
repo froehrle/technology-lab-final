@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Check, X, Clock, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { parseQuestionOptions } from '@/utils/questionOptions';
 
 interface PendingQuestion {
   id: string;
@@ -158,9 +159,11 @@ const PendingQuestionsCard = ({ courseId, onQuestionsReviewed }: PendingQuestion
     }
   };
 
-  const formatQuestionOptions = (options: string[] | null) => {
-    if (!options) return null;
-    return options.map((option, index) => (
+  const formatQuestionOptions = (options: any) => {
+    const parsedOptions = parseQuestionOptions(options);
+    if (parsedOptions.length === 0) return null;
+    
+    return parsedOptions.map((option, index) => (
       <div key={index} className="flex items-center gap-2">
         <Badge variant="outline" className="w-6 h-6 rounded-full p-0 flex items-center justify-center text-xs">
           {String.fromCharCode(65 + index)}
