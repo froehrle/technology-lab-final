@@ -77,10 +77,14 @@ const CoursesList: React.FC<CoursesListProps> = ({ courses, onCourseUpdated }) =
     );
   }
 
+  console.log('CoursesList rendering with courses:', courses);
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {courses.map((course) => (
+        {courses.map((course) => {
+          console.log('Rendering course:', course.id, 'created_at:', course.created_at, 'type:', typeof course.created_at);
+          return (
           <Card 
             key={course.id}
             className="cursor-pointer hover:shadow-lg transition-shadow"
@@ -131,7 +135,8 @@ const CoursesList: React.FC<CoursesListProps> = ({ courses, onCourseUpdated }) =
               </div>
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       <EditCourseDialog
