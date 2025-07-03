@@ -11,6 +11,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { Send, Bot, User, Loader2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -67,19 +68,30 @@ const ChatbotQuestionDialog = ({
     setIsLoading(true);
 
     try {
-      // TODO: Replace with actual chatbot API call
-      // This is a placeholder - you'll need to implement the actual chatbot logic
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
-      
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: 'Das ist eine Platzhalter-Antwort. Hier würde normalerweise der Chatbot antworten und Fragen generieren basierend auf Ihrer Eingabe.',
-        timestamp: new Date(),
-      };
+      const { data, error } = await supabase.functions.invoke('chatbot-conversation', {
+        body: {
+          message: inputValue,
+          conversationHistory: messages.map(m => ({ role: m.role, content: m.content })),
+          courseId: courseId
+        }
+      });
 
-      setMessages(prev => [...prev, assistantMessage]);
+      if (error) throw error;
+
+      if (data.success) {
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: data.message,
+          timestamp: new Date(),
+        };
+
+        setMessages(prev => [...prev, assistantMessage]);
+      } else {
+        throw new Error(data.error || 'Unbekannter Fehler');
+      }
     } catch (error) {
+      console.error('Chatbot error:', error);
       toast({
         title: "Fehler",
         description: "Es gab ein Problem bei der Kommunikation mit dem Chatbot.",
@@ -98,13 +110,40 @@ const ChatbotQuestionDialog = ({
   };
 
   const handleGenerateQuestions = async () => {
-    // TODO: Implement actual question generation based on chat context
-    toast({
-      title: "Fragen generiert",
-      description: "Die Fragen wurden zur Überprüfung erstellt.",
-    });
-    onQuestionsGenerated();
-    onOpenChange(false);
+    if (messages.length <= 1) return;
+    
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-questions-from-chat', {
+        body: {
+          conversationHistory: messages.map(m => ({ role: m.role, content: m.content })),
+          courseId: courseId,
+          teacherId: user?.id
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        toast({
+          title: "Fragen generiert",
+          description: `${data.questionsGenerated} Fragen wurden zur Überprüfung erstellt.`,
+        });
+        onQuestionsGenerated();
+        onOpenChange(false);
+      } else {
+        throw new Error(data.error || 'Fragenerstellung fehlgeschlagen');
+      }
+    } catch (error) {
+      console.error('Question generation error:', error);
+      toast({
+        title: "Fehler",
+        description: "Die Fragen konnten nicht generiert werden.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
