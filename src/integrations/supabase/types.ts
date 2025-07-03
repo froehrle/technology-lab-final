@@ -816,10 +816,31 @@ export type Database = {
           perfect_completion_rate: number
         }[]
       }
+      get_course_perfect_completions_latest: {
+        Args: { course_ids: string[] }
+        Returns: {
+          course_id: string
+          total_students: number
+          perfect_completions: number
+          perfect_completion_rate: number
+        }[]
+      }
       get_perfect_completions: {
         Args:
           | { course_ids: string[] }
           | { course_ids: string[]; attempt_type?: string }
+        Returns: number
+      }
+      get_perfect_completions_all: {
+        Args: { course_ids: string[] }
+        Returns: number
+      }
+      get_perfect_completions_first: {
+        Args: { course_ids: string[] }
+        Returns: number
+      }
+      get_perfect_completions_latest: {
+        Args: { course_ids: string[] }
         Returns: number
       }
       get_user_role: {
