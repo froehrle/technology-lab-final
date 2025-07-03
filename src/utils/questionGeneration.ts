@@ -17,7 +17,7 @@ export interface GeneratedQuestion {
 export interface QuestionGenerationResponse {
   questions: {
     questions: GeneratedQuestion[];
-  };
+  } | GeneratedQuestion[];
 }
 
 export const generateQuestions = async (
@@ -48,8 +48,14 @@ export const generateQuestions = async (
     const result: QuestionGenerationResponse = await response.json();
     console.log('Question generation API response:', result);
 
-    // Extract the nested questions array and map field names
-    const questions = result.questions?.questions || [];
+    // Handle both nested and flat question response structures
+    let questions: GeneratedQuestion[] = [];
+    if (Array.isArray(result.questions)) {
+      questions = result.questions;
+    } else if (result.questions?.questions && Array.isArray(result.questions.questions)) {
+      questions = result.questions.questions;
+    }
+    console.log('Extracted questions:', questions);
     
     // Map API response fields to our interface
     const mappedQuestions = questions.map(q => ({

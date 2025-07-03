@@ -166,11 +166,17 @@ Antworte nur mit dem JSON-Objekt, ohne zusätzlichen Text.`;
 
     const lambdaResult = await lambdaResponse.json();
     console.log('Lambda response received successfully:', { 
-      questionCount: lambdaResult.questions?.questions?.length || 0,
+      questionCount: lambdaResult.questions?.questions?.length || lambdaResult.questions?.length || 0,
       fullResponse: JSON.stringify(lambdaResult, null, 2)
     });
     
-    const questions = lambdaResult.questions?.questions || [];
+    // Handle both nested and flat question response structures
+    let questions = [];
+    if (Array.isArray(lambdaResult.questions)) {
+      questions = lambdaResult.questions;
+    } else if (lambdaResult.questions?.questions && Array.isArray(lambdaResult.questions.questions)) {
+      questions = lambdaResult.questions.questions;
+    }
     
     if (questions.length === 0) {
       console.warn('No questions returned from Lambda function');
