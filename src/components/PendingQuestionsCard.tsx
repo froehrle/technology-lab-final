@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +29,7 @@ interface PendingQuestionsCardProps {
 
 const PendingQuestionsCard = ({ courseId, onQuestionsReviewed }: PendingQuestionsCardProps) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [reviewNotes, setReviewNotes] = useState<{ [key: string]: string }>({});
   const [isProcessing, setIsProcessing] = useState<{ [key: string]: boolean }>({});
   const [isExpanded, setIsExpanded] = useState(false);
@@ -48,6 +49,32 @@ const PendingQuestionsCard = ({ courseId, onQuestionsReviewed }: PendingQuestion
     },
     enabled: !!courseId,
   });
+
+  // Set up real-time subscription for pending questions
+  useEffect(() => {
+    if (!courseId) return;
+
+    const channel = supabase
+      .channel('pending-questions-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'pending_questions',
+          filter: `course_id=eq.${courseId}`,
+        },
+        () => {
+          // Invalidate and refetch the pending questions query
+          queryClient.invalidateQueries({ queryKey: ['pending-questions', courseId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [courseId, queryClient]);
 
   const handleApproveQuestion = async (question: PendingQuestion) => {
     setIsProcessing(prev => ({ ...prev, [question.id]: true }));
