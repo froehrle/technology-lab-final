@@ -30,15 +30,20 @@ export const useCourseDifficultyAnalytics = (userId: string | undefined, courses
 
       if (attemptsError) throw attemptsError;
 
-      // Get student answers for wrong answer rate and attempts analysis
+      // Get perfect completions using optimized database function
+      const { data: perfectCompletionsData, error: perfectError } = await supabase
+        .rpc('get_course_perfect_completions', { course_ids: courseIds });
+
+      if (perfectError) throw perfectError;
+
+      // Get student answers from latest answers view for accuracy and performance
       const { data: studentAnswers, error: answersError } = await supabase
-        .from('student_answers')
+        .from('student_latest_answers')
         .select(`
           is_correct,
           attempt_count,
           student_id,
           question_id,
-          answered_at,
           questions!inner(course_id)
         `)
         .in('questions.course_id', courseIds);
@@ -72,33 +77,9 @@ export const useCourseDifficultyAnalytics = (userId: string | undefined, courses
           ? answers.reduce((sum, answer) => sum + (answer.attempt_count || 1), 0) / totalAnswers 
           : 1;
 
-        // Perfect completion rate based on latest answers per student per question
-        const studentsWithAnswers = [...new Set(answers.map(a => a.student_id))];
-        let perfectCompletions = 0;
-        
-        studentsWithAnswers.forEach(studentId => {
-          const studentAnswers = answers.filter(a => a.student_id === studentId);
-          
-          // Group by question and get latest answer for each question
-          const latestAnswersByQuestion = studentAnswers.reduce((acc, answer) => {
-            const questionId = answer.question_id;
-            if (!acc[questionId] || new Date(answer.answered_at) > new Date(acc[questionId].answered_at)) {
-              acc[questionId] = answer;
-            }
-            return acc;
-          }, {} as any);
-          
-          const latestAnswers = Object.values(latestAnswersByQuestion) as any[];
-          const allCorrectFirstTry = latestAnswers.every((a: any) => a.is_correct && a.attempt_count === 1);
-          
-          if (allCorrectFirstTry && latestAnswers.length > 0) {
-            perfectCompletions++;
-          }
-        });
-        
-        const perfectCompletionRate = studentsWithAnswers.length > 0 
-          ? (perfectCompletions / studentsWithAnswers.length) * 100 
-          : 0;
+        // Get perfect completion rate from database function results
+        const courseCompletionData = perfectCompletionsData?.find(pcd => pcd.course_id === courseId);
+        const perfectCompletionRate = courseCompletionData?.perfect_completion_rate || 0;
 
         // Calculate multi-factor difficulty score
         const difficultyScore = 

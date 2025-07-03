@@ -711,6 +711,15 @@ export type Database = {
       }
     }
     Functions: {
+      get_course_perfect_completions: {
+        Args: { course_ids: string[] }
+        Returns: {
+          course_id: string
+          total_students: number
+          perfect_completions: number
+          perfect_completion_rate: number
+        }[]
+      }
       get_perfect_completions: {
         Args: { course_ids: string[] }
         Returns: number
