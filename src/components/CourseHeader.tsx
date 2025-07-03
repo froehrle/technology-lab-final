@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Plus, Upload, Bot, MessageSquare } from 'lucide-react';
 import PdfUploadDialog from './PdfUploadDialog';
-import ChatbotQuestionDialog from './ChatbotQuestionDialog';
+import ChatbotQuestionDialog from './chatbot/ChatbotQuestionDialog';
 import QuestionReviewDialog from './QuestionReviewDialog';
 
 interface Course {
