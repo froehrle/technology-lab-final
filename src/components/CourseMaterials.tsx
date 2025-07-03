@@ -1,20 +1,47 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Loader2, AlertCircle } from 'lucide-react';
-import { fetchCourseMaterials, formatFileSize, formatDate, type CourseMaterial } from '@/utils/courseMaterials';
+import { FileText, Loader2, AlertCircle, Trash2 } from 'lucide-react';
+import { fetchCourseMaterials, formatFileSize, formatDate, deleteMaterial, type CourseMaterial } from '@/utils/courseMaterials';
+import { useToast } from '@/hooks/use-toast';
 
 interface CourseMaterialsProps {
   courseId: string;
 }
 
 const CourseMaterials = ({ courseId }: CourseMaterialsProps) => {
+  const { toast } = useToast();
   const { data: materials = [], isLoading, error, refetch } = useQuery({
     queryKey: ['course-materials', courseId],
     queryFn: () => fetchCourseMaterials(courseId),
     enabled: !!courseId,
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteMaterial,
+    onSuccess: () => {
+      toast({
+        title: "PDF gelöscht",
+        description: "Die PDF-Datei wurde erfolgreich gelöscht.",
+      });
+      refetch();
+    },
+    onError: (error) => {
+      console.error('Error deleting material:', error);
+      toast({
+        title: "Fehler",
+        description: "Fehler beim Löschen der PDF-Datei.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDelete = (material: CourseMaterial) => {
+    if (confirm(`Sind Sie sicher, dass Sie "${material.pdf_title}" löschen möchten?`)) {
+      deleteMutation.mutate(material.id);
+    }
+  };
 
 
   if (isLoading) {
@@ -82,18 +109,33 @@ const CourseMaterials = ({ courseId }: CourseMaterialsProps) => {
             {materials.map((material) => (
               <div
                 key={material.id}
-                className="border rounded-lg p-4 hover:bg-accent transition-colors"
+                className="border rounded-lg p-4 hover:bg-accent transition-colors relative"
               >
-                <div className="flex items-center space-x-3">
-                  <FileText className="h-8 w-8 text-destructive flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-medium truncate">{material.pdf_title}</h4>
-                    <div className="text-sm text-muted-foreground space-y-1">
-                      <p className="truncate">{material.filename}</p>
-                      <p>{formatFileSize(material.file_size)}</p>
-                      <p>{formatDate(material.upload_date)}</p>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center space-x-3 flex-1">
+                    <FileText className="h-8 w-8 text-destructive flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium truncate">{material.pdf_title}</h4>
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <p className="truncate">{material.filename}</p>
+                        <p>{formatFileSize(material.file_size)}</p>
+                        <p>{formatDate(material.upload_date)}</p>
+                      </div>
                     </div>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(material)}
+                    disabled={deleteMutation.isPending}
+                    className="flex-shrink-0 ml-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    {deleteMutation.isPending && deleteMutation.variables === material.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
               </div>
             ))}
