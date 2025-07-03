@@ -340,15 +340,6 @@ const QuestionReviewDialog = ({
                     )}
                   </div>
 
-                  <div>
-                    <h4 className="font-medium mb-2">Notizen (optional):</h4>
-                    <Textarea
-                      placeholder="Fügen Sie Notizen zu dieser Frage hinzu..."
-                      value={reviewNotes[question.id] || ''}
-                      onChange={(e) => setReviewNotes(prev => ({ ...prev, [question.id]: e.target.value }))}
-                      className="min-h-[80px]"
-                    />
-                  </div>
 
                   <div className="flex justify-end gap-2 pt-4 border-t">
                     {!editingQuestions[question.id] && (
