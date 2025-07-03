@@ -51,6 +51,6 @@ export const showAnswerFeedback = (
 export const showQuizCompletionToast = (toast: ToastFunction) => {
   toast({
     title: "Quiz abgeschlossen!",
-    description: `Glückwunsch! Sie haben das Quiz abgeschlossen.`,
+    description: `Glückwunsch! Sie haben das Quiz abgeschlossen und 500 Bonus-Coins erhalten!`,
   });
 };
