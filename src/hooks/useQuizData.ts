@@ -7,7 +7,7 @@ interface Question {
   question_text: string;
   question_type: string;
   question_style: string;
-  options: string[];
+  options: any; // Match database schema (Json | null)
   correct_answer: string;
 }
 

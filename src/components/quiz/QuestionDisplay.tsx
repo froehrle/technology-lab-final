@@ -4,13 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { parseQuestionOptions } from '@/utils/questionOptions';
 
 interface Question {
   id: string;
   question_text: string;
   question_type: string;
   question_style?: string;
-  options: string[];
+  options: any; // Match database schema (Json | null)
   correct_answer: string;
 }
 
@@ -46,20 +47,8 @@ const QuestionDisplay = ({
   const isMultipleChoice = question.question_type === 'multiple_choice';
   const isTextQuestion = question.question_type === 'text';
 
-  // Parse options from raw data
-  let options: string[] = [];
-  if (Array.isArray(question.options)) {
-    options = question.options;
-  } else if (typeof question.options === 'string') {
-    try {
-      const parsed = JSON.parse(question.options);
-      options = Array.isArray(parsed) ? parsed : [];
-    } catch {
-      options = [];
-    }
-  } else if (question.options && typeof question.options === 'object') {
-    options = Object.values(question.options) as string[];
-  }
+  // Parse options from raw data using utility function
+  const options = parseQuestionOptions(question.options);
 
   const displayOptions = options.map(option => ({ 
     label: option, 
