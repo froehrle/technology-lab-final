@@ -146,7 +146,6 @@ const CreateQuestionDialog = ({ open, onOpenChange, courseId, onQuestionCreated 
               <SelectContent>
                 <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
                 <SelectItem value="text">Textantwort</SelectItem>
-                <SelectItem value="true_false">Wahr/Falsch</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -219,20 +218,6 @@ const CreateQuestionDialog = ({ open, onOpenChange, courseId, onQuestionCreated 
             </div>
           )}
 
-          {questionType === 'true_false' && (
-            <div>
-              <Label htmlFor="true-false-answer">Richtige Antwort</Label>
-              <Select value={correctAnswer} onValueChange={setCorrectAnswer}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Wählen Sie die richtige Antwort" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="True">Wahr</SelectItem>
-                  <SelectItem value="False">Falsch</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
 
           <div className="flex justify-end space-x-2 pt-4">
             <Button

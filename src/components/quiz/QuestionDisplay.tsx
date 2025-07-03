@@ -41,13 +41,9 @@ const QuestionDisplay = ({
   const shouldShowFeedback = showResult && (isCorrect || attemptCount >= 3);
 
   const isMultipleChoice = question.question_type === 'multiple_choice';
-  const isTrueFalse = question.question_type === 'true_false' || question.question_type === 'boolean';
   const isTextQuestion = question.question_type === 'text';
 
-  const displayOptions = isTrueFalse ? [
-    { label: 'Wahr', value: 'True' },
-    { label: 'Falsch', value: 'False' }
-  ] : question.options?.map(option => ({ label: option, value: option })) || [];
+  const displayOptions = question.options?.map(option => ({ label: option, value: option })) || [];
 
   return (
     <Card className="mb-6">
@@ -63,7 +59,7 @@ const QuestionDisplay = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {(isMultipleChoice || isTrueFalse) ? (
+          {isMultipleChoice ? (
             displayOptions.map((option, index) => (
               <Button
                 key={index}
@@ -80,10 +76,10 @@ const QuestionDisplay = ({
                 onClick={() => onAnswerSelect(option.value)}
                 disabled={shouldShowFeedback || isValidating}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm font-medium">
-                    {isTrueFalse ? (option.value === 'True' ? 'W' : 'F') : String.fromCharCode(65 + index)}
-                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm font-medium">
+                      {String.fromCharCode(65 + index)}
+                    </div>
                   <span>{option.label}</span>
                   {shouldShowFeedback && option.value === question.correct_answer && (
                     <CheckCircle className="h-5 w-5 text-green-600 ml-auto" />
