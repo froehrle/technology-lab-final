@@ -66,18 +66,29 @@ const QuestionCard = ({ question, index, onEdit, onDelete }: QuestionCardProps) 
           <div className="mt-4">
             <span className="font-medium text-sm">Antwortmöglichkeiten:</span>
             <ul className="list-disc list-inside mt-2 text-sm space-y-1">
-              {Array.isArray(question.options) 
-                ? question.options.map((option: string, idx: number) => (
-                    <li key={idx} className={option === question.correct_answer ? 'text-green-600 font-medium bg-green-50 p-2 rounded' : 'p-2'}>
-                      {option} {option === question.correct_answer && '✓ (Richtige Antwort)'}
-                    </li>
-                  ))
-                : Object.entries(question.options).map(([key, value]) => (
-                    <li key={key} className={value === question.correct_answer ? 'text-green-600 font-medium bg-green-50 p-2 rounded' : 'p-2'}>
-                      {value as string} {value === question.correct_answer && '✓ (Richtige Antwort)'}
-                    </li>
-                  ))
-              }
+              {(() => {
+                let options: string[] = [];
+                
+                // Handle options whether they're an array or JSON string
+                if (Array.isArray(question.options)) {
+                  options = question.options;
+                } else if (typeof question.options === 'string') {
+                  try {
+                    const parsed = JSON.parse(question.options);
+                    options = Array.isArray(parsed) ? parsed : [];
+                  } catch {
+                    options = [];
+                  }
+                } else if (question.options && typeof question.options === 'object') {
+                  options = Object.values(question.options) as string[];
+                }
+                
+                return options.map((option: string, idx: number) => (
+                  <li key={idx} className={option === question.correct_answer ? 'text-green-600 font-medium bg-green-50 p-2 rounded' : 'p-2'}>
+                    {option} {option === question.correct_answer && '✓ (Richtige Antwort)'}
+                  </li>
+                ));
+              })()}
             </ul>
           </div>
         )}
