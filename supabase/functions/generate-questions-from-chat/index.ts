@@ -125,6 +125,18 @@ Antworte nur mit dem JSON-Objekt, ohne zusätzlichen Text.`;
     
     console.log('Final parameters for Lambda:', extractedParams);
 
+    // Test with minimal parameters first to isolate the issue
+    const testParams = {
+      schwierigkeitsgrad: 'mittel',
+      anzahl_fragen: 3,
+      thema: 'Normalverteilung',
+      fragetyp: 'Verständnisfragen',
+      zielgruppe: 'Studenten',
+      keywords: ''
+    };
+
+    console.log('Testing with simplified parameters:', testParams);
+
     // Call the existing lambda function with enhanced error handling
     console.log('Calling Lambda function...');
     const lambdaResponse = await fetch(
@@ -134,7 +146,7 @@ Antworte nur mit dem JSON-Objekt, ohne zusätzlichen Text.`;
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(extractedParams),
+        body: JSON.stringify(testParams),
       }
     );
 
@@ -153,9 +165,17 @@ Antworte nur mit dem JSON-Objekt, ohne zusätzlichen Text.`;
     }
 
     const lambdaResult = await lambdaResponse.json();
+    console.log('Lambda response received successfully:', { 
+      questionCount: lambdaResult.questions?.questions?.length || 0,
+      fullResponse: JSON.stringify(lambdaResult, null, 2)
+    });
+    
     const questions = lambdaResult.questions?.questions || [];
     
-    console.log('Lambda response received:', { questionCount: questions.length });
+    if (questions.length === 0) {
+      console.warn('No questions returned from Lambda function');
+      throw new Error('Lambda function returned no questions');
+    }
 
     // Save questions to pending_questions table
     const pendingQuestions = questions.map((q: any) => ({
