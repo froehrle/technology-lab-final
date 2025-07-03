@@ -10,6 +10,7 @@ export interface QuestionGenerationParams {
 export interface GeneratedQuestion {
   question_text: string;
   question_type: string;
+  question_style: string;
   options?: string[];
   correct_answer: string;
 }

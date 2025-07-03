@@ -70,12 +70,12 @@ const GenerateQuestionsDialog = ({
     },
   });
 
-  const saveQuestionsToDatabase = async (questions: GeneratedQuestion[], questionStyle: string) => {
+  const saveQuestionsToDatabase = async (questions: GeneratedQuestion[]) => {
     const questionsToInsert = questions.map(q => ({
       course_id: courseId,
       question_text: q.question_text,
       question_type: q.question_type,
-      question_style: questionStyle,
+      question_style: q.question_style,
       options: q.options ? JSON.stringify(q.options) : null,
       correct_answer: q.correct_answer,
     }));
@@ -103,7 +103,7 @@ const GenerateQuestionsDialog = ({
       }
 
       // Save to database
-      await saveQuestionsToDatabase(generatedQuestions, data.fragetyp);
+      await saveQuestionsToDatabase(generatedQuestions);
 
       toast({
         title: "Fragen erfolgreich generiert",
