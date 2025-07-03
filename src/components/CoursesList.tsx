@@ -98,7 +98,19 @@ const CoursesList: React.FC<CoursesListProps> = ({ courses, onCourseUpdated }) =
             <CardContent>
               <div className="flex justify-between items-center">
                 <p className="text-sm text-gray-500">
-                  Erstellt: {new Date(course.created_at).toLocaleDateString('de-DE')}
+                  Erstellt: {(() => {
+                    try {
+                      const date = new Date(course.created_at);
+                      if (isNaN(date.getTime())) {
+                        console.log('Invalid date for course:', course.id, 'created_at:', course.created_at);
+                        return 'Unbekannt';
+                      }
+                      return date.toLocaleDateString('de-DE');
+                    } catch (error) {
+                      console.log('Date parsing error for course:', course.id, error);
+                      return 'Unbekannt';
+                    }
+                  })()}
                 </p>
                 <div className="flex space-x-2">
                   <Button 
