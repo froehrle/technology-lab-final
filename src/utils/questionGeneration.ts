@@ -16,7 +16,9 @@ export interface GeneratedQuestion {
 }
 
 export interface QuestionGenerationResponse {
-  questions: GeneratedQuestion[];
+  questions: {
+    questions: GeneratedQuestion[];
+  };
 }
 
 export const generateQuestions = async (
@@ -47,7 +49,16 @@ export const generateQuestions = async (
     const result: QuestionGenerationResponse = await response.json();
     console.log('Question generation API response:', result);
 
-    return result.questions || [];
+    // Extract the nested questions array and map field names
+    const questions = result.questions?.questions || [];
+    
+    // Map API response fields to our interface
+    const mappedQuestions = questions.map(q => ({
+      ...q,
+      options: (q as any).multiple_choice_options || q.options
+    }));
+
+    return mappedQuestions;
 
   } catch (error) {
     console.error('Question generation error:', error);
