@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useCourseAnalytics } from '@/hooks/useCourseAnalytics';
+import { useCourseAnalytics } from '@/hooks/analytics/useCourseAnalytics';
 import AnalyticsHeader from '@/components/analytics/AnalyticsHeader';
 import OverviewStats from '@/components/analytics/OverviewStats';
 import AdvancedAnalytics from '@/components/analytics/AdvancedAnalytics';
