@@ -243,6 +243,72 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_questions: {
+        Row: {
+          chat_context: Json | null
+          correct_answer: string | null
+          course_id: string
+          created_at: string
+          id: string
+          options: Json | null
+          question_style: string
+          question_text: string
+          question_type: string
+          review_notes: string | null
+          reviewed_at: string | null
+          status: string
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          chat_context?: Json | null
+          correct_answer?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          options?: Json | null
+          question_style: string
+          question_text: string
+          question_type?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          status?: string
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          chat_context?: Json | null
+          correct_answer?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          options?: Json | null
+          question_style?: string
+          question_text?: string
+          question_type?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          status?: string
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_questions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "course_completion_stats"
+            referencedColumns: ["course_id"]
+          },
+          {
+            foreignKeyName: "pending_questions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profile_badges: {
         Row: {
           badge_type: string

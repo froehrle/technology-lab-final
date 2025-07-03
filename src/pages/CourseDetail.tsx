@@ -152,6 +152,7 @@ const CourseDetail = () => {
         onCreateQuestion={() => setShowCreateDialog(true)} 
         onGenerateQuestions={() => setShowGenerateDialog(true)}
         onMaterialsRefresh={() => refetchMaterials()}
+        onQuestionsRefresh={() => refetchQuestions()}
       />
 
       <QuestionsList

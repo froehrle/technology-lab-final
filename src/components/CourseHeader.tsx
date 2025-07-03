@@ -2,8 +2,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus, Upload, Bot } from 'lucide-react';
+import { ArrowLeft, Plus, Upload, Bot, MessageSquare } from 'lucide-react';
 import PdfUploadDialog from './PdfUploadDialog';
+import ChatbotQuestionDialog from './ChatbotQuestionDialog';
+import QuestionReviewDialog from './QuestionReviewDialog';
 
 interface Course {
   id: string;
@@ -18,10 +20,13 @@ interface CourseHeaderProps {
   onCreateQuestion: () => void;
   onGenerateQuestions: () => void;
   onMaterialsRefresh?: () => void;
+  onQuestionsRefresh?: () => void;
 }
 
-const CourseHeader = ({ course, onCreateQuestion, onGenerateQuestions, onMaterialsRefresh }: CourseHeaderProps) => {
+const CourseHeader = ({ course, onCreateQuestion, onGenerateQuestions, onMaterialsRefresh, onQuestionsRefresh }: CourseHeaderProps) => {
   const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [showChatbotDialog, setShowChatbotDialog] = useState(false);
+  const [showReviewDialog, setShowReviewDialog] = useState(false);
 
   return (
     <>
@@ -45,6 +50,14 @@ const CourseHeader = ({ course, onCreateQuestion, onGenerateQuestions, onMateria
               <Upload className="h-4 w-4 mr-2" />
               PDF-Dateien hochladen
             </Button>
+            <Button variant="outline" onClick={() => setShowReviewDialog(true)}>
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Fragen überprüfen
+            </Button>
+            <Button variant="outline" onClick={() => setShowChatbotDialog(true)}>
+              <Bot className="h-4 w-4 mr-2" />
+              KI-Chat
+            </Button>
             <Button variant="outline" onClick={onGenerateQuestions}>
               <Bot className="h-4 w-4 mr-2" />
               Fragen generieren
@@ -62,6 +75,25 @@ const CourseHeader = ({ course, onCreateQuestion, onGenerateQuestions, onMateria
         onOpenChange={setShowUploadDialog}
         courseId={course.id}
         onUploadSuccess={onMaterialsRefresh}
+      />
+
+      <ChatbotQuestionDialog
+        open={showChatbotDialog}
+        onOpenChange={setShowChatbotDialog}
+        courseId={course.id}
+        onQuestionsGenerated={() => {
+          setShowReviewDialog(true);
+          onQuestionsRefresh?.();
+        }}
+      />
+
+      <QuestionReviewDialog
+        open={showReviewDialog}
+        onOpenChange={setShowReviewDialog}
+        courseId={course.id}
+        onQuestionsReviewed={() => {
+          onQuestionsRefresh?.();
+        }}
       />
     </>
   );
