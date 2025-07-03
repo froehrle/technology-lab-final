@@ -4,7 +4,9 @@ import { validateAnswerExternal } from '@/utils/externalValidation';
 interface Question {
   id: string;
   question_type: string;
+  question_text: string;
   correct_answer: string;
+  question_style: string;
 }
 
 export const useAnswerValidation = () => {
@@ -23,7 +25,7 @@ export const useAnswerValidation = () => {
     try {
       if (question.question_type === 'text') {
         setIsValidating(true);
-        const validationResult = await validateAnswerExternal(question.id, answerToSubmit);
+        const validationResult = await validateAnswerExternal(question, answerToSubmit);
         correct = validationResult.is_correct;
         feedbackText = validationResult.feedback_text;
       } else {

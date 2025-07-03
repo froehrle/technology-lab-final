@@ -1,7 +1,9 @@
 
 export interface ValidationRequest {
-  question_id: string;
+  question_text: string;
+  correct_answer: string;
   student_answer: string;
+  question_style: string;
 }
 
 export interface ValidationResponse {
@@ -10,15 +12,17 @@ export interface ValidationResponse {
 }
 
 export const validateAnswerExternal = async (
-  questionId: string,
+  question: { question_text: string; correct_answer: string; question_style: string },
   studentAnswer: string
 ): Promise<ValidationResponse> => {
-  console.log('Starting external validation for:', { questionId, studentAnswer });
+  console.log('Starting external validation for:', { question, studentAnswer });
   
   try {
     const requestBody = {
-      question_id: questionId,
+      question_text: question.question_text,
+      correct_answer: question.correct_answer,
       student_answer: studentAnswer,
+      question_style: question.question_style,
     };
     
     console.log('Sending request to external API:', requestBody);
