@@ -48,8 +48,9 @@ const ChatbotQuestionDialog = ({
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]');
+    if (scrollContainer) {
+      scrollContainer.scrollTop = scrollContainer.scrollHeight;
     }
   }, [messages]);
 
@@ -157,8 +158,8 @@ const ChatbotQuestionDialog = ({
         </DialogHeader>
 
         <div className="flex-1 flex flex-col min-h-0">
-          <ScrollArea ref={scrollAreaRef} className="flex-1 pr-4">
-            <div className="space-y-4 pb-4">
+          <ScrollArea className="flex-1 pr-4 max-h-[400px]">
+            <div className="space-y-4 pb-4" ref={scrollAreaRef}>
               {messages.map((message) => (
                 <div
                   key={message.id}

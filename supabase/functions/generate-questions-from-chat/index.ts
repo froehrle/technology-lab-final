@@ -32,13 +32,33 @@ serve(async (req) => {
     
     console.log('Generate questions from chat request:', { courseId, teacherId });
 
+    // Define smart defaults
+    const defaults: QuestionGenerationParams = {
+      schwierigkeitsgrad: 'mittel',
+      anzahl_fragen: 5,
+      thema: 'Allgemeine Fragen',
+      fragetyp: 'Verständnisfragen',
+      zielgruppe: 'Studenten',
+      keywords: ''
+    };
+
     // Extract parameters from conversation using OpenAI
-    const extractionPrompt = `Analysiere das folgende Gespräch zwischen einem Lehrer und einem KI-Assistenten über die Erstellung von Fragen. Extrahiere die folgenden Parameter:
+    const extractionPrompt = `Analysiere das folgende Gespräch zwischen einem Lehrer und einem KI-Assistenten über die Erstellung von Fragen. 
+
+Verwende diese Standardwerte als Basis:
+- schwierigkeitsgrad: "mittel"
+- anzahl_fragen: 5
+- thema: "Allgemeine Fragen"
+- fragetyp: "Verständnisfragen"
+- zielgruppe: "Studenten"
+- keywords: ""
+
+Überschreibe NUR die Parameter, die der Lehrer explizit erwähnt hat. Behalte die Standardwerte für alle anderen bei.
 
 Gespräch:
 ${conversationHistory.map((msg: any) => `${msg.role}: ${msg.content}`).join('\n')}
 
-Extrahiere diese Parameter im JSON-Format:
+Antworte mit einem JSON-Objekt im folgenden Format:
 {
   "schwierigkeitsgrad": "leicht" | "mittel" | "schwer",
   "anzahl_fragen": number (1-20),
@@ -48,7 +68,7 @@ Extrahiere diese Parameter im JSON-Format:
   "keywords": "string"
 }
 
-Verwende sinnvolle Standardwerte, wenn Informationen fehlen. Antworte nur mit dem JSON-Objekt.`;
+Antworte nur mit dem JSON-Objekt, ohne zusätzlichen Text.`;
 
     const extractionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -65,7 +85,16 @@ Verwende sinnvolle Standardwerte, wenn Informationen fehlen. Antworte nur mit de
     });
 
     const extractionData = await extractionResponse.json();
-    const extractedParams = JSON.parse(extractionData.choices[0].message.content) as QuestionGenerationParams;
+    let extractedParams: QuestionGenerationParams;
+    
+    try {
+      extractedParams = JSON.parse(extractionData.choices[0].message.content);
+      // Merge with defaults to ensure all required fields are present
+      extractedParams = { ...defaults, ...extractedParams };
+    } catch (parseError) {
+      console.error('Failed to parse extracted parameters, using defaults:', parseError);
+      extractedParams = defaults;
+    }
     
     console.log('Extracted parameters:', extractedParams);
 
