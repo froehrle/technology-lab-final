@@ -7,9 +7,10 @@ interface DashboardStatsProps {
   enrollmentsCount: number;
   totalXP: number;
   averageProgress: number;
+  currentStreak?: number;
 }
 
-const DashboardStats = ({ enrollmentsCount, totalXP, averageProgress }: DashboardStatsProps) => {
+const DashboardStats = ({ enrollmentsCount, totalXP, averageProgress, currentStreak = 0 }: DashboardStatsProps) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card className="border-0 bg-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
@@ -46,8 +47,12 @@ const DashboardStats = ({ enrollmentsCount, totalXP, averageProgress }: Dashboar
           <Calendar className="h-5 w-5 text-warning" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold text-warning">0 Tage</div>
-          <p className="text-xs text-warning/70 mt-1">Starten Sie Ihre Serie!</p>
+          <div className="text-3xl font-bold text-warning">
+            {currentStreak > 0 ? `${currentStreak} Tage` : '0 Tage'}
+          </div>
+          <p className="text-xs text-warning/70 mt-1">
+            {currentStreak > 0 ? 'Aktuelle Serie!' : 'Starten Sie Ihre Serie!'}
+          </p>
         </CardContent>
       </Card>
 

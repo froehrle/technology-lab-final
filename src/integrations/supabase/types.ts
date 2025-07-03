@@ -560,6 +560,36 @@ export type Database = {
           },
         ]
       }
+      student_streaks: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          last_activity_date: string | null
+          longest_streak: number
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       student_xp: {
         Row: {
           created_at: string
@@ -637,6 +667,10 @@ export type Database = {
     Functions: {
       get_perfect_completions: {
         Args: { course_ids: string[] }
+        Returns: number
+      }
+      reset_inactive_streaks: {
+        Args: Record<PropertyKey, never>
         Returns: number
       }
     }

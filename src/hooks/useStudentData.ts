@@ -18,6 +18,12 @@ interface StudentXP {
   total_xp: number;
 }
 
+interface StudentStreak {
+  current_streak: number;
+  longest_streak: number;
+  last_activity_date: string | null;
+}
+
 interface CourseStats {
   course_id: string;
   correct_answers: number;
@@ -142,10 +148,33 @@ export const useStudentData = (userId: string | undefined) => {
     refetchInterval: 5000, // Refetch every 5 seconds to ensure fresh data
   });
 
+  // Fetch student streak
+  const { data: studentStreak } = useQuery({
+    queryKey: ['student-streak', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      
+      const { data, error } = await supabase
+        .from('student_streaks')
+        .select('current_streak, longest_streak, last_activity_date')
+        .eq('student_id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching student streak:', error);
+        throw error;
+      }
+      
+      return data as StudentStreak | null;
+    },
+    enabled: !!userId,
+  });
+
   return {
     enrollments,
     courseStats,
     studentXP,
+    studentStreak,
     isLoading
   };
 };

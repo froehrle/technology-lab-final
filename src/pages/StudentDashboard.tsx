@@ -10,7 +10,7 @@ import CustomAvatar from '@/components/avatar/CustomAvatar';
 
 const StudentDashboard = () => {
   const { user } = useAuth();
-  const { enrollments, courseStats, studentXP, isLoading } = useStudentData(user?.id);
+  const { enrollments, courseStats, studentXP, studentStreak, isLoading } = useStudentData(user?.id);
   const { profile } = useProfile();
 
   const averageProgress = enrollments.length > 0 
@@ -46,6 +46,7 @@ const StudentDashboard = () => {
           enrollmentsCount={enrollments.length}
           totalXP={studentXP?.total_xp || 0}
           averageProgress={averageProgress}
+          currentStreak={studentStreak?.current_streak || 0}
         />
       </div>
 
