@@ -71,17 +71,22 @@ const GenerateQuestionsDialog = ({
   });
 
   const saveQuestionsToDatabase = async (questions: GeneratedQuestion[], questionStyle: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
     const questionsToInsert = questions.map(q => ({
       course_id: courseId,
+      teacher_id: user.id,
       question_text: q.question_text,
       question_type: q.question_type,
       question_style: questionStyle,
       options: q.options ? JSON.stringify(q.options) : null,
       correct_answer: q.correct_answer,
+      status: 'pending',
     }));
 
     const { error } = await supabase
-      .from('questions')
+      .from('pending_questions')
       .insert(questionsToInsert);
 
     if (error) throw error;
@@ -107,7 +112,7 @@ const GenerateQuestionsDialog = ({
 
       toast({
         title: "Fragen erfolgreich generiert",
-        description: `${generatedQuestions.length} Fragen wurden erstellt und gespeichert.`,
+        description: `${generatedQuestions.length} Fragen wurden zur Überprüfung erstellt.`,
       });
 
       onQuestionsGenerated();

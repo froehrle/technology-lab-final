@@ -10,6 +10,7 @@ import GenerateQuestionsDialog from '@/components/GenerateQuestionsDialog';
 import CourseHeader from '@/components/CourseHeader';
 import QuestionsList from '@/components/QuestionsList';
 import CourseMaterials from '@/components/CourseMaterials';
+import PendingQuestionsCard from '@/components/PendingQuestionsCard';
 
 interface Question {
   id: string;
@@ -153,6 +154,11 @@ const CourseDetail = () => {
         onGenerateQuestions={() => setShowGenerateDialog(true)}
         onMaterialsRefresh={() => refetchMaterials()}
         onQuestionsRefresh={() => refetchQuestions()}
+      />
+
+      <PendingQuestionsCard
+        courseId={courseId!}
+        onQuestionsReviewed={() => refetchQuestions()}
       />
 
       <QuestionsList

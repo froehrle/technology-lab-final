@@ -82,7 +82,6 @@ const CourseHeader = ({ course, onCreateQuestion, onGenerateQuestions, onMateria
         onOpenChange={setShowChatbotDialog}
         courseId={course.id}
         onQuestionsGenerated={() => {
-          setShowReviewDialog(true);
           onQuestionsRefresh?.();
         }}
       />
