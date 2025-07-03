@@ -19,7 +19,7 @@ const TeacherDashboard = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('courses')
-        .select('*')
+        .select('id, title, description, created_at, updated_at, teacher_id')
         .eq('teacher_id', user?.id)
         .order('created_at', { ascending: false });
 

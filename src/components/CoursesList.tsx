@@ -77,14 +77,10 @@ const CoursesList: React.FC<CoursesListProps> = ({ courses, onCourseUpdated }) =
     );
   }
 
-  console.log('CoursesList rendering with courses:', courses);
-
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {courses.map((course) => {
-          console.log('Rendering course:', course.id, 'created_at:', course.created_at, 'type:', typeof course.created_at);
-          return (
+        {courses.map((course) => (
           <Card 
             key={course.id}
             className="cursor-pointer hover:shadow-lg transition-shadow"
@@ -102,19 +98,7 @@ const CoursesList: React.FC<CoursesListProps> = ({ courses, onCourseUpdated }) =
             <CardContent>
               <div className="flex justify-between items-center">
                 <p className="text-sm text-gray-500">
-                  Erstellt: {(() => {
-                    try {
-                      const date = new Date(course.created_at);
-                      if (isNaN(date.getTime())) {
-                        console.log('Invalid date for course:', course.id, 'created_at:', course.created_at);
-                        return 'Unbekannt';
-                      }
-                      return date.toLocaleDateString('de-DE');
-                    } catch (error) {
-                      console.log('Date parsing error for course:', course.id, error);
-                      return 'Unbekannt';
-                    }
-                  })()}
+                  Erstellt: {course.created_at ? new Date(course.created_at).toLocaleDateString('de-DE') : 'Unbekannt'}
                 </p>
                 <div className="flex space-x-2">
                   <Button 
@@ -135,8 +119,7 @@ const CoursesList: React.FC<CoursesListProps> = ({ courses, onCourseUpdated }) =
               </div>
             </CardContent>
           </Card>
-          );
-        })}
+        ))}
       </div>
 
       <EditCourseDialog
