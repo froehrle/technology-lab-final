@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,6 +19,28 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
   const [isFirstInteraction, setIsFirstInteraction] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // Auto-generate questions after first AI response using useEffect
+  useEffect(() => {
+    console.log('Messages changed:', { 
+      length: messages.length, 
+      isFirstInteraction, 
+      messages: messages.map(m => m.role) 
+    });
+    
+    // Check if we have exactly 3 messages: greeting + user + AI response
+    // And this is still the first interaction
+    if (messages.length === 3 && isFirstInteraction) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.role === 'assistant' && lastMessage.id !== '1') { // Not the initial greeting
+        console.log('Auto-triggering question generation with messages:', messages.length);
+        setIsFirstInteraction(false);
+        
+        // Call generation with the current messages array
+        handleGenerateQuestions(messages);
+      }
+    }
+  }, [messages, isFirstInteraction]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -54,15 +76,6 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
         };
 
         setMessages(prev => [...prev, assistantMessage]);
-        
-        // Auto-generate questions after first AI response
-        if (isFirstInteraction) {
-          setIsFirstInteraction(false);
-          console.log('Triggering auto-generation after first AI response');
-          setTimeout(() => {
-            handleGenerateQuestions();
-          }, 1000); // Small delay to let user see the response
-        }
       } else {
         throw new Error(data.error || 'Unbekannter Fehler');
       }
@@ -85,14 +98,24 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
     }
   };
 
-  const handleGenerateQuestions = async () => {
-    if (messages.length <= 1) return;
+  const handleGenerateQuestions = async (messagesOverride?: Message[]) => {
+    const messagesToUse = messagesOverride || messages;
+    console.log('handleGenerateQuestions called with:', {
+      messagesOverride: !!messagesOverride,
+      messagesToUseLength: messagesToUse.length,
+      currentMessagesLength: messages.length
+    });
+    
+    if (messagesToUse.length <= 1) {
+      console.log('Not enough messages for generation:', messagesToUse.length);
+      return;
+    }
     
     setIsGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke('generate-questions-from-chat', {
         body: {
-          conversationHistory: messages.map(m => ({ role: m.role, content: m.content })),
+          conversationHistory: messagesToUse.map(m => ({ role: m.role, content: m.content })),
           courseId: courseId,
           teacherId: user?.id
         }
