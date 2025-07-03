@@ -2,8 +2,8 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileText, Download, Loader2, AlertCircle } from 'lucide-react';
-import { fetchCourseMaterials, formatFileSize, formatDate, getDownloadUrl, type CourseMaterial } from '@/utils/courseMaterials';
+import { FileText, Loader2, AlertCircle } from 'lucide-react';
+import { fetchCourseMaterials, formatFileSize, formatDate, type CourseMaterial } from '@/utils/courseMaterials';
 
 interface CourseMaterialsProps {
   courseId: string;
@@ -16,10 +16,6 @@ const CourseMaterials = ({ courseId }: CourseMaterialsProps) => {
     enabled: !!courseId,
   });
 
-  const handleDownload = (material: CourseMaterial) => {
-    const downloadUrl = getDownloadUrl(material.s3_key);
-    window.open(downloadUrl, '_blank');
-  };
 
   if (isLoading) {
     return (
@@ -88,26 +84,16 @@ const CourseMaterials = ({ courseId }: CourseMaterialsProps) => {
                 key={material.id}
                 className="border rounded-lg p-4 hover:bg-accent transition-colors"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-3 flex-1">
-                    <FileText className="h-8 w-8 text-destructive flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium truncate">{material.pdf_title}</h4>
-                      <div className="text-sm text-muted-foreground space-y-1">
-                        <p className="truncate">{material.filename}</p>
-                        <p>{formatFileSize(material.file_size)}</p>
-                        <p>{formatDate(material.upload_date)}</p>
-                      </div>
+                <div className="flex items-center space-x-3">
+                  <FileText className="h-8 w-8 text-destructive flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium truncate">{material.pdf_title}</h4>
+                    <div className="text-sm text-muted-foreground space-y-1">
+                      <p className="truncate">{material.filename}</p>
+                      <p>{formatFileSize(material.file_size)}</p>
+                      <p>{formatDate(material.upload_date)}</p>
                     </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDownload(material)}
-                    className="flex-shrink-0 ml-2"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
                 </div>
               </div>
             ))}
