@@ -8,6 +8,10 @@ interface OverviewStatsProps {
 }
 
 const OverviewStats = ({ totalEnrollments, totalQuizAttempts, perfectCompletions }: OverviewStatsProps) => {
+  const formatNumber = (num: number) => {
+    return num?.toString() || '0';
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div className="flex items-center space-x-3">
@@ -16,7 +20,7 @@ const OverviewStats = ({ totalEnrollments, totalQuizAttempts, perfectCompletions
         </div>
         <div>
           <p className="text-sm text-muted-foreground">Eingeschriebene Studenten</p>
-          <p className="text-2xl font-bold">{totalEnrollments}</p>
+          <p className="text-2xl font-bold">{formatNumber(totalEnrollments)}</p>
         </div>
       </div>
       
@@ -26,7 +30,7 @@ const OverviewStats = ({ totalEnrollments, totalQuizAttempts, perfectCompletions
         </div>
         <div>
           <p className="text-sm text-muted-foreground">Quiz-Versuche</p>
-          <p className="text-2xl font-bold">{totalQuizAttempts}</p>
+          <p className="text-2xl font-bold">{formatNumber(totalQuizAttempts)}</p>
         </div>
       </div>
       
@@ -36,7 +40,15 @@ const OverviewStats = ({ totalEnrollments, totalQuizAttempts, perfectCompletions
         </div>
         <div>
           <p className="text-sm text-muted-foreground">Perfekte Abschlüsse</p>
-          <p className="text-2xl font-bold">{perfectCompletions}</p>
+          <p className="text-2xl font-bold">{formatNumber(perfectCompletions)}</p>
+          <p className="text-xs text-muted-foreground">
+            {perfectCompletions === 0 && totalEnrollments > 0 
+              ? "Noch keine perfekten Abschlüsse" 
+              : perfectCompletions === 0 && totalEnrollments === 0
+              ? "Keine Daten verfügbar"
+              : "Alle Fragen korrekt beantwortet"
+            }
+          </p>
         </div>
       </div>
     </div>
