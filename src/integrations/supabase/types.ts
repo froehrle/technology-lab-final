@@ -669,6 +669,22 @@ export type Database = {
         Args: { course_ids: string[] }
         Returns: number
       }
+      get_user_role: {
+        Args: { user_id: string }
+        Returns: string
+      }
+      has_role: {
+        Args: { user_id: string; required_role: string }
+        Returns: boolean
+      }
+      is_student: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      is_teacher: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
       reset_inactive_streaks: {
         Args: Record<PropertyKey, never>
         Returns: number
