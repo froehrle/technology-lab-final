@@ -37,6 +37,8 @@ export const useCourseDifficultyAnalytics = (userId: string | undefined, courses
           is_correct,
           attempt_count,
           student_id,
+          question_id,
+          answered_at,
           questions!inner(course_id)
         `)
         .in('questions.course_id', courseIds);
@@ -59,25 +61,37 @@ export const useCourseDifficultyAnalytics = (userId: string | undefined, courses
         const completedAttempts = attempts.filter(a => a.is_completed).length;
         const dropoutRate = totalAttempts > 0 ? ((totalAttempts - completedAttempts) / totalAttempts) * 100 : 0;
 
-        // Student answer analysis
+        // Student answer analysis - now uses all attempts for better insights
         const answers = studentAnswers?.filter(a => a.questions.course_id === courseId) || [];
         const totalAnswers = answers.length;
         const wrongAnswers = answers.filter(a => !a.is_correct).length;
         const wrongAnswerRate = totalAnswers > 0 ? (wrongAnswers / totalAnswers) * 100 : 0;
         
-        // Average attempts per question
+        // Average attempts per question - considering all answer attempts
         const avgAttemptsPerQuestion = totalAnswers > 0 
           ? answers.reduce((sum, answer) => sum + (answer.attempt_count || 1), 0) / totalAnswers 
           : 1;
 
-        // Perfect completion rate (students who got all questions right on first try)
+        // Perfect completion rate based on latest answers per student per question
         const studentsWithAnswers = [...new Set(answers.map(a => a.student_id))];
         let perfectCompletions = 0;
         
         studentsWithAnswers.forEach(studentId => {
           const studentAnswers = answers.filter(a => a.student_id === studentId);
-          const allCorrectFirstTry = studentAnswers.every(a => a.is_correct && a.attempt_count === 1);
-          if (allCorrectFirstTry && studentAnswers.length > 0) {
+          
+          // Group by question and get latest answer for each question
+          const latestAnswersByQuestion = studentAnswers.reduce((acc, answer) => {
+            const questionId = answer.question_id;
+            if (!acc[questionId] || new Date(answer.answered_at) > new Date(acc[questionId].answered_at)) {
+              acc[questionId] = answer;
+            }
+            return acc;
+          }, {} as any);
+          
+          const latestAnswers = Object.values(latestAnswersByQuestion) as any[];
+          const allCorrectFirstTry = latestAnswers.every((a: any) => a.is_correct && a.attempt_count === 1);
+          
+          if (allCorrectFirstTry && latestAnswers.length > 0) {
             perfectCompletions++;
           }
         });

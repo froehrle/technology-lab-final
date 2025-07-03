@@ -35,15 +35,21 @@ export const useQuizAnalytics = (userId: string | undefined, filteredCourseIds: 
     enabled: !!userId && filteredCourseIds.length > 0,
   });
 
-  // Average Session Duration
+  // Average Session Duration - improved calculation using answer timestamps
   const avgSessionDuration = useQuery({
     queryKey: ['analytics-session-duration', userId, filteredCourseIds],
     queryFn: async () => {
       if (filteredCourseIds.length === 0) return 0;
       
+      // Get quiz attempts with their answer timestamps for more accurate duration
       const { data, error } = await supabase
         .from('quiz_attempts')
-        .select('created_at, completed_at')
+        .select(`
+          id,
+          created_at,
+          completed_at,
+          student_answers!inner(answered_at)
+        `)
         .in('course_id', filteredCourseIds)
         .not('completed_at', 'is', null);
 
@@ -51,12 +57,20 @@ export const useQuizAnalytics = (userId: string | undefined, filteredCourseIds: 
       if (!data?.length) return 0;
 
       const durations = data.map(attempt => {
-        const start = new Date(attempt.created_at);
-        const end = new Date(attempt.completed_at!);
-        return (end.getTime() - start.getTime()) / (1000 * 60); // minutes
-      });
+        const answerTimes = attempt.student_answers.map(a => new Date(a.answered_at).getTime());
+        if (answerTimes.length === 0) return 0;
 
-      return durations.reduce((sum, duration) => sum + duration, 0) / durations.length;
+        const start = Math.min(new Date(attempt.created_at).getTime(), ...answerTimes);
+        const end = Math.max(new Date(attempt.completed_at!).getTime(), ...answerTimes);
+        const durationMinutes = (end - start) / (1000 * 60);
+        
+        // Filter out unrealistic durations (longer than 2 hours)
+        return durationMinutes > 120 ? 0 : durationMinutes;
+      }).filter(duration => duration > 0);
+
+      return durations.length > 0 
+        ? durations.reduce((sum, duration) => sum + duration, 0) / durations.length 
+        : 0;
     },
     enabled: !!userId && filteredCourseIds.length > 0,
   });
