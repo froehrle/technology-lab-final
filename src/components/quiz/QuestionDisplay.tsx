@@ -43,7 +43,25 @@ const QuestionDisplay = ({
   const isMultipleChoice = question.question_type === 'multiple_choice';
   const isTextQuestion = question.question_type === 'text';
 
-  const displayOptions = question.options?.map(option => ({ label: option, value: option })) || [];
+  const displayOptions = (() => {
+    let options: string[] = [];
+    
+    // Handle options whether they're an array or JSON string
+    if (Array.isArray(question.options)) {
+      options = question.options;
+    } else if (typeof question.options === 'string') {
+      try {
+        const parsed = JSON.parse(question.options);
+        options = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        options = [];
+      }
+    } else if (question.options && typeof question.options === 'object') {
+      options = Object.values(question.options) as string[];
+    }
+    
+    return options.map(option => ({ label: option, value: option }));
+  })();
 
   return (
     <Card className="mb-6">
