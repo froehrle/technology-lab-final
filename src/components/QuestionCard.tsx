@@ -3,7 +3,6 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Edit, Trash2 } from 'lucide-react';
-import { processQuestionForDisplay } from '@/utils/questionCleaning';
 
 interface Question {
   id: string;
@@ -24,7 +23,20 @@ interface QuestionCardProps {
 }
 
 const QuestionCard = ({ question, index, onEdit, onDelete }: QuestionCardProps) => {
-  const processedQuestion = processQuestionForDisplay(question);
+  // Parse options from raw data
+  let options: string[] = [];
+  if (Array.isArray(question.options)) {
+    options = question.options;
+  } else if (typeof question.options === 'string') {
+    try {
+      const parsed = JSON.parse(question.options);
+      options = Array.isArray(parsed) ? parsed : [];
+    } catch {
+      options = [];
+    }
+  } else if (question.options && typeof question.options === 'object') {
+    options = Object.values(question.options) as string[];
+  }
   
   return (
     <Card>
@@ -32,10 +44,10 @@ const QuestionCard = ({ question, index, onEdit, onDelete }: QuestionCardProps) 
         <div className="flex justify-between items-start">
           <div className="flex-1">
             <CardTitle className="text-lg">
-              {processedQuestion.displayQuestionText}
+              {question.question_text}
             </CardTitle>
             <CardDescription className="mt-2 text-base">
-              Richtige Antwort: {processedQuestion.displayCorrectAnswer || 'Nicht festgelegt'}
+              Richtige Antwort: {question.correct_answer || 'Nicht festgelegt'}
             </CardDescription>
           </div>
           <div className="flex space-x-2">
@@ -69,13 +81,13 @@ const QuestionCard = ({ question, index, onEdit, onDelete }: QuestionCardProps) 
             {new Date(question.created_at).toLocaleDateString('de-DE')}
           </div>
         </div>
-        {processedQuestion.displayOptions.length > 0 && (
+        {options.length > 0 && (
           <div className="mt-4">
             <span className="font-medium text-sm">Antwortmöglichkeiten:</span>
             <ul className="list-disc list-inside mt-2 text-sm space-y-1">
-              {processedQuestion.displayOptions.map((option: string, idx: number) => (
-                <li key={idx} className={option === processedQuestion.displayCorrectAnswer ? 'text-green-600 font-medium bg-green-50 p-2 rounded' : 'p-2'}>
-                  {option} {option === processedQuestion.displayCorrectAnswer && '✓ (Richtige Antwort)'}
+              {options.map((option: string, idx: number) => (
+                <li key={idx} className={option === question.correct_answer ? 'text-green-600 font-medium bg-green-50 p-2 rounded' : 'p-2'}>
+                  {option} {option === question.correct_answer && '✓ (Richtige Antwort)'}
                 </li>
               ))}
             </ul>
