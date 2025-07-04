@@ -56,11 +56,11 @@ const QuizProgressHeader = ({
         {/* Street texture background - covers entire bar */}
         <div className="absolute inset-0 bg-gradient-to-r from-gray-800/50 to-gray-700/50"></div>
         
-        {/* Road lane divider - dashed white line in the middle */}
+        {/* Road lane divider - dashed white line in the middle - covers full width */}
         <div className="absolute top-1/2 left-0 right-0 h-0.5 transform -translate-y-1/2 z-5">
-          <div className="flex space-x-2 h-full">
-            {[...Array(12)].map((_, i) => (
-              <div key={i} className="w-4 h-full bg-white opacity-70"></div>
+          <div className="flex w-full h-full">
+            {[...Array(20)].map((_, i) => (
+              <div key={i} className="flex-1 h-full bg-white opacity-70 mr-2 last:mr-0"></div>
             ))}
           </div>
         </div>
@@ -69,24 +69,11 @@ const QuizProgressHeader = ({
         <div className="absolute top-0 left-0 right-0 h-1 bg-yellow-400 opacity-60"></div>
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-yellow-400 opacity-60"></div>
         
-        {/* Racing Finish Line */}
+        {/* Racing Finish Line - full width like start */}
         <div className="absolute right-2 top-2 bottom-2 flex items-center z-20">
-          {/* Checkered finish flag */}
-          <div className="relative">
-            <FlagTriangleRight className="h-8 w-8 text-achievement" />
-            {/* Checkered pattern overlay */}
-            <div className="absolute inset-1 w-6 h-6 opacity-80">
-              <div className="grid grid-cols-4 grid-rows-4 h-full w-full">
-                {[...Array(16)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={`${
-                      (Math.floor(i / 4) + i) % 2 === 0 ? 'bg-black' : 'bg-white'
-                    }`}
-                  ></div>
-                ))}
-              </div>
-            </div>
+          <div className="w-2 h-full bg-gradient-to-b from-red-400 to-red-600 rounded shadow-lg"></div>
+          <div className="absolute -left-8 top-1/2 transform -translate-y-1/2 text-xs font-bold text-red-600 rotate-90 whitespace-nowrap">
+            FINISH
           </div>
         </div>
         
