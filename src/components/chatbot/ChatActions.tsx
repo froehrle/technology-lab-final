@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 interface ChatActionsProps {
   isGenerating: boolean;
   messageCount: number;
+  questionsGenerated: boolean;
   onCancel: () => void;
   onGenerateQuestions: () => void;
 }
@@ -12,6 +13,7 @@ interface ChatActionsProps {
 export const ChatActions = ({ 
   isGenerating, 
   messageCount, 
+  questionsGenerated,
   onCancel, 
   onGenerateQuestions 
 }: ChatActionsProps) => {
@@ -29,18 +31,20 @@ export const ChatActions = ({
   return (
     <div className="flex justify-between items-center pt-4 border-t mt-4">
       <div className="text-sm text-muted-foreground">
-        {messageCount > 1 
-          ? 'Fragen werden automatisch nach Ihrer Anfrage erstellt.' 
-          : 'Beschreiben Sie, welche Fragen Sie benötigen.'
+        {questionsGenerated 
+          ? 'Fragen wurden generiert! Sie können weitere Fragen stellen oder neue Fragen generieren.'
+          : messageCount > 1 
+            ? 'Bereit zum Generieren von Fragen basierend auf dem Gespräch.'
+            : 'Beschreiben Sie, welche Fragen Sie benötigen.'
         }
       </div>
       <div className="flex gap-2">
         <Button variant="outline" onClick={onCancel}>
-          Abbrechen
+          Schließen
         </Button>
         {messageCount > 1 && (
           <Button onClick={onGenerateQuestions} disabled={isGenerating}>
-            Fragen manuell generieren
+            {questionsGenerated ? 'Weitere Fragen generieren' : 'Fragen generieren'}
           </Button>
         )}
       </div>

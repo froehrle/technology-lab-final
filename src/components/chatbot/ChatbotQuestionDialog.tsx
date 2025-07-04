@@ -24,13 +24,11 @@ const ChatbotQuestionDialog = ({
     setInputValue,
     isLoading,
     isGenerating,
+    questionsGenerated,
     handleSendMessage,
     handleKeyPress,
     handleGenerateQuestions,
-  } = useChatbot(courseId, () => {
-    onQuestionsGenerated();
-    onOpenChange(false);
-  });
+  } = useChatbot(courseId, onQuestionsGenerated);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -56,6 +54,7 @@ const ChatbotQuestionDialog = ({
           <ChatActions
             isGenerating={isGenerating}
             messageCount={messages.length}
+            questionsGenerated={questionsGenerated}
             onCancel={() => onOpenChange(false)}
             onGenerateQuestions={handleGenerateQuestions}
           />

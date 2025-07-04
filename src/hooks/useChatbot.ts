@@ -20,27 +20,8 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Auto-generate questions after first AI response using useEffect
-  useEffect(() => {
-    console.log('Messages changed:', { 
-      length: messages.length, 
-      isFirstInteraction, 
-      messages: messages.map(m => m.role) 
-    });
-    
-    // Check if we have exactly 3 messages: greeting + user + AI response
-    // And this is still the first interaction
-    if (messages.length === 3 && isFirstInteraction) {
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.role === 'assistant' && lastMessage.id !== '1') { // Not the initial greeting
-        console.log('Auto-triggering question generation with messages:', messages.length);
-        setIsFirstInteraction(false);
-        
-        // Call generation with the current messages array
-        handleGenerateQuestions(messages);
-      }
-    }
-  }, [messages, isFirstInteraction]);
+  // Track if questions have been generated in this session
+  const [questionsGenerated, setQuestionsGenerated] = useState(false);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -124,6 +105,17 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
       if (error) throw error;
 
       if (data.success) {
+        setQuestionsGenerated(true);
+        
+        // Add a system message to the chat showing generation success
+        const successMessage: Message = {
+          id: (Date.now() + 2).toString(),
+          role: 'assistant',
+          content: `✅ Erfolgreich ${data.questionsGenerated} Fragen zur Überprüfung erstellt! Sie können weitere Fragen stellen oder zusätzliche Fragen generieren.`,
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, successMessage]);
+        
         toast({
           title: "Fragen generiert",
           description: `${data.questionsGenerated} Fragen wurden zur Überprüfung erstellt.`,
@@ -150,6 +142,7 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
     setInputValue,
     isLoading,
     isGenerating,
+    questionsGenerated,
     handleSendMessage,
     handleKeyPress,
     handleGenerateQuestions,
