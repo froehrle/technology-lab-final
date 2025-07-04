@@ -57,9 +57,16 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
         addMessage(extractionMessage);
         console.log('🔍 Extraction message added to chat');
 
-        // Automatically trigger question generation after chat response
-        console.log('🤖 Auto-triggering question generation...');
-        await generateQuestions(messages, courseId, addMessage);
+        // Build complete message array manually since React state is async
+        const completeMessages = [
+          ...messages,
+          userMessage,
+          assistantMessage,
+          extractionMessage
+        ];
+        
+        console.log('🤖 Auto-triggering question generation with complete messages:', completeMessages.length);
+        await generateQuestions(completeMessages, courseId, addMessage);
       }
     } catch (error) {
       console.error('Chatbot error:', error);
