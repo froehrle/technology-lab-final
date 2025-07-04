@@ -67,7 +67,12 @@ const CoursesList = ({ enrollments, courseStats, isLoading }: CoursesListProps) 
           <div className="space-y-4">
             {enrollments.map((enrollment) => {
               const stats = getCourseStats(enrollment.course_id);
-              const isCompleted = enrollment.progress >= 100;
+              // Calculate progress based on latest attempts only
+              const answeredQuestions = stats.correct_answers + stats.wrong_answers;
+              const calculatedProgress = stats.total_questions > 0 
+                ? Math.round((answeredQuestions / stats.total_questions) * 100)
+                : 0;
+              const isCompleted = calculatedProgress >= 100;
               
               return (
                 <div 
@@ -101,10 +106,10 @@ const CoursesList = ({ enrollments, courseStats, isLoading }: CoursesListProps) 
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
                           className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                          style={{ width: `${enrollment.progress}%` }}
+                          style={{ width: `${calculatedProgress}%` }}
                         ></div>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">{enrollment.progress}% abgeschlossen</p>
+                      <p className="text-xs text-gray-500 mt-1">{calculatedProgress}% abgeschlossen</p>
                     </div>
                   </div>
                   <Button 
@@ -118,7 +123,7 @@ const CoursesList = ({ enrollments, courseStats, isLoading }: CoursesListProps) 
                     ) : (
                       <Play className="h-4 w-4 mr-1" />
                     )}
-                    {isCompleted ? 'Wiederholen' : (enrollment.progress > 0 ? 'Fortsetzen' : 'Starten')}
+                    {isCompleted ? 'Wiederholen' : (calculatedProgress > 0 ? 'Fortsetzen' : 'Starten')}
                   </Button>
                 </div>
               );
