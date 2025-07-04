@@ -125,20 +125,8 @@ Antworte nur mit dem JSON-Objekt, ohne zusätzlichen Text.`;
     
     console.log('Final parameters for Lambda:', extractedParams);
 
-    // Test with minimal parameters first to isolate the issue
-    const testParams = {
-      schwierigkeitsgrad: 'mittel',
-      anzahl_fragen: 3,
-      thema: 'Normalverteilung',
-      fragetyp: 'Verständnisfragen',
-      zielgruppe: 'Studenten',
-      keywords: ''
-    };
-
-    console.log('Testing with simplified parameters:', testParams);
-
-    // Call the existing lambda function with enhanced error handling
-    console.log('Calling Lambda function...');
+    // Call the existing lambda function with extracted parameters
+    console.log('Calling Lambda function with extracted parameters:', extractedParams);
     const lambdaResponse = await fetch(
       'https://o662virii4xhey5nodl4n5umi40uuddp.lambda-url.eu-central-1.on.aws/',
       {
@@ -146,7 +134,7 @@ Antworte nur mit dem JSON-Objekt, ohne zusätzlichen Text.`;
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(testParams),
+        body: JSON.stringify(extractedParams),
       }
     );
 
