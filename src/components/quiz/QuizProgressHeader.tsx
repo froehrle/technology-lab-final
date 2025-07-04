@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Zap } from 'lucide-react';
+import { Zap, Car, FlagTriangleRight } from 'lucide-react';
 
 interface QuizProgressHeaderProps {
   focusPoints: number;
@@ -51,73 +51,82 @@ const QuizProgressHeader = ({
         </div>
       </div>
       
-      {/* Colorful Progress Bar Container */}
-      <div className="relative bg-gradient-to-r from-primary/10 to-achievement/10 rounded-xl h-24 overflow-hidden border-2 border-primary/20 shadow-lg mb-4">
-        {/* Gradient background for entire container */}
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-achievement/5"></div>
+      {/* Racing Street Progress Bar Container */}
+      <div className="relative bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 rounded-xl h-24 overflow-hidden border-2 border-gray-600 shadow-lg mb-4">
+        {/* Street texture background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-800/50 to-gray-700/50"></div>
         
-        {/* Colorful progress indication */}
-        <div 
-          className="absolute top-0 left-0 h-full bg-gradient-to-r from-gray-300 to-gray-400 transition-all duration-700 ease-out"
-          style={{ width: `${Math.min(progress, 82)}%` }}
-        ></div>
-        
-        {/* Colorful Finish Line */}
-        <div className="absolute right-2 top-2 bottom-2 flex items-center z-20">
-          {/* Main finish line with achievement colors */}
-          <div className="w-3 h-full bg-gradient-to-b from-achievement via-success to-warning rounded-lg shadow-xl border-2 border-achievement"></div>
-          
-          {/* Checkered pattern overlay */}
-          <div className="absolute inset-0 w-3 opacity-60">
-            <div className="grid grid-cols-2 grid-rows-10 h-full">
-              {[...Array(20)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`${
-                    (Math.floor(i / 2) + i) % 2 === 0 ? 'bg-black' : 'bg-white'
-                  }`}
-                ></div>
-              ))}
-            </div>
+        {/* Road lane divider - dashed white line in the middle */}
+        <div className="absolute top-1/2 left-0 right-0 h-0.5 transform -translate-y-1/2 z-5">
+          <div className="flex space-x-2 h-full">
+            {[...Array(12)].map((_, i) => (
+              <div key={i} className="w-4 h-full bg-white opacity-70"></div>
+            ))}
           </div>
         </div>
         
-        {/* Running Stickman - now starts at 0% */}
+        {/* Road shoulders */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-yellow-400 opacity-60"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-yellow-400 opacity-60"></div>
+        
+        {/* Progress indication - tire tracks */}
         <div 
-          className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-700 ease-out z-10"
-          style={{ left: `${Math.min(progress * 0.82, 70)}%` }}
+          className="absolute top-0 left-0 h-full bg-gradient-to-r from-gray-600 to-gray-500 transition-all duration-700 ease-out opacity-80"
+          style={{ width: `${Math.min(progress, 82)}%` }}
         >
+          {/* Tire track marks */}
+          <div className="absolute top-2 left-2 right-2 h-1 bg-gray-900 opacity-50 rounded"></div>
+          <div className="absolute bottom-2 left-2 right-2 h-1 bg-gray-900 opacity-50 rounded"></div>
+        </div>
+        
+        {/* Racing Finish Line */}
+        <div className="absolute right-2 top-2 bottom-2 flex items-center z-20">
+          {/* Checkered finish flag */}
           <div className="relative">
-            {/* Enhanced Stickman */}
-            <svg width="35" height="35" viewBox="0 0 35 35" className="animate-bounce">
-              {/* Head */}
-              <circle cx="17.5" cy="7" r="5" fill="#1e40af" stroke="#1e3a8a" strokeWidth="2" />
-              {/* Body */}
-              <line x1="17.5" y1="12" x2="17.5" y2="23" stroke="#1e40af" strokeWidth="3" strokeLinecap="round" />
-              {/* Arms - running motion */}
-              <line x1="17.5" y1="16" x2="12" y2="19" stroke="#1e40af" strokeWidth="2.5" strokeLinecap="round" className="animate-pulse" />
-              <line x1="17.5" y1="16" x2="23" y2="14" stroke="#1e40af" strokeWidth="2.5" strokeLinecap="round" className="animate-pulse" />
-              {/* Legs - running motion */}
-              <line x1="17.5" y1="23" x2="12" y2="28" stroke="#1e40af" strokeWidth="2.5" strokeLinecap="round" className="animate-pulse" />
-              <line x1="17.5" y1="23" x2="23" y2="26" stroke="#1e40af" strokeWidth="2.5" strokeLinecap="round" className="animate-pulse" />
-              {/* Feet */}
-              <circle cx="12" cy="28" r="1.5" fill="#1e40af" />
-              <circle cx="23" cy="26" r="1.5" fill="#1e40af" />
-            </svg>
-            
-            {/* Enhanced Speed lines */}
-            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-12">
-              <div className="flex space-x-1">
-                <div className="w-3 h-0.5 bg-blue-600 rounded animate-pulse"></div>
-                <div className="w-2 h-0.5 bg-blue-500 rounded animate-pulse" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-1 h-0.5 bg-blue-400 rounded animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+            <FlagTriangleRight className="h-8 w-8 text-achievement" />
+            {/* Checkered pattern overlay */}
+            <div className="absolute inset-1 w-6 h-6 opacity-80">
+              <div className="grid grid-cols-4 grid-rows-4 h-full w-full">
+                {[...Array(16)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`${
+                      (Math.floor(i / 4) + i) % 2 === 0 ? 'bg-black' : 'bg-white'
+                    }`}
+                  ></div>
+                ))}
               </div>
             </div>
           </div>
         </div>
         
-        {/* Colorful Start line */}
-        <div className="absolute left-2 top-2 bottom-2 w-1 bg-success opacity-90 z-5 rounded shadow-lg"></div>
+        {/* Racing Car */}
+        <div 
+          className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-700 ease-out z-10"
+          style={{ left: `${Math.min(progress * 0.82, 70)}%` }}
+        >
+          <div className="relative">
+            {/* Racing Car */}
+            <Car className="h-8 w-8 text-red-500 animate-bounce" />
+            
+            {/* Speed lines/exhaust */}
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-8">
+              <div className="flex space-x-1">
+                <div className="w-3 h-0.5 bg-gray-400 rounded animate-pulse"></div>
+                <div className="w-2 h-0.5 bg-gray-500 rounded animate-pulse" style={{ animationDelay: '0.1s' }}></div>
+                <div className="w-1 h-0.5 bg-gray-600 rounded animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Racing Start Line */}
+        <div className="absolute left-2 top-2 bottom-2 flex items-center z-20">
+          <div className="w-2 h-full bg-gradient-to-b from-green-400 to-green-600 rounded shadow-lg"></div>
+          <div className="absolute -right-8 top-1/2 transform -translate-y-1/2 text-xs font-bold text-green-600 rotate-90 whitespace-nowrap">
+            START
+          </div>
+        </div>
       </div>
       
       <div className="flex justify-between items-center mt-6">
