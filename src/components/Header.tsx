@@ -59,6 +59,10 @@ const Header = () => {
                       <BarChart3 className="h-4 w-4" />
                       <span>Analytics</span>
                     </Link>
+                    <Link to="/leaderboard" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
+                      <DuolingoLeaderboardIcon size={20} />
+                      <span>Rangliste</span>
+                    </Link>
                   </>}
                   {isStudent && <>
                       <Link to="/dashboard" className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">
