@@ -27,6 +27,7 @@ export const ChatInput = ({
           onKeyPress={onKeyPress}
           placeholder="Beschreiben Sie, welche Fragen Sie benötigen..."
           disabled={disabled}
+          readOnly={disabled}
           className="flex-1"
         />
         <Button onClick={onSend} disabled={!value.trim() || disabled}>
