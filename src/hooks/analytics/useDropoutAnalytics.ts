@@ -90,14 +90,14 @@ export const useDropoutAnalytics = (userId: string | undefined, filteredCourseId
 
       // Calculate percentages and filter for statistical significance
       const results = Object.values(questionStats)
-        .filter((q: any) => q.total_answers >= 3) // At least 3 attempts for significance
+        .filter((q: any) => q.total_answers >= 1) // At least 1 attempt for significance
         .map((q: any) => ({
           ...q,
-          wrong_percentage: Math.round((q.wrong_answers / q.total_answers) * 100 * 100) / 100,
+          wrong_percentage: Math.round((q.wrong_answers / q.total_answers) * 100),
           avg_attempts: Math.round((q.total_attempts / q.total_answers) * 100) / 100
         }))
-        .sort((a: any, b: any) => b.wrong_percentage - a.wrong_percentage || b.avg_attempts - a.avg_attempts)
-        .slice(0, 5);
+        .sort((a: any, b: any) => b.wrong_percentage - a.wrong_percentage)
+        .slice(0, 3);
 
       return results;
     },

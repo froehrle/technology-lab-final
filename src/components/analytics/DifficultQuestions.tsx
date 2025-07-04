@@ -11,7 +11,7 @@ const DifficultQuestions = ({ difficultQuestions }: DifficultQuestionsProps) => 
     <div>
       <div className="flex items-center space-x-2 mb-4">
         <AlertTriangle className="h-5 w-5 text-orange-600" />
-        <h3 className="text-lg font-semibold">Top 5 Schwierigste Fragen</h3>
+        <h3 className="text-lg font-semibold">Top 3 Schwierigste Fragen</h3>
       </div>
       
       {difficultQuestions.length > 0 ? (
