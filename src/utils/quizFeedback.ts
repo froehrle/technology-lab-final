@@ -23,34 +23,29 @@ export const showAnswerFeedback = (
     if (xpEarned > 0) {
       toast({
         title: `+${xpEarned} XP!`,
-        description: feedbackText || `${attemptCount === 1 ? 'Perfekt beim ersten Versuch!' : 'Richtig beim zweiten Versuch!'}`,
-      });
-    } else if (attemptCount >= 3) {
-      toast({
-        title: "Richtig!",
-        description: feedbackText || "Kein XP nach dem 3. Versuch, aber weiter so!",
+        description: attemptCount === 1 ? 'Perfekt beim ersten Versuch!' : 'Richtig!',
       });
     }
+    // Don't show toast for correct answers without XP - feedback is already visible in the card
   } else {
-    if (attemptCount < 3) {
+    // Only show toast for final attempt (when user can't retry)
+    if (attemptCount >= 3) {
       toast({
-        title: "Noch nicht richtig",
-        description: feedbackText || `Versuch ${attemptCount} von 3. Versuchen Sie es erneut!`,
-        variant: "default"
-      });
-    } else {
-      toast({
-        title: "Falsch",
-        description: feedbackText || `Die richtige Antwort ist: ${currentQuestion.correct_answer}`,
+        title: "Maximale Versuche erreicht",
+        description: "Weiter zur nächsten Frage!",
         variant: "destructive"
       });
     }
+    // For attempts 1-2, feedback is shown in the card only
   }
 };
 
 export const showQuizCompletionToast = (toast: ToastFunction) => {
-  toast({
-    title: "Quiz abgeschlossen!",
-    description: `Glückwunsch! Sie haben das Quiz abgeschlossen und 500 Bonus-Coins erhalten!`,
-  });
+  // Delay to ensure any pending answer feedback is shown first
+  setTimeout(() => {
+    toast({
+      title: "🎉 Quiz abgeschlossen!",
+      description: "Glückwunsch! Sie haben das Quiz abgeschlossen und 500 Bonus-Coins erhalten!",
+    });
+  }, 500);
 };

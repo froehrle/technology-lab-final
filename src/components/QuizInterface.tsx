@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useQuizActions } from '@/hooks/useQuizActions';
 import QuizProgressHeader from './quiz/QuizProgressHeader';
 import QuestionDisplay from './quiz/QuestionDisplay';
@@ -37,13 +37,21 @@ const QuizInterface = ({ courseId }: QuizInterfaceProps) => {
     toast
   } = useQuizActions(courseId);
 
+  const focusWarningShown = useRef(false);
+
   useEffect(() => {
-    if (focusPoints <= 20 && focusPoints > 0) {
+    if (focusPoints <= 20 && focusPoints > 0 && !focusWarningShown.current) {
+      focusWarningShown.current = true;
       toast({
         title: "Fokus niedrig",
         description: "Ihre Fokuspunkte sind niedrig. Eine Pause wird empfohlen.",
         variant: "destructive"
       });
+    }
+    
+    // Reset warning when focus points are restored
+    if (focusPoints > 20) {
+      focusWarningShown.current = false;
     }
   }, [focusPoints, toast]);
 

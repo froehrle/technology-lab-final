@@ -153,7 +153,10 @@ export const useQuizActions = (courseId: string) => {
 
       if (xpEarned > 0) {
         console.log('Checking for new achievements with XP:', xpEarned);
-        await checkForNewAchievements(xpEarned);
+        // Delay achievement toast to avoid overlapping with answer feedback
+        setTimeout(async () => {
+          await checkForNewAchievements(xpEarned);
+        }, 1500);
       }
     } catch (error) {
       console.error('Error submitting answer:', error);
