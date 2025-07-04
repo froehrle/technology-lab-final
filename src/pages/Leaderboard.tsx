@@ -3,14 +3,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Trophy, Medal, Award, Crown } from 'lucide-react';
+import { Trophy, Medal, Award, Crown, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import CustomAvatar from '@/components/avatar/CustomAvatar';
+import { getUserRoleSync } from '@/utils/roleValidation';
 
 const Leaderboard = () => {
   const { user } = useAuth();
+  const userRole = getUserRoleSync(user);
 
   // Fetch leaderboard data
   const { data: leaderboard = [], isLoading, error } = useQuery({
@@ -26,59 +28,87 @@ const Leaderboard = () => {
       if (xpError) throw xpError;
       if (!xpData?.length) return [];
 
-      // Get profile information for all students
-      const studentIds = xpData.map(student => student.student_id);
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, display_name, email, avatar_url')
-        .in('id', studentIds);
+      // For teachers, only get XP data (anonymized view)
+      // For students, get full profile and badge data
+      let profiles = null;
+      let badgePurchases = null;
+      let avatarPurchases = null;
 
-      if (profilesError) throw profilesError;
+      if (userRole === 'student') {
+        // Get profile information for all students
+        const studentIds = xpData.map(student => student.student_id);
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, display_name, email, avatar_url')
+          .in('id', studentIds);
 
-      // Get equipped titles and badges for all students
-      const { data: badgePurchases, error: badgesError } = await supabase
-        .from('student_badge_purchases')
-        .select(`
-          student_id,
-          is_equipped,
-          profile_badges (name, badge_type)
-        `)
-        .eq('is_equipped', true)
-        .in('student_id', studentIds);
+        if (profilesError) throw profilesError;
+        profiles = profilesData;
 
-      if (badgesError) throw badgesError;
+        // Get equipped titles and badges for all students
+        const { data: badgePurchasesData, error: badgesError } = await supabase
+          .from('student_badge_purchases')
+          .select(`
+            student_id,
+            is_equipped,
+            profile_badges (name, badge_type)
+          `)
+          .eq('is_equipped', true)
+          .in('student_id', studentIds);
 
-      // Get equipped avatar items for all students
-      const { data: avatarPurchases, error: avatarError } = await supabase
-        .from('student_purchases')
-        .select(`
-          student_id,
-          is_equipped,
-          avatar_items (css_class, type)
-        `)
-        .eq('is_equipped', true)
-        .eq('purchase_type', 'avatar_item')
-        .in('student_id', studentIds);
+        if (badgesError) throw badgesError;
+        badgePurchases = badgePurchasesData;
 
-      if (avatarError) throw avatarError;
+        // Get equipped avatar items for all students
+        const { data: avatarPurchasesData, error: avatarError } = await supabase
+          .from('student_purchases')
+          .select(`
+            student_id,
+            is_equipped,
+            avatar_items (css_class, type)
+          `)
+          .eq('is_equipped', true)
+          .eq('purchase_type', 'avatar_item')
+          .in('student_id', studentIds);
 
-      // Combine XP data with profile information
+        if (avatarError) throw avatarError;
+        avatarPurchases = avatarPurchasesData;
+      }
+
+      // Combine XP data with profile information or anonymize for teachers
       return xpData.map((student, index) => {
-        const profile = profiles?.find(p => p.id === student.student_id);
-        const equippedBadges = badgePurchases?.filter(p => p.student_id === student.student_id) || [];
-        const equippedTitle = equippedBadges.find(b => b.profile_badges?.badge_type === 'title')?.profile_badges?.name;
-        const equippedAvatarFrame = avatarPurchases?.find(p => p.student_id === student.student_id && p.avatar_items?.type === 'frame')?.avatar_items?.css_class;
-        
-        return {
-          rank: index + 1,
-          studentId: student.student_id,
-          displayName: profile?.display_name || profile?.email?.split('@')[0] || 'Unbekannter Student',
-          totalXP: student.total_xp,
-          isCurrentUser: student.student_id === user?.id,
-          avatarUrl: profile?.avatar_url,
-          equippedTitle,
-          equippedAvatarFrame
-        };
+        if (userRole === 'teacher') {
+          // Anonymized view for teachers
+          return {
+            rank: index + 1,
+            studentId: student.student_id,
+            displayName: `Student #${index + 1}`,
+            totalXP: student.total_xp,
+            isCurrentUser: false,
+            avatarUrl: null,
+            equippedTitle: null,
+            equippedAvatarFrame: null,
+            isAnonymized: true
+          };
+        } else {
+          // Full view for students
+          const profile = profiles?.find(p => p.id === student.student_id);
+          const equippedBadges = badgePurchases?.filter(p => p.student_id === student.student_id) || [];
+          const equippedTitle = equippedBadges.find(b => b.profile_badges?.badge_type === 'title')?.profile_badges?.name;
+          const equippedAvatarFrame = avatarPurchases?.find(p => p.student_id === student.student_id && p.avatar_items?.type === 'frame')?.avatar_items?.css_class;
+          
+          return {
+            rank: index + 1,
+            studentId: student.student_id,
+            displayName: profile?.display_name || profile?.email?.split('@')[0] || 'Unbekannter Student',
+            totalXP: student.total_xp,
+            isCurrentUser: student.student_id === user?.id,
+            avatarUrl: profile?.avatar_url,
+            equippedTitle,
+            equippedAvatarFrame,
+            isAnonymized: false
+          };
+        }
       });
     },
     enabled: !!user?.id,
@@ -126,7 +156,12 @@ const Leaderboard = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">XP Rangliste</h1>
-        <p className="text-gray-600 mt-2">Siehe wie du im Vergleich zu anderen Studenten abschneidest</p>
+        <p className="text-gray-600 mt-2">
+          {userRole === 'teacher' 
+            ? 'Anonymisierte Übersicht der Klassenleistung basierend auf XP-Punkten' 
+            : 'Siehe wie du im Vergleich zu anderen Studenten abschneidest'
+          }
+        </p>
       </div>
 
       <Card>
@@ -166,11 +201,17 @@ const Leaderboard = () => {
                       </Badge>
                     </div>
                     
-                    <CustomAvatar
-                      src={student.avatarUrl}
-                      fallback={student.displayName.charAt(0).toUpperCase()}
-                      className="h-10 w-10"
-                    />
+                    {student.isAnonymized ? (
+                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                        <User className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    ) : (
+                      <CustomAvatar
+                        src={student.avatarUrl}
+                        fallback={student.displayName.charAt(0).toUpperCase()}
+                        className="h-10 w-10"
+                      />
+                    )}
                     
                     <div>
                       <div className="flex items-center space-x-2">
