@@ -85,7 +85,7 @@ const QuizProgressHeader = ({
           <div className="relative">
             {/* Racing Car */}
             <img 
-              src="/lovable-uploads/56ee0650-ed76-45a6-b82d-c3237ada7c2f.png" 
+              src="/lovable-uploads/c8b636c7-2619-4138-8984-c6f44b8e5bef.png" 
               alt="Race Car" 
               className="h-8 w-8 animate-bounce"
             />
