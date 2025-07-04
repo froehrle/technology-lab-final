@@ -53,7 +53,7 @@ const QuizProgressHeader = ({
       
       {/* Racing Street Progress Bar Container */}
       <div className="relative bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 rounded-xl h-24 overflow-hidden border-2 border-gray-600 shadow-lg mb-4">
-        {/* Street texture background */}
+        {/* Street texture background - covers entire bar */}
         <div className="absolute inset-0 bg-gradient-to-r from-gray-800/50 to-gray-700/50"></div>
         
         {/* Road lane divider - dashed white line in the middle */}
@@ -68,16 +68,6 @@ const QuizProgressHeader = ({
         {/* Road shoulders */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-yellow-400 opacity-60"></div>
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-yellow-400 opacity-60"></div>
-        
-        {/* Progress indication - tire tracks */}
-        <div 
-          className="absolute top-0 left-0 h-full bg-gradient-to-r from-gray-600 to-gray-500 transition-all duration-700 ease-out opacity-80"
-          style={{ width: `${Math.min(progress, 82)}%` }}
-        >
-          {/* Tire track marks */}
-          <div className="absolute top-2 left-2 right-2 h-1 bg-gray-900 opacity-50 rounded"></div>
-          <div className="absolute bottom-2 left-2 right-2 h-1 bg-gray-900 opacity-50 rounded"></div>
-        </div>
         
         {/* Racing Finish Line */}
         <div className="absolute right-2 top-2 bottom-2 flex items-center z-20">
