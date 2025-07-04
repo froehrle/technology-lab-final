@@ -70,36 +70,70 @@ const QuestionDisplay = ({
       <CardContent>
         <div className="space-y-3">
           {isMultipleChoice ? (
-            displayOptions.map((option, index) => (
-              <Button
-                key={index}
-                variant={selectedAnswer === option.value ? "default" : "outline"}
-                className={`w-full text-left justify-start h-auto p-4 ${
-                  shouldShowFeedback
-                    ? option.value === question.correct_answer
-                      ? 'bg-green-100 border-green-500 text-green-800'
-                      : selectedAnswer === option.value && !isCorrect
-                      ? 'bg-red-100 border-red-500 text-red-800'
+            <>
+              {displayOptions.map((option, index) => (
+                <Button
+                  key={index}
+                  variant={selectedAnswer === option.value ? "default" : "outline"}
+                  className={`w-full text-left justify-start h-auto p-4 ${
+                    showResult
+                      ? option.value === question.correct_answer
+                        ? 'bg-green-100 border-green-500 text-green-800'
+                        : selectedAnswer === option.value && !isCorrect
+                        ? 'bg-red-100 border-red-500 text-red-800'
+                        : ''
                       : ''
-                    : ''
-                }`}
-                onClick={() => onAnswerSelect(option.value)}
-                disabled={shouldShowFeedback || isValidating}
-              >
+                  }`}
+                  onClick={() => onAnswerSelect(option.value)}
+                  disabled={showResult || isValidating}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center text-sm font-medium">
                       {String.fromCharCode(65 + index)}
                     </div>
                    <span>{option.label}</span>
-                   {shouldShowFeedback && option.value === question.correct_answer && (
+                   {showResult && option.value === question.correct_answer && (
                      <CheckCircle className="h-5 w-5 text-green-600 ml-auto" />
                    )}
-                  {shouldShowFeedback && selectedAnswer === option.value && !isCorrect && (
+                  {showResult && selectedAnswer === option.value && !isCorrect && (
                     <XCircle className="h-5 w-5 text-red-600 ml-auto" />
                   )}
                 </div>
-              </Button>
-            ))
+                </Button>
+              ))}
+              
+              {/* Feedback for multiple choice questions */}
+              {showResult && (
+                <div className="mt-4 text-sm">
+                  {isCorrect ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-green-600">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Richtig!</span>
+                      </div>
+                      {feedbackText && (
+                        <div className="bg-green-50 p-3 rounded border-l-4 border-green-400">
+                          <p className="text-green-800">{feedbackText}</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-red-600">
+                        <XCircle className="h-4 w-4" />
+                        <span>Falsch!</span>
+                      </div>
+                      <p className="text-gray-700">Die richtige Antwort ist: <strong>{question.correct_answer}</strong></p>
+                      {feedbackText && (
+                        <div className="bg-red-50 p-3 rounded border-l-4 border-red-400">
+                          <p className="text-red-800">{feedbackText}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           ) : isTextQuestion ? (
             <div className="space-y-4">
               <div className="relative">
@@ -108,9 +142,9 @@ const QuestionDisplay = ({
                   placeholder="Geben Sie Ihre Antwort ein..."
                   value={textAnswer}
                   onChange={(e) => onTextAnswerChange(e.target.value)}
-                  disabled={shouldShowFeedback || isValidating}
+                  disabled={showResult || isValidating}
                   className={`text-lg p-4 ${
-                    shouldShowFeedback
+                    showResult
                       ? isCorrect
                         ? 'bg-green-100 border-green-500'
                         : 'bg-red-100 border-red-500'
@@ -136,7 +170,7 @@ const QuestionDisplay = ({
                 </div>
               )}
               
-              {shouldShowFeedback && (
+              {showResult && (
                 <div className="text-sm text-gray-600">
                   {isCorrect ? (
                     <div className="space-y-2">
