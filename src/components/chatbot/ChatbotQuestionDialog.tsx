@@ -24,6 +24,7 @@ const ChatbotQuestionDialog = ({
     setInputValue,
     isLoading,
     isGenerating,
+    isProcessing,
     questionsGenerated,
     handleSendMessage,
     handleKeyPress,
@@ -48,7 +49,7 @@ const ChatbotQuestionDialog = ({
             onChange={setInputValue}
             onSend={handleSendMessage}
             onKeyPress={handleKeyPress}
-            disabled={isLoading || isGenerating}
+            disabled={isProcessing}
           />
 
           <ChatActions

@@ -16,15 +16,19 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isFirstInteraction, setIsFirstInteraction] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
 
   // Track if questions have been generated in this session
   const [questionsGenerated, setQuestionsGenerated] = useState(false);
+  
+  // Combined processing state for better UX
+  const isProcessing = isLoading || isGenerating;
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+    if (!inputValue.trim() || isProcessing) return;
+
+    console.log('Starting handleSendMessage with:', { inputValue, isProcessing });
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -38,6 +42,7 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
     setIsLoading(true);
 
     try {
+      console.log('Calling chatbot-conversation function...');
       const { data, error } = await supabase.functions.invoke('chatbot-conversation', {
         body: {
           message: inputValue,
@@ -46,9 +51,11 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
         }
       });
 
+      console.log('Chatbot response:', { data, error });
+
       if (error) throw error;
 
-      if (data.success) {
+      if (data?.success) {
         const assistantMessage: Message = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
@@ -57,11 +64,22 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
         };
 
         setMessages(prev => [...prev, assistantMessage]);
+        console.log('Assistant message added to chat');
       } else {
-        throw new Error(data.error || 'Unbekannter Fehler');
+        throw new Error(data?.error || 'Unbekannter Fehler');
       }
     } catch (error) {
       console.error('Chatbot error:', error);
+      
+      // Add error message to chat
+      const errorMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        role: 'assistant',
+        content: '❌ Entschuldigung, es gab ein Problem bei der Verarbeitung Ihrer Nachricht. Bitte versuchen Sie es erneut.',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      
       toast({
         title: "Fehler",
         description: "Es gab ein Problem bei der Kommunikation mit dem Chatbot.",
@@ -69,6 +87,7 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
       });
     } finally {
       setIsLoading(false);
+      console.log('handleSendMessage completed');
     }
   };
 
@@ -81,19 +100,32 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
 
   const handleGenerateQuestions = async (messagesOverride?: Message[]) => {
     const messagesToUse = messagesOverride || messages;
-    console.log('handleGenerateQuestions called with:', {
+    console.log('🚀 Starting handleGenerateQuestions with:', {
       messagesOverride: !!messagesOverride,
       messagesToUseLength: messagesToUse.length,
-      currentMessagesLength: messages.length
+      currentMessagesLength: messages.length,
+      isProcessing,
+      isGenerating
     });
     
     if (messagesToUse.length <= 1) {
-      console.log('Not enough messages for generation:', messagesToUse.length);
+      console.log('❌ Not enough messages for generation:', messagesToUse.length);
+      
+      const errorMessage: Message = {
+        id: (Date.now() + 3).toString(),
+        role: 'assistant',
+        content: '❌ Nicht genügend Gesprächsinhalte für die Fragenerstellung. Bitte beschreiben Sie zunächst, welche Art von Fragen Sie benötigen.',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
       return;
     }
     
     setIsGenerating(true);
+    console.log('🔄 Starting question generation...');
+    
     try {
+      console.log('📡 Calling generate-questions-from-chat function...');
       const { data, error } = await supabase.functions.invoke('generate-questions-from-chat', {
         body: {
           conversationHistory: messagesToUse.map(m => ({ role: m.role, content: m.content })),
@@ -102,37 +134,69 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
         }
       });
 
-      if (error) throw error;
+      console.log('📨 Generation response received:', { 
+        data, 
+        error,
+        hasData: !!data,
+        dataKeys: data ? Object.keys(data) : [],
+        success: data?.success,
+        questionsGenerated: data?.questionsGenerated
+      });
 
-      if (data.success) {
+      if (error) {
+        console.error('❌ Edge function error:', error);
+        throw error;
+      }
+
+      if (data?.success) {
+        console.log('✅ Question generation successful!', {
+          questionsGenerated: data.questionsGenerated,
+          extractedParams: data.extractedParams
+        });
+        
         setQuestionsGenerated(true);
         
-        // Add a system message to the chat showing generation success
+        // Add a detailed success message to the chat
         const successMessage: Message = {
           id: (Date.now() + 2).toString(),
           role: 'assistant',
-          content: `✅ Erfolgreich ${data.questionsGenerated} Fragen zur Überprüfung erstellt! Sie können weitere Fragen stellen oder zusätzliche Fragen generieren.`,
+          content: `✅ Erfolgreich ${data.questionsGenerated || 'mehrere'} Fragen zur Überprüfung erstellt!\n\nDie Fragen wurden basierend auf unserem Gespräch generiert und sind nun zur Überprüfung verfügbar. Sie können weitere Fragen stellen oder zusätzliche Fragen generieren.`,
           timestamp: new Date(),
         };
         setMessages(prev => [...prev, successMessage]);
         
         toast({
           title: "Fragen generiert",
-          description: `${data.questionsGenerated} Fragen wurden zur Überprüfung erstellt.`,
+          description: `${data.questionsGenerated || 'Mehrere'} Fragen wurden zur Überprüfung erstellt.`,
         });
+        
+        console.log('📊 Calling onQuestionsGenerated callback...');
         onQuestionsGenerated();
+        console.log('✅ Question generation flow completed successfully');
       } else {
-        throw new Error(data.error || 'Fragenerstellung fehlgeschlagen');
+        console.error('❌ Generation failed with response:', data);
+        throw new Error(data?.error || 'Fragenerstellung fehlgeschlagen');
       }
     } catch (error) {
-      console.error('Question generation error:', error);
+      console.error('💥 Question generation error:', error);
+      
+      // Add error message to chat
+      const errorMessage: Message = {
+        id: (Date.now() + 4).toString(),
+        role: 'assistant',
+        content: `❌ Entschuldigung, bei der Fragenerstellung ist ein Fehler aufgetreten: ${error.message}\n\nBitte versuchen Sie es erneut oder beschreiben Sie Ihre Anforderungen anders.`,
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      
       toast({
-        title: "Fehler",
-        description: "Die Fragen konnten nicht generiert werden.",
+        title: "Fehler bei Fragenerstellung",
+        description: error.message || "Die Fragen konnten nicht generiert werden.",
         variant: "destructive",
       });
     } finally {
       setIsGenerating(false);
+      console.log('🏁 Question generation process finished');
     }
   };
 
@@ -142,6 +206,7 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
     setInputValue,
     isLoading,
     isGenerating,
+    isProcessing,
     questionsGenerated,
     handleSendMessage,
     handleKeyPress,
