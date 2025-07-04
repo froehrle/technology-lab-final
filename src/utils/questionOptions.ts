@@ -17,7 +17,14 @@ export const parseQuestionOptions = (options: any): string[] => {
   
   if (typeof options === 'string') {
     try {
-      const parsed = JSON.parse(options);
+      // First parse attempt
+      let parsed = JSON.parse(options);
+      
+      // If the result is still a string, parse again (double-encoded JSON)
+      if (typeof parsed === 'string') {
+        parsed = JSON.parse(parsed);
+      }
+      
       return Array.isArray(parsed) ? parsed : [];
     } catch {
       return [];
