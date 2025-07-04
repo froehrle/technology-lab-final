@@ -12,17 +12,21 @@ export const useMessageManagement = () => {
   const [messages, setMessages] = useState<Message[]>([INITIAL_MESSAGE]);
 
   const addMessage = (message: Message) => {
-    setMessages(prev => [...prev, message]);
+    console.log('🔄 Adding message:', message.id, message.content.substring(0, 50) + '...');
+    setMessages(prev => {
+      const newMessages = [...prev, message];
+      console.log('📝 Messages after add:', newMessages.length, 'total messages');
+      return newMessages;
+    });
   };
 
   const addMessages = (newMessages: Message[]) => {
-    setMessages(prev => [...prev, ...newMessages]);
-  };
-
-  const setMessagesWithNew = (baseMessages: Message[], newMessage: Message) => {
-    const updatedMessages = [...baseMessages, newMessage];
-    setMessages(updatedMessages);
-    return updatedMessages;
+    console.log('🔄 Adding multiple messages:', newMessages.length);
+    setMessages(prev => {
+      const updatedMessages = [...prev, ...newMessages];
+      console.log('📝 Messages after bulk add:', updatedMessages.length, 'total messages');
+      return updatedMessages;
+    });
   };
 
   const createMessage = (content: string, role: 'user' | 'assistant', id?: string): Message => ({
@@ -44,7 +48,6 @@ export const useMessageManagement = () => {
     setMessages,
     addMessage,
     addMessages,
-    setMessagesWithNew,
     createMessage,
     createErrorMessage,
   };

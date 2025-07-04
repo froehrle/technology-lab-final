@@ -8,7 +8,6 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
     messages,
     setMessages,
     addMessage,
-    setMessagesWithNew,
     createMessage,
     createErrorMessage,
   } = useMessageManagement();
@@ -35,11 +34,10 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isProcessing) return;
 
-    console.log('Starting handleSendMessage with:', { inputValue, isProcessing });
+    console.log('🚀 Starting handleSendMessage with:', { inputValue, isProcessing, currentMessageCount: messages.length });
 
     const userMessage = createMessage(inputValue, 'user');
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
+    addMessage(userMessage);
     clearInput();
 
     try {
@@ -47,8 +45,8 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
       
       if (response.success) {
         const assistantMessage = createMessage(response.message, 'assistant', (Date.now() + 1).toString());
-        const updatedMessages = setMessagesWithNew(newMessages, assistantMessage);
-        console.log('Assistant message added to chat');
+        addMessage(assistantMessage);
+        console.log('✅ Assistant message added to chat');
 
         // Add parameter extraction feedback message
         const extractionMessage = createMessage(
@@ -56,11 +54,12 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
           'assistant',
           (Date.now() + 2).toString()
         );
-        const messagesWithExtraction = setMessagesWithNew(updatedMessages, extractionMessage);
+        addMessage(extractionMessage);
+        console.log('🔍 Extraction message added to chat');
 
         // Automatically trigger question generation after chat response
         console.log('🤖 Auto-triggering question generation...');
-        await generateQuestions(messagesWithExtraction, courseId, addMessage);
+        await generateQuestions(messages, courseId, addMessage);
       }
     } catch (error) {
       console.error('Chatbot error:', error);
@@ -68,7 +67,7 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
       addMessage(errorMessage);
     }
 
-    console.log('handleSendMessage completed');
+    console.log('✅ handleSendMessage completed');
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
