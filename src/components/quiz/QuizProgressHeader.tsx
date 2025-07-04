@@ -85,16 +85,7 @@ const QuizProgressHeader = ({
         >
           <div className="relative">
             {/* Racing Car */}
-            <img src={RaceCarIcon} alt="Race Car" className="h-12 w-12 animate-bounce" />
-            
-            {/* Speed lines/exhaust */}
-            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-8">
-              <div className="flex space-x-1">
-                <div className="w-3 h-0.5 bg-gray-400 rounded animate-pulse"></div>
-                <div className="w-2 h-0.5 bg-gray-500 rounded animate-pulse" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-1 h-0.5 bg-gray-600 rounded animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-              </div>
-            </div>
+            <img src={RaceCarIcon} alt="Race Car" className="h-16 w-16" />
           </div>
         </div>
         
