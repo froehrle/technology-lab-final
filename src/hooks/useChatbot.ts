@@ -37,7 +37,8 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
     setInputValue('');
     setIsLoading(true);
 
@@ -63,8 +64,14 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
           timestamp: new Date(),
         };
 
-        setMessages(prev => [...prev, assistantMessage]);
+        const updatedMessages = [...newMessages, assistantMessage];
+        setMessages(updatedMessages);
         console.log('Assistant message added to chat');
+
+        // Automatically trigger question generation after chat response
+        console.log('🤖 Auto-triggering question generation...');
+        await handleGenerateQuestions(updatedMessages);
+        
       } else {
         throw new Error(data?.error || 'Unbekannter Fehler');
       }
@@ -110,16 +117,9 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
       userId: user?.id
     });
     
+    // Always try to generate questions if we have conversation content
     if (messagesToUse.length <= 1) {
       console.log('❌ Not enough messages for generation:', messagesToUse.length);
-      
-      const errorMessage: Message = {
-        id: (Date.now() + 3).toString(),
-        role: 'assistant',
-        content: '❌ Nicht genügend Gesprächsinhalte für die Fragenerstellung. Bitte beschreiben Sie zunächst, welche Art von Fragen Sie benötigen.',
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
       return;
     }
     

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot } from 'lucide-react';
+import { Bot, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { ChatMessageList } from './ChatMessageList';
 import { ChatInput } from './ChatInput';
-import { ChatActions } from './ChatActions';
+import { Button } from '@/components/ui/button';
 import { useChatbot } from '@/hooks/useChatbot';
 import { ChatbotQuestionDialogProps } from './types';
 
@@ -52,13 +52,20 @@ const ChatbotQuestionDialog = ({
             disabled={isProcessing}
           />
 
-          <ChatActions
-            isGenerating={isGenerating}
-            messageCount={messages.length}
-            questionsGenerated={questionsGenerated}
-            onCancel={() => onOpenChange(false)}
-            onGenerateQuestions={handleGenerateQuestions}
-          />
+          {isGenerating && (
+            <div className="flex items-center justify-center pt-4 border-t mt-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Fragen werden automatisch generiert...
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end pt-4 border-t mt-4">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Schließen
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
