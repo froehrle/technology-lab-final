@@ -85,7 +85,7 @@ const App = () => (
               <Route 
                 path="/leaderboard" 
                 element={
-                  <AuthGuard requireAuth={true} allowedRoles={['student']}>
+                  <AuthGuard requireAuth={true} allowedRoles={['student', 'teacher']}>
                     <Leaderboard />
                   </AuthGuard>
                 } 
