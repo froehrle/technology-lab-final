@@ -75,9 +75,9 @@ export const useStudentData = (userId: string | undefined) => {
 
           if (questionsError) throw questionsError;
 
-          // Get student's answers for this course
+          // Get student's latest answers for this course
           const { data: answers, error: answersError } = await supabase
-            .from('student_answers')
+            .from('student_latest_answers')
             .select('is_correct, question_id')
             .eq('student_id', userId)
             .in('question_id', questions?.map(q => q.id) || []);
@@ -85,9 +85,7 @@ export const useStudentData = (userId: string | undefined) => {
           if (answersError) throw answersError;
 
           const correctAnswers = answers?.filter(a => a.is_correct).length || 0;
-          // Count unique questions that were answered wrong (not total wrong attempts)
-          const wrongQuestionIds = new Set(answers?.filter(a => !a.is_correct).map(a => a.question_id) || []);
-          const wrongAnswers = wrongQuestionIds.size;
+          const wrongAnswers = answers?.filter(a => !a.is_correct).length || 0;
 
           return {
             course_id: courseId,
