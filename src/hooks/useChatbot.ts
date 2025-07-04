@@ -105,7 +105,9 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
       messagesToUseLength: messagesToUse.length,
       currentMessagesLength: messages.length,
       isProcessing,
-      isGenerating
+      isGenerating,
+      courseId,
+      userId: user?.id
     });
     
     if (messagesToUse.length <= 1) {

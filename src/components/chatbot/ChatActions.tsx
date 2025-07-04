@@ -37,13 +37,22 @@ export const ChatActions = ({
             ? 'Bereit zum Generieren von Fragen basierend auf dem Gespräch.'
             : 'Beschreiben Sie, welche Fragen Sie benötigen.'
         }
+        <div className="text-xs mt-1 opacity-70">
+          Debug: messageCount={messageCount}, questionsGenerated={questionsGenerated}
+        </div>
       </div>
       <div className="flex gap-2">
         <Button variant="outline" onClick={onCancel}>
           Schließen
         </Button>
         {messageCount > 1 && (
-          <Button onClick={onGenerateQuestions} disabled={isGenerating}>
+          <Button 
+            onClick={() => {
+              console.log('🔵 Generate Questions button clicked!', { messageCount, questionsGenerated });
+              onGenerateQuestions();
+            }} 
+            disabled={isGenerating}
+          >
             {questionsGenerated ? 'Weitere Fragen generieren' : 'Fragen generieren'}
           </Button>
         )}
