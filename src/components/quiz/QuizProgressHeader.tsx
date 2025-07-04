@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Zap, Car, FlagTriangleRight } from 'lucide-react';
+import { Zap, FlagTriangleRight } from 'lucide-react';
 
 interface QuizProgressHeaderProps {
   focusPoints: number;
@@ -84,7 +84,11 @@ const QuizProgressHeader = ({
         >
           <div className="relative">
             {/* Racing Car */}
-            <Car className="h-8 w-8 text-red-500 animate-bounce" />
+            <img 
+              src="/lovable-uploads/56ee0650-ed76-45a6-b82d-c3237ada7c2f.png" 
+              alt="Race Car" 
+              className="h-8 w-8 animate-bounce"
+            />
             
             {/* Speed lines/exhaust */}
             <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-8">
