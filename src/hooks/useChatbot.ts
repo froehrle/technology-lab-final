@@ -22,6 +22,9 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
   // Track if questions have been generated in this session
   const [questionsGenerated, setQuestionsGenerated] = useState(false);
   
+  // Store last generated parameters for incremental requests
+  const [lastParameters, setLastParameters] = useState<any>(null);
+  
   // Combined processing state for better UX
   const isProcessing = isLoading || isGenerating;
 
@@ -68,9 +71,20 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
         setMessages(updatedMessages);
         console.log('Assistant message added to chat');
 
+        // Add parameter extraction feedback message
+        const extractionMessage: Message = {
+          id: (Date.now() + 2).toString(),
+          role: 'assistant',
+          content: '🔍 Analysiere deine Anfrage und generiere entsprechende Fragen...',
+          timestamp: new Date(),
+        };
+        
+        const messagesWithExtraction = [...updatedMessages, extractionMessage];
+        setMessages(messagesWithExtraction);
+
         // Automatically trigger question generation after chat response
         console.log('🤖 Auto-triggering question generation...');
-        await handleGenerateQuestions(updatedMessages);
+        await handleGenerateQuestions(messagesWithExtraction);
         
       } else {
         throw new Error(data?.error || 'Unbekannter Fehler');
@@ -157,12 +171,16 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
         });
         
         setQuestionsGenerated(true);
+        setLastParameters(data.extractedParams);
         
-        // Add a detailed success message to the chat
+        // Add a detailed success message to the chat with parameter feedback
+        const paramInfo = data.extractedParams ? 
+          `\n\n📋 Parameter: ${data.extractedParams.anzahl_fragen} ${data.extractedParams.fragetyp} (${data.extractedParams.schwierigkeitsgrad})` : '';
+        
         const successMessage: Message = {
           id: (Date.now() + 2).toString(),
           role: 'assistant',
-          content: `✅ Erfolgreich ${data.questionsGenerated || 'mehrere'} Fragen zur Überprüfung erstellt!\n\nDie Fragen wurden basierend auf unserem Gespräch generiert und sind nun zur Überprüfung verfügbar. Sie können weitere Fragen stellen oder zusätzliche Fragen generieren.`,
+          content: `✅ Erfolgreich ${data.questionsGenerated || 'mehrere'} Fragen zur Überprüfung erstellt!${paramInfo}\n\nDie Fragen sind nun zur Überprüfung verfügbar. Sie können weitere Fragen stellen oder zusätzliche Fragen generieren.`,
           timestamp: new Date(),
         };
         setMessages(prev => [...prev, successMessage]);
@@ -210,6 +228,7 @@ export const useChatbot = (courseId: string, onQuestionsGenerated: () => void) =
     isGenerating,
     isProcessing,
     questionsGenerated,
+    lastParameters,
     handleSendMessage,
     handleKeyPress,
     handleGenerateQuestions,

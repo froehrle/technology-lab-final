@@ -42,10 +42,20 @@ serve(async (req) => {
       keywords: ''
     };
 
-    // Extract parameters from conversation using OpenAI
-    const extractionPrompt = `Analysiere das folgende Gespräch zwischen einem Lehrer und einem KI-Assistenten über die Erstellung von Fragen. 
+    // Get the latest user message for context-aware extraction
+    const userMessages = conversationHistory.filter((msg: any) => msg.role === 'user');
+    const latestUserMessage = userMessages[userMessages.length - 1]?.content || '';
+    
+    console.log('Latest user message for parameter extraction:', latestUserMessage);
 
-Verwende diese Standardwerte als Basis:
+    // Extract parameters from the latest user message using OpenAI
+    const extractionPrompt = `Du bist ein Parameter-Extractor für ein Fragenerstellungs-System. 
+
+WICHTIG: Analysiere NUR die LETZTE Benutzeranfrage, nicht das gesamte Gespräch.
+
+Letzte Benutzeranfrage: "${latestUserMessage}"
+
+Standardwerte:
 - schwierigkeitsgrad: "mittel"
 - anzahl_fragen: 5
 - thema: "Allgemeine Fragen"
@@ -53,12 +63,13 @@ Verwende diese Standardwerte als Basis:
 - zielgruppe: "Studenten"
 - keywords: ""
 
-Überschreibe NUR die Parameter, die der Lehrer explizit erwähnt hat. Behalte die Standardwerte für alle anderen bei.
+SPEZIELLE REGELN für "mehr" oder "zusätzliche" Fragen:
+- Wenn der Benutzer "X mehr", "X zusätzliche", "weitere X" sagt, dann anzahl_fragen = X
+- Beispiele: "3 mehr" → anzahl_fragen: 3, "2 zusätzliche" → anzahl_fragen: 2
 
-Gespräch:
-${conversationHistory.map((msg: any) => `${msg.role}: ${msg.content}`).join('\n')}
+Extrahiere nur Parameter, die explizit in der letzten Nachricht erwähnt werden. Verwende Standardwerte für alle anderen.
 
-Antworte mit einem JSON-Objekt im folgenden Format:
+Antworte nur mit JSON:
 {
   "schwierigkeitsgrad": "leicht" | "mittel" | "schwer",
   "anzahl_fragen": number (1-20),
@@ -66,9 +77,7 @@ Antworte mit einem JSON-Objekt im folgenden Format:
   "fragetyp": "Verständnisfragen" | "Rechenfragen",
   "zielgruppe": "string",
   "keywords": "string"
-}
-
-Antworte nur mit dem JSON-Objekt, ohne zusätzlichen Text.`;
+}`;
 
     console.log('Sending extraction request to OpenAI...');
     const extractionResponse = await fetch('https://api.openai.com/v1/chat/completions', {
