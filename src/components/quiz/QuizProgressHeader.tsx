@@ -80,7 +80,7 @@ const QuizProgressHeader = ({
         
         {/* Racing Car */}
         <div 
-          className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-700 ease-out z-10"
+          className="absolute top-1/2 transform -translate-y-1/2 transition-all duration-700 ease-out z-30"
           style={{ left: `calc(0.5rem + ${progress}% * (100% - 6rem) / 100)` }}
         >
           <div className="relative">
